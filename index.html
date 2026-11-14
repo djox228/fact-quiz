@@ -146,8 +146,18 @@ html, body {
 
 <script>
 var tg = window.Telegram ? window.Telegram.WebApp : null;
-if (tg) {
-    try { tg.ready(); tg.expand(); } catch (e) {}
+function openFullScreen() {
+    if (!tg) return;
+    try {
+        tg.ready();
+        tg.expand();
+        if (tg.requestFullscreen) tg.requestFullscreen();
+        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+    } catch (e) {}
+}
+openFullScreen();
+setTimeout(openFullScreen, 300);
+
 }
 
 // Сюда можно вставить бесплатный ключ с openrouter.ai для 100% генерации 24/7 (необязательно)
