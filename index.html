@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Правда или Фейк — Бесконечная Интуиция</title>
+<title>Правда или Фейк — Интуиция</title>
 <script src="https://telegram.org"></script>
 <script src="https://adsgram.ai"></script>
 <style>
@@ -108,7 +108,7 @@ html, body {
 <div class="app">
     <div class="top-bar">
         <div class="pill">&#128293; Серия: <span class="streak-val" id="streak-txt">0</span></div>
-        <div class="pill ai-badge" id="wiki-status">&#9729;&#65039; Новых: 35</div>
+        <div class="pill ai-badge" id="wiki-status">&#128196; Осталось: 35</div>
         <div class="pill">&#127942; Рекорд: <span class="best-val" id="best-txt">0</span></div>
     </div>
 
@@ -118,7 +118,7 @@ html, body {
             <div class="stamp stamp-fake" id="stamp-fake">ФЕЙК</div>
             <div class="card-header">
                 <div class="card-tag" id="card-cat">Категория</div>
-                <div class="ai-tag" id="ai-tag">&#127760; WIKI ГЕНЕРАТОР</div>
+                <div class="ai-tag" id="ai-tag">&#127760; WIKI ФАКТ</div>
             </div>
             <div class="card-statement" id="card-text">Загрузка факта...</div>
             <div class="card-hint">
@@ -160,11 +160,15 @@ setTimeout(openFullScreen, 300);
 
 // Инициализация рекламного блока AdsGram (UnitID: 56776)
 var AdController = null;
-try {
-    if (window.Adsgram) {
-        AdController = window.Adsgram.init({ blockId: "56776" });
-    }
-} catch (e) {}
+function initAds() {
+    try {
+        if (window.Adsgram && !AdController) {
+            AdController = window.Adsgram.init({ blockId: "56776" });
+        }
+    } catch (e) {}
+}
+initAds();
+setTimeout(initAds, 1000);
 
 var audioCtx = null;
 function playBeep(freq, type, dur) {
@@ -224,19 +228,19 @@ var baseFacts = [
 ];
 var wikiFacts = [];
 try {
-wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v3') || '[]');
+wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v4') || '[]');
 } catch (e) { wikiFacts = []; }
 var seenIds = [];
 try {
-seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v3') || '[]');
+seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v4') || '[]');
 } catch (e) { seenIds = []; }
 function persistSeenHistory() {
 var trimmed = seenIds.slice(-450);
-try { localStorage.setItem('tf_seen_ids_v3', JSON.stringify(trimmed)); } catch (e) {}
+try { localStorage.setItem('tf_seen_ids_v4', JSON.stringify(trimmed)); } catch (e) {}
 if (tg && tg.CloudStorage) {
 try {
 var packed = trimmed.slice(-300).join(',');
-tg.CloudStorage.setItem('seen_v3', packed);
+tg.CloudStorage.setItem('seen_v4', packed);
 } catch (e) {}
 }
 }
@@ -267,7 +271,9 @@ if (isFetchingWiki) return;
 isFetchingWiki = true;
 try {
 var url = 'wikipedia.org∝=extracts&exintro=1&explaintext=1&exsentences=2&format=json&origin=*';
-var res = await fetch(url);
+var res = await fetch(url, {
+headers: { 'Api-User-Agent': 'FactQuizTelegramApp/1.0' }
+});
 var data = await res.json();
 if (data && data.query && data.query.pages) {
 var pages = Object.values(data.query.pages);
@@ -303,9 +309,9 @@ deck.push(cardObj);
 added++;
 }
 if (added > 0) {
-if (wikiFacts.length > 250) wikiFacts = wikiFacts.slice(-250);
-try { localStorage.setItem('tf_wiki_cache_v3', JSON.stringify(wikiFacts)); } catch (e) {}
-wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
+if (wikiFacts.length > 300) wikiFacts = wikiFacts.slice(-300);
+try { localStorage.setItem('tf_wiki_cache_v4', JSON.stringify(wikiFacts)); } catch (e) {}
+wikiStatus.innerHTML = '📄 Осталось: ' + deck.length;
 }
 }
 } catch (e) {}
@@ -317,13 +323,13 @@ var unseen = all.filter(function(item) {
 return seenIds.indexOf(item.id) === -1;
 });
 deck = unseen.sort(function() { return 0.5 - Math.random(); });
-wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
+wikiStatus.innerHTML = '📄 Осталось: ' + deck.length;
 }
 async function loadNextCard() {
 if (deck.length === 0) buildFreshDeck();
-if (deck.length < 10) fetchWikipediaFacts();
+if (deck.length < 12) fetchWikipediaFacts();
 if (deck.length === 0) {
-cardText.innerText = 'Загружаем свежие факты для тебя...';
+cardText.innerText = 'Загружаем свежие факты из сети...';
 await fetchWikipediaFacts();
 if (deck.length === 0) {
 seenIds = [];
@@ -336,7 +342,7 @@ if (currentCard && currentCard.id && seenIds.indexOf(currentCard.id) === -1) {
 seenIds.push(currentCard.id);
 persistSeenHistory();
 }
-wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
+wikiStatus.innerHTML = '📄 Осталось: ' + deck.length;
 cardCat.innerText = currentCard.cat || 'Факт';
 cardText.innerText = currentCard.text;
 aiTag.style.display = currentCard.isWiki ? 'block' : 'none';
@@ -350,7 +356,7 @@ isAnimating = false;
 function initGameWithCloud() {
 if (tg && tg.CloudStorage) {
 try {
-tg.CloudStorage.getItem('seen_v3', function(err, cloudVal) {
+tg.CloudStorage.getItem('seen_v4', function(err, cloudVal) {
 if (!err && cloudVal) {
 var cloudArr = cloudVal.split(',').filter(Boolean);
 for (var i = 0; i < cloudArr.length; i++) {
@@ -358,7 +364,7 @@ if (seenIds.indexOf(cloudArr[i]) === -1) {
 seenIds.push(cloudArr[i]);
 }
 }
-try { localStorage.setItem('tf_seen_ids_v3', JSON.stringify(seenIds)); } catch (e) {}
+try { localStorage.setItem('tf_seen_ids_v4', JSON.stringify(seenIds)); } catch (e) {}
 }
 buildFreshDeck();
 loadNextCard();
@@ -465,8 +471,9 @@ window.addEventListener('mousemove', function(e) { onDragMove(e.clientX); });
 window.addEventListener('mouseup', onDragEnd);
 document.getElementById('btn-true').addEventListener('click', function() { handleAnswer(true); });
 document.getElementById('btn-fake').addEventListener('click', function() { handleAnswer(false); });
-// Показ реальной рекламы AdsGram при нажатии на кнопку спасения серии
+// Показ реальной рекламы AdsGram (UnitID: 56776)
 saveStreakBtn.addEventListener('click', function() {
+initAds();
 if (AdController) {
 saveStreakBtn.innerText = 'Загрузка рекламы...';
 AdController.show().then(function() {
@@ -474,25 +481,25 @@ streak = lostStreakCache;
 streakTxt.innerText = streak;
 resultModal.style.display = 'none';
 loadNextCard();
-}).catch(function() {
-// Если зритель закрыл рекламу досрочно или роликов пока нет в регионе
-saveStreakBtn.innerText = 'Реклама не досмотрена';
+}).catch(function(err) {
+saveStreakBtn.innerText = 'Реклама сейчас недоступна';
 setTimeout(function() {
 resultModal.style.display = 'none';
 loadNextCard();
-}, 900);
+}, 1100);
 });
 } else {
-streak = lostStreakCache;
-streakTxt.innerText = streak;
+saveStreakBtn.innerText = 'Блок рекламы не загружен';
+setTimeout(function() {
 resultModal.style.display = 'none';
 loadNextCard();
+}, 1100);
 }
 });
 nextBtn.addEventListener('click', function() {
 resultModal.style.display = 'none';
 loadNextCard();
 });
-    </script>
+</script>
 </body>
 </html>
