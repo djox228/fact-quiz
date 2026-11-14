@@ -107,7 +107,7 @@ html, body {
 <div class="app">
     <div class="top-bar">
         <div class="pill">&#128293; Серия: <span class="streak-val" id="streak-txt">0</span></div>
-        <div class="pill ai-badge" id="wiki-status">&#127760; База: 35+</div>
+        <div class="pill ai-badge" id="wiki-status">&#9729;&#65039; Новых: 35</div>
         <div class="pill">&#127942; Рекорд: <span class="best-val" id="best-txt">0</span></div>
     </div>
 
@@ -117,7 +117,7 @@ html, body {
             <div class="stamp stamp-fake" id="stamp-fake">ФЕЙК</div>
             <div class="card-header">
                 <div class="card-tag" id="card-cat">Категория</div>
-                <div class="ai-tag" id="ai-tag">&#127760; WIKI ФАКТ</div>
+                <div class="ai-tag" id="ai-tag">&#127760; WIKI ГЕНЕРАТОР</div>
             </div>
             <div class="card-statement" id="card-text">Загрузка факта...</div>
             <div class="card-hint">
@@ -181,8 +181,8 @@ var baseFacts = [
     { id: 'f2', cat: 'Природа и мир', text: 'В Японии есть целый остров, где почти нет людей, но живут больше тысячи диких ручных кроликов.', isTrue: true, story: 'Чистая правда! Остров Окуносима называют «Островом кроликов». После закрытия старого завода туда завезли несколько кроликов. Без хищников они расплодились до тысячи особей и теперь сами бегут навстречу туристам.' },
     { id: 'f3', cat: 'Законы мира', text: 'В Швейцарии законом запрещено держать дома только одну морскую свинку — их обязаны покупать парой.', isTrue: true, story: 'Реальный закон Швейцарии! Морские свинки в одиночестве впадают в депрессию. В стране даже есть сервисы аренды морской свинки на время, если одна из пары умерла.' },
     { id: 'f4', cat: 'Технологии', text: 'Первый компьютерный вирус создали в 1986 году два брата из Пакистана, чтобы наказать пиратов за кражу их программы.', isTrue: true, story: 'Правда! Вирус Brain вшили в медицинский софт. При нелегальном копировании дискеты он выводил на экран имена братьев, адрес в Лахоре и номер телефона для «лечения».' },
-    { id: 'f5', cat: 'Мифы и наука', text: 'Великая Китайская стена — единственное сооружение на Земле, которое легко видно невооружённым глазом с Луны.', isTrue: false, story: 'Популярный фейк! Ширина стены всего 5–6 метров, а её цвет сливается с горами. Космонавты на МКС подтвердили, что разглядеть её без мощного объектива невозможно даже с орбиты.' },
-{ id: 'f6', cat: 'Криминал и аферы', text: 'В 1990-х мошенник умудрился продать банку несуществующий аэропорт за $242 миллиона, используя поддельные спутниковые снимки.', isTrue: true, story: 'Реальная афера! Нигериец Эммануэль Нвуде убедил директора бразильского банка Banco Noroeste, что строит аэропорт в столице Нигерии Абудже, и выманил $242 млн.' },
+{ id: 'f5', cat: 'Мифы и наука', text: 'Великая Китайская стена — единственное сооружение на Земле, которое легко видно невооружённым глазом с Луны.', isTrue: false, story: 'Популярный фейк! Ширина стены всего 5–6 метров, а её цвет сливается с горами. Космонавты на МКС подтвердили, что разглядеть её без мощного объектива невозможно даже с орбиты.' },
+{ id: 'f6', cat: 'Криминал и аферы', text: 'В 1990-х мошенник умудрился продать банку несуществующий аэропорт за $242 миллиона, используя поддельные снимки.', isTrue: true, story: 'Реальная афера! Нигериец Эммануэль Нвуде убедил директора бразильского банка Banco Noroeste, что строит аэропорт в столице Нигерии Абудже, и выманил $242 млн.' },
 { id: 'f7', cat: 'Еда и бренды', text: 'Coca-Cola изначально продавалась в аптеках как лечебный сироп от головной боли и расстройства нервов.', isTrue: true, story: 'Так и есть! В 1886 году фармацевт Джон Пембертон продавал этот сироп по 5 центов за стакан как тонизирующее средство. Газированной водой его начали разбавлять позже.' },
 { id: 'f8', cat: 'Космос', text: 'На Венере одни сутки длятся дольше, чем целый венерианский год (оборот планеты вокруг Солнца).', isTrue: true, story: 'Абсолютная правда! Венера вращается вокруг своей оси невероятно медленно: один оборот занимает 243 земных дня, а полный круг вокруг Солнца она делает за 225 дней.' },
 { id: 'f9', cat: 'Животный мир', text: 'Страусы при испуге действительно прячут голову в песок, чтобы хищники не заметили их светлую шею.', isTrue: false, story: 'Известный миф! Если бы страус засунул голову в песок, он бы задохнулся. На деле они убегают со скоростью до 70 км/ч либо ложатся и прижимают шею к земле.' },
@@ -214,10 +214,25 @@ var baseFacts = [
 { id: 'f35', cat: 'Природа и мир', text: 'Акулы появились на Земле раньше, чем первые деревья и динозавры.', isTrue: true, story: 'Научный факт! Предки современных акул плавали в океанах уже более 400 миллионов лет назад, тогда как первые деревья появились на суше около 350 миллионов лет назад.' }
 ];
 var wikiFacts = [];
+try {
+wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v3') || '[]');
+} catch (e) { wikiFacts = []; }
 var seenIds = [];
 try {
-seenIds = JSON.parse(localStorage.getItem('tf_seen_ids') || '[]');
+seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v3') || '[]');
 } catch (e) { seenIds = []; }
+// Функция сохранения истории просмотров в память телефона и облако Telegram
+function persistSeenHistory() {
+var trimmed = seenIds.slice(-450);
+try { localStorage.setItem('tf_seen_ids_v3', JSON.stringify(trimmed)); } catch (e) {}
+if (tg && tg.CloudStorage) {
+try {
+// Храним компактную строку ID в облаке Telegram (лимит 4096 байт на ключ)
+var packed = trimmed.slice(-300).join(',');
+tg.CloudStorage.setItem('seen_v3', packed);
+} catch (e) {}
+}
+}
 var deck = [];
 var currentCard = null;
 var streak = 0;
@@ -240,35 +255,51 @@ var factTruth = document.getElementById('fact-truth');
 var factStory = document.getElementById('fact-story');
 var saveStreakBtn = document.getElementById('save-streak-btn');
 var nextBtn = document.getElementById('next-btn');
-// Подгрузка реальных фактов из русскоязычной Википедии (работает в РФ без VPN и ключей!)
 async function fetchWikipediaFacts() {
 if (isFetchingWiki) return;
 isFetchingWiki = true;
 try {
-var url = 'wikipedia.org∝=extracts&exintro=1&explaintext=1&exsentences=3&format=json&origin=*';
+var url = 'wikipedia.org∝=extracts&exintro=1&explaintext=1&exsentences=2&format=json&origin=*';
 var res = await fetch(url);
 var data = await res.json();
 if (data && data.query && data.query.pages) {
 var pages = Object.values(data.query.pages);
+var added = 0;
 for (var i = 0; i < pages.length; i++) {
 var p = pages[i];
-if (!p.extract || p.extract.length < 70 || p.extract.length > 360) continue;
+if (!p.extract || p.extract.length < 65 || p.extract.length > 320) continue;
 var cleanText = p.extract.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
-if (cleanText.length < 60) continue;
+if (cleanText.length < 55) continue;
+var cardId = 'w' + p.pageid;
+if (seenIds.indexOf(cardId) !== -1) continue;
+var makeFake = false;
+var displayText = cleanText;
+var yearMatch = cleanText.match(/\b(1[5-9]\d\d|20[0-2]\d)\b/);
+if (yearMatch && Math.random() < 0.45) {
+var realYear = parseInt(yearMatch, 10);
+var fakeYear = realYear + (Math.random() < 0.5 ? 17 : -19);
+displayText = cleanText.replace(yearMatch, String(fakeYear));
+makeFake = true;
+}
 var cardObj = {
-id: 'wiki_' + p.pageid,
+id: cardId,
 cat: 'Энциклопедия',
-text: cleanText,
-isTrue: true,
+text: displayText,
+isTrue: !makeFake,
 isWiki: true,
-story: 'Реальная статья из энциклопедии о теме «' + p.title + '». Этот факт действительно зафиксирован в открытых источниках!'
+story: makeFake
+? 'Подвох в дате! На самом деле в статье Википедии о теме «' + p.title + '» указан ' + yearMatch + ' год, а не ' + fakeYear + '.'
+: 'Чистая правда из энциклопедии о теме «' + p.title + '».'
 };
-if (seenIds.indexOf(cardObj.id) === -1) {
 wikiFacts.push(cardObj);
 deck.push(cardObj);
+added++;
 }
+if (added > 0) {
+if (wikiFacts.length > 250) wikiFacts = wikiFacts.slice(-250);
+try { localStorage.setItem('tf_wiki_cache_v3', JSON.stringify(wikiFacts)); } catch (e) {}
+wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
 }
-wikiStatus.innerHTML = '🌐 База: ' + (baseFacts.length + wikiFacts.length);
 }
 } catch (e) {}
 isFetchingWiki = false;
@@ -278,23 +309,28 @@ var all = baseFacts.concat(wikiFacts);
 var unseen = all.filter(function(item) {
 return seenIds.indexOf(item.id) === -1;
 });
-// Если пользователь прошёл вообще все карточки — сбрасываем историю и начинаем новый круг
-if (unseen.length === 0) {
-seenIds = [];
-localStorage.setItem('tf_seen_ids', '[]');
-unseen = all.slice();
-}
 deck = unseen.sort(function() { return 0.5 - Math.random(); });
+wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
 }
-function loadNextCard() {
+async function loadNextCard() {
 if (deck.length === 0) buildFreshDeck();
-if (deck.length < 6) fetchWikipediaFacts();
-currentCard = deck.pop();
-if (currentCard && currentCard.id) {
-seenIds.push(currentCard.id);
-if (seenIds.length > 300) seenIds = seenIds.slice(-300);
-try { localStorage.setItem('tf_seen_ids', JSON.stringify(seenIds)); } catch (e) {}
+if (deck.length < 10) fetchWikipediaFacts();
+// Если все встроенные и кэшированные карточки пройдены — ждём свежую пачку из Википедии
+if (deck.length === 0) {
+cardText.innerText = 'Загружаем свежие факты для тебя...';
+await fetchWikipediaFacts();
+if (deck.length === 0) {
+seenIds = [];
+persistSeenHistory();
+buildFreshDeck();
 }
+}
+currentCard = deck.pop();
+if (currentCard && currentCard.id && seenIds.indexOf(currentCard.id) === -1) {
+seenIds.push(currentCard.id);
+persistSeenHistory();
+}
+wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
 cardCat.innerText = currentCard.cat || 'Факт';
 cardText.innerText = currentCard.text;
 aiTag.style.display = currentCard.isWiki ? 'block' : 'none';
@@ -305,9 +341,32 @@ stampTrue.style.opacity = '0';
 stampFake.style.opacity = '0';
 isAnimating = false;
 }
+// Инициализация с синхронизацией облачной памяти Telegram
+function initGameWithCloud() {
+if (tg && tg.CloudStorage) {
+try {
+tg.CloudStorage.getItem('seen_v3', function(err, cloudVal) {
+if (!err && cloudVal) {
+var cloudArr = cloudVal.split(',').filter(Boolean);
+for (var i = 0; i < cloudArr.length; i++) {
+if (seenIds.indexOf(cloudArr[i]) === -1) {
+seenIds.push(cloudArr[i]);
+}
+}
+try { localStorage.setItem('tf_seen_ids_v3', JSON.stringify(seenIds)); } catch (e) {}
+}
 buildFreshDeck();
 loadNextCard();
 fetchWikipediaFacts();
+});
+return;
+} catch (e) {}
+}
+buildFreshDeck();
+loadNextCard();
+fetchWikipediaFacts();
+}
+initGameWithCloud();
 var lostStreakCache = 0;
 function handleAnswer(userSaysTrue) {
 if (isAnimating || !currentCard) return;
@@ -411,6 +470,7 @@ nextBtn.addEventListener('click', function() {
 resultModal.style.display = 'none';
 loadNextCard();
 });
-    </script>
+
+</script>
 </body>
 </html>
