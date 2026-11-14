@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Правда или Фейк — Бесконечная Интуиция</title>
 <script src="https://telegram.org"></script>
+<script src="https://adsgram.ai"></script>
 <style>
 * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -157,6 +158,14 @@ function openFullScreen() {
 openFullScreen();
 setTimeout(openFullScreen, 300);
 
+// Инициализация рекламного блока AdsGram (UnitID: 56776)
+var AdController = null;
+try {
+    if (window.Adsgram) {
+        AdController = window.Adsgram.init({ blockId: "56776" });
+    }
+} catch (e) {}
+
 var audioCtx = null;
 function playBeep(freq, type, dur) {
     try {
@@ -221,13 +230,11 @@ var seenIds = [];
 try {
 seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v3') || '[]');
 } catch (e) { seenIds = []; }
-// Функция сохранения истории просмотров в память телефона и облако Telegram
 function persistSeenHistory() {
 var trimmed = seenIds.slice(-450);
 try { localStorage.setItem('tf_seen_ids_v3', JSON.stringify(trimmed)); } catch (e) {}
 if (tg && tg.CloudStorage) {
 try {
-// Храним компактную строку ID в облаке Telegram (лимит 4096 байт на ключ)
 var packed = trimmed.slice(-300).join(',');
 tg.CloudStorage.setItem('seen_v3', packed);
 } catch (e) {}
@@ -315,7 +322,6 @@ wikiStatus.innerHTML = '☁️ Новых: ' + deck.length;
 async function loadNextCard() {
 if (deck.length === 0) buildFreshDeck();
 if (deck.length < 10) fetchWikipediaFacts();
-// Если все встроенные и кэшированные карточки пройдены — ждём свежую пачку из Википедии
 if (deck.length === 0) {
 cardText.innerText = 'Загружаем свежие факты для тебя...';
 await fetchWikipediaFacts();
@@ -341,7 +347,6 @@ stampTrue.style.opacity = '0';
 stampFake.style.opacity = '0';
 isAnimating = false;
 }
-// Инициализация с синхронизацией облачной памяти Telegram
 function initGameWithCloud() {
 if (tg && tg.CloudStorage) {
 try {
@@ -460,17 +465,34 @@ window.addEventListener('mousemove', function(e) { onDragMove(e.clientX); });
 window.addEventListener('mouseup', onDragEnd);
 document.getElementById('btn-true').addEventListener('click', function() { handleAnswer(true); });
 document.getElementById('btn-fake').addEventListener('click', function() { handleAnswer(false); });
+// Показ реальной рекламы AdsGram при нажатии на кнопку спасения серии
 saveStreakBtn.addEventListener('click', function() {
+if (AdController) {
+saveStreakBtn.innerText = 'Загрузка рекламы...';
+AdController.show().then(function() {
 streak = lostStreakCache;
 streakTxt.innerText = streak;
 resultModal.style.display = 'none';
 loadNextCard();
+}).catch(function() {
+// Если зритель закрыл рекламу досрочно или роликов пока нет в регионе
+saveStreakBtn.innerText = 'Реклама не досмотрена';
+setTimeout(function() {
+resultModal.style.display = 'none';
+loadNextCard();
+}, 900);
+});
+} else {
+streak = lostStreakCache;
+streakTxt.innerText = streak;
+resultModal.style.display = 'none';
+loadNextCard();
+}
 });
 nextBtn.addEventListener('click', function() {
 resultModal.style.display = 'none';
 loadNextCard();
 });
-
-</script>
+    </script>
 </body>
 </html>
