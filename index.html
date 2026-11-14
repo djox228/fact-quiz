@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Правда или Фейк — Бесконечная Интуиция</title>
+<script src="https://telegram.org"></script>
+<style>
+* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+    background: #090b10; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #fff; display: flex; flex-direction: column; align-items: center;
+}
+.app {
+    width: 100%; max-width: 430px; height: 100%; padding: 14px 16px 20px 16px;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+
+.top-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.pill {
+    background: #131722; border: 1px solid #242c3d; padding: 7px 11px; border-radius: 14px;
+    font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 5px;
+}
+.streak-val { color: #f59e0b; font-size: 14px; }
+.best-val { color: #38bdf8; }
+.ai-badge { color: #a855f7; border-color: rgba(168, 85, 247, 0.35); font-size: 11px; }
+.ai-badge.loading { color: #38bdf8; border-color: #38bdf8; }
+
+.card-arena {
+    flex: 1; position: relative; display: flex; align-items: center; justify-content: center;
+    margin: 14px 0; perspective: 1000px;
+}
+.swipe-card {
+    width: 100%; height: 100%; max-height: 430px;
+    background: linear-gradient(155deg, #161b29 0%, #0e121b 100%);
+    border: 1.5px solid #283248; border-radius: 26px; padding: 24px 20px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+    position: relative; touch-action: none; cursor: grab;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s;
+}
+.swipe-card.dragging { transition: none; cursor: grabbing; }
+
+.card-header { display: flex; justify-content: space-between; align-items: center; }
+.card-tag {
+    background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #7dd3fc; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+}
+.ai-tag {
+    background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.45);
+    color: #d8b4fe; padding: 4px 9px; border-radius: 10px; font-size: 10px; font-weight: 900; display: none;
+}
+
+.card-statement {
+    font-size: 20px; font-weight: 800; line-height: 1.4; color: #f8fafc; text-align: center; margin: auto 0;
+}
+.card-hint {
+    display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;
+}
+
+.stamp {
+    position: absolute; top: 26px; padding: 6px 14px; border-radius: 10px;
+    font-size: 20px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
+    border: 3px solid; opacity: 0; pointer-events: none; z-index: 5;
+}
+.stamp-true { left: 20px; color: #22c55e; border-color: #22c55e; transform: rotate(-12deg); }
+.stamp-fake { right: 20px; color: #ef4444; border-color: #ef4444; transform: rotate(12deg); }
+
+.controls { display: flex; gap: 12px; }
+.choice-btn {
+    flex: 1; padding: 16px; border-radius: 18px; border: 2px solid;
+    font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+    letter-spacing: 0.5px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.choice-btn:active { transform: scale(0.95); }
+.btn-fake { background: rgba(239, 68, 68, 0.12); border-color: #ef4444; color: #fca5a5; }
+.btn-true { background: rgba(34, 197, 94, 0.12); border-color: #22c55e; color: #86efac; }
+
+.modal {
+    position: fixed; inset: 0; background: rgba(6, 8, 13, 0.88); backdrop-filter: blur(6px);
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+    padding: 20px; z-index: 30;
+}
+.modal-box {
+    width: 100%; max-width: 400px; background: #131722; border: 1.5px solid #283248;
+    border-radius: 24px; padding: 22px 20px; display: flex; flex-direction: column; gap: 14px;
+    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+.verdict-badge {
+    align-self: center; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+}
+.verdict-win { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; }
+.verdict-lose { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; }
+.fact-truth { font-size: 18px; font-weight: 900; color: #fff; }
+.fact-story { font-size: 14px; line-height: 1.55; color: #cbd5e1; text-align: left; background: #0b0e15; padding: 14px; border-radius: 14px; border: 1px solid #1e2536; }
+
+.action-btn {
+    width: 100%; padding: 15px; border-radius: 15px; border: none;
+    background: linear-gradient(90deg, #3b82f6, #2563eb); color: #fff;
+    font-size: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase;
+}
+.action-btn.save-streak { background: linear-gradient(90deg, #f59e0b, #ea580c); box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4); }
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="top-bar">
+        <div class="pill">&#128293; Серия: <span class="streak-val" id="streak-txt">0</span></div>
+        <div class="pill ai-badge" id="ai-status">&#129302; AI: +0</div>
+        <div class="pill">&#127942; Рекорд: <span class="best-val" id="best-txt">0</span></div>
+    </div>
+
+    <div class="card-arena">
+        <div class="swipe-card" id="card">
+            <div class="stamp stamp-true" id="stamp-true">ПРАВДА</div>
+            <div class="stamp stamp-fake" id="stamp-fake">ФЕЙК</div>
+            <div class="card-header">
+                <div class="card-tag" id="card-cat">Категория</div>
+                <div class="ai-tag" id="ai-tag">&#10024; AI ФАКТ</div>
+            </div>
+            <div class="card-statement" id="card-text">Загрузка факта...</div>
+            <div class="card-hint">
+                <span>&#8592; Свайп: Фейк</span>
+                <span>Правда: Свайп &#8594;</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="choice-btn btn-fake" id="btn-fake">&#10060; Фейк</button>
+        <button class="choice-btn btn-true" id="btn-true">&#9989; Правда</button>
+    </div>
+</div>
+
+<div class="modal" id="result-modal">
+    <div class="modal-box">
+        <div class="verdict-badge" id="verdict-badge">Вердикт</div>
+        <div class="fact-truth" id="fact-truth">Это чистая правда!</div>
+        <div class="fact-story" id="fact-story">История...</div>
+        <button class="action-btn save-streak" id="save-streak-btn" style="display:none;">&#10084;&#65039; Сохранить серию (за рекламу)</button>
+        <button class="action-btn" id="next-btn">Следующая карточка &#8594;</button>
+    </div>
+</div>
+
+<script>
+var tg = window.Telegram ? window.Telegram.WebApp : null;
+if (tg) {
+    try { tg.ready(); tg.expand(); } catch (e) {}
+}
+
+// Сюда можно вставить бесплатный ключ с openrouter.ai для 100% генерации 24/7 (необязательно)
+var OPENROUTER_API_KEY = '';
+
+var audioCtx = null;
+function playBeep(freq, type, dur) {
+    try {
+        if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+}
+
+var baseFacts = [
+    {
+        cat: 'Безумные истории',
+        text: 'В 1987 году американец купил пожизненный безлимит на полёты первым классом за $250 000 и налетал на $21 миллион.',
+        isTrue: true,
+        story: 'Реальная история! Стив Ротштейн купил проездной AAirpass у American Airlines. Он совершил более 10 000 перелётов, часто бронируя соседнее место для вымышленных спутников, пока в 2008 году авиакомпания со скандалом не аннулировала билет.'
+    },
+    {
+        cat: 'Природа и мир',
+        text: 'В Японии есть целый остров, где почти нет людей, но живут больше тысячи диких ручных кроликов.',
+        isTrue: true,
+        story: 'Чистая правда! Остров Окуносима называют «Островом кроликов». После закрытия старого завода туда завезли несколько кроликов. Без хищников они расплодились до тысячи особей и теперь сами бегут навстречу туристам.'
+    },
+    {
+        cat: 'Законы мира',
+        text: 'В Швейцарии законом запрещено держать дома только одну морскую свинку — их обязаны покупать парой.',
+        isTrue: true,
+        story: 'Реальный закон Швейцарии! Морские свинки в одиночестве впадают в депрессию. В стране даже есть сервисы аренды морской свинки на время, если одна из пары умерла.'
+    },
+    {
+        cat: 'Технологии',
+        text: 'Первый компьютерный вирус создали в 1986 году два брата из Пакистана, чтобы наказать пиратов за кражу их программы.',
+        isTrue: true,
+        story: 'Правда! Вирус Brain вшили в медицинский софт. При нелегальном копировании дискеты он выводил на экран имена братьев, адрес в Лахоре и номер телефона для «лечения».'
+    },
+    {
+        cat: 'Мифы и наука',
+        text: 'Великая Китайская стена — единственное сооружение на Земле, которое легко видно невооружённым глазом с Луны.',
+        isTrue: false,
+story: 'Популярный фейк! Ширина стены всего 5–6 метров, а её цвет сливается с горами. Космонавты на МКС подтвердили, что разглядеть её без мощного объектива невозможно даже с орбиты.'
+},
+{
+cat: 'Криминал и аферы',
+text: 'В 1990-х мошенник умудрился продать банку несуществующий аэропорт за $242 миллиона, используя поддельные снимки.',
+isTrue: true,
+story: 'Реальная афера! Нигериец Эммануэль Нвуде убедил директора бразильского банка Banco Noroeste, что строит аэропорт в столице Нигерии Абудже, и выманил $242 млн.'
+},
+{
+cat: 'Еда и бренды',
+text: 'Coca-Cola изначально продавалась в аптеках как лечебный сироп от головной боли и расстройства нервов.',
+isTrue: true,
+story: 'Так и есть! В 1886 году фармацевт Джон Пембертон продавал этот сироп по 5 центов за стакан как тонизирующее средство. Газированной водой его начали разбавлять позже.'
+},
+{
+cat: 'Космос',
+text: 'На Венере одни сутки длятся дольше, чем целый венерианский год (оборот планеты вокруг Солнца).',
+isTrue: true,
+story: 'Абсолютная правда! Венера вращается вокруг своей оси невероятно медленно: один оборот занимает 243 земных дня, а полный круг вокруг Солнца она делает за 225 дней.'
+},
+{
+cat: 'Животный мир',
+text: 'Страусы при испуге действительно прячут голову в песок, чтобы хищники не заметили их светлую шею.',
+isTrue: false,
+story: 'Известный миф! Если бы страус засунул голову в песок, он бы задохнулся. На деле они убегают со скоростью до 70 км/ч либо ложатся и прижимают шею к земле.'
+},
+{
+cat: 'Невероятные случаи',
+text: 'Американец Рой Салливан за свою жизнь пережил 7 прямых попаданий молнии и попал в Книгу рекордов Гиннесса.',
+isTrue: true,
+story: 'Реальный факт! Смотритель парка в Вирджинии пережил 7 ударов молнии с 1942 по 1977 год и получил прозвище «Человек-громоотвод».'
+},
+{
+cat: 'История',
+text: 'Наполеон Бонапарт был карликом ростом 148 см, из-за чего и появился термин «комплекс Наполеона».',
+isTrue: false,
+story: 'Исторический фейк! Рост Наполеона был около 169 см, что для XIX века было выше среднего. Путаница возникла из-за разницы между французским и английским дюймом.'
+},
+{
+cat: 'Игры и кино',
+text: 'Создатель игры Tetris Алексей Пажитнов первые 10 лет не получал за неё ни копейки, так как права принадлежали государству.',
+isTrue: true,
+story: 'Правда! Пажитнов написал тетрис в 1984 году на советском компьютере Электроника-60. Лицензией распоряжалось советское ведомство, и только в 1996 году права вернулись автору.'
+},
+{
+cat: 'Психология',
+text: 'Человек использует свой мозг всего на 10%, а остальные 90% находятся в спящем режиме.',
+isTrue: false,
+story: 'Это киношный миф! МРТ-сканирование показывает, что даже во время простого разговора или сна задействованы практически все отделы головного мозга.'
+},
+{
+cat: 'Природа и мир',
+text: 'У осьминога три сердца, девять мозгов и голубая кровь.',
+isTrue: true,
+story: 'Чистая правда! Два сердца качают кровь через жабры, третье — по телу. Кроме центрального мозга, в каждом из 8 щупалец есть свой нервный узел, а в крови вместо железа содержится медь.'
+},
+{
+cat: 'Технологии',
+text: 'Первая веб-камера в мире была установлена в Кембридже исключительно для того, чтобы следить за уровнем кофе в кофеварке.',
+isTrue: true,
+story: 'Реальный факт! В 1991 году программисты Кембриджского университета устали ходить в соседнюю комнату к пустому кофейнику и направили на него камеру, транслируя картинку в локальную сеть.'
+},
+{
+cat: 'История',
+text: 'Викинги носили в бою рогатые шлемы, чтобы устрашать врагов и бодать противников в ближнем бою.',
+isTrue: false,
+story: 'Полный вымысел! Археологи не нашли ни одного боевого шлема викингов с рогами — в бою за рога легко схватить или выбить шлем. Этот образ придумали художники оперы в XIX веке.'
+},
+{
+cat: 'Деньги и бизнес',
+text: 'Компания Nintendo была основана в 1889 году — ещё до изобретения кино и автомобилей — и делала игральные карты ручной работы.',
+isTrue: true,
+story: 'Абсолютная правда! Фусадзиро Ямаути открыл компанию в Киото в 1889 году для выпуска японских карт «Ханафуда». К видеоиграм компания пришла только спустя почти 90 лет.'
+},
+{
+cat: 'Животный мир',
+text: 'Золотые рыбки помнят события всего 3 секунды, поэтому каждый круг в аквариуме для них как новый мир.',
+isTrue: false,
+story: 'Миф! Учёные доказали, что память золотых рыбок хранит информацию минимум 3–5 месяцев. Их можно научить различать время кормления, цвета и даже проплывать лабиринт.'
+},
+{
+cat: 'Спорт',
+text: 'На Олимпийских играх с 1912 по 1948 год медали вручали не только спортсменам, но и художникам, поэтам и музыкантам.',
+isTrue: true,
+story: 'Правда! Проводились «Конкурсы искусств», где жюри награждало золотом за живопись, скульптуру и литературу на спортивную тематику.'
+},
+{
+cat: 'Еда и бренды',
+text: 'Мёд — единственный продукт питания, который практически не портится: археологи находили съедобный мёд в гробницах возрастом 3000 лет.',
+isTrue: true,
+story: 'Научный факт! Благодаря низкой влажности, высокой кислотности и природной перекиси водорода бактерии в натуральном мёде не выживают тысячелетиями.'
+}
+];
+// Загружаем сохранённые ИИ-факты из памяти телефона, чтобы база постоянно росла
+var savedAiFacts = [];
+try {
+savedAiFacts = JSON.parse(localStorage.getItem('tf_ai_facts_v1') || '[]');
+} catch (e) { savedAiFacts = []; }
+var deck = [];
+var currentCard = null;
+var streak = 0;
+var bestStreak = parseInt(localStorage.getItem('tf_best_streak') || '0');
+var isAnimating = false;
+var isFetchingAI = false;
+var streakTxt = document.getElementById('streak-txt');
+var bestTxt = document.getElementById('best-txt');
+var aiStatus = document.getElementById('ai-status');
+bestTxt.innerText = bestStreak;
+aiStatus.innerHTML = '🤖 AI: +' + savedAiFacts.length;
+var cardEl = document.getElementById('card');
+var cardCat = document.getElementById('card-cat');
+var aiTag = document.getElementById('ai-tag');
+var cardText = document.getElementById('card-text');
+var stampTrue = document.getElementById('stamp-true');
+var stampFake = document.getElementById('stamp-fake');
+var resultModal = document.getElementById('result-modal');
+var verdictBadge = document.getElementById('verdict-badge');
+var factTruth = document.getElementById('fact-truth');
+var factStory = document.getElementById('fact-story');
+var saveStreakBtn = document.getElementById('save-streak-btn');
+var nextBtn = document.getElementById('next-btn');
+function refillDeck() {
+var combined = baseFacts.concat(savedAiFacts);
+deck = combined.slice().sort(function() { return 0.5 - Math.random(); });
+}
+// Фоновая генерация свежих карточек через ИИ
+async function generateMoreCardsInBackground() {
+if (isFetchingAI) return;
+isFetchingAI = true;
+aiStatus.classList.add('loading');
+aiStatus.innerHTML = '🤖 AI: думает...';
+var prompt = 'Придумай 5 необычных утверждений на русском языке для игры "Правда или Фейк" (3 правдивых редких факта и 2 правдоподобных фейка). Верни СТРОГО валидный JSON-массив без markdown и пояснений в формате: [{"cat":"Категория","text":"Утверждение 1-2 предложения","isTrue":true,"story":"Короткая реальная история-объяснение 2-3 предложения"}]';
+try {
+var rawResponse = '';
+if (OPENROUTER_API_KEY) {
+var res = await fetch('openrouter.ai', {
+method: 'POST',
+headers: {
+'Authorization': 'Bearer ' + OPENROUTER_API_KEY,
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+model: 'openrouter/free',
+messages: [{ role: 'user', content: prompt }]
+})
+});
+var data = await res.json();
+rawResponse = data.choices[0].message.content;
+} else {
+var seed = Math.floor(Math.random() * 999999);
+var resFree = await fetch('pollinations.ai' + encodeURIComponent(prompt) + '?seed=' + seed);
+rawResponse = await resFree.text();
+}
+var startIdx = rawResponse.indexOf('[');
+var endIdx = rawResponse.lastIndexOf(']');
+if (startIdx !== -1 && endIdx !== -1) {
+var jsonStr = rawResponse.substring(startIdx, endIdx + 1);
+var newCards = JSON.parse(jsonStr);
+var added = 0;
+for (var i = 0; i < newCards.length; i++) {
+var c = newCards[i];
+if (c && c.text && typeof c.isTrue === 'boolean' && c.story) {
+c.isAI = true;
+savedAiFacts.push(c);
+deck.push(c);
+added++;
+}
+}
+if (added > 0) {
+if (savedAiFacts.length > 150) savedAiFacts = savedAiFacts.slice(-150);
+localStorage.setItem('tf_ai_facts_v1', JSON.stringify(savedAiFacts));
+}
+}
+} catch (e) {
+// Если шлюз недоступен, игра тихо продолжает работать на встроенной базе
+} finally {
+isFetchingAI = false;
+aiStatus.classList.remove('loading');
+aiStatus.innerHTML = '🤖 AI: +' + savedAiFacts.length;
+}
+}
+function loadNextCard() {
+if (deck.length === 0) refillDeck();
+if (deck.length < 8) {
+generateMoreCardsInBackground();
+}
+currentCard = deck.pop();
+cardCat.innerText = currentCard.cat || 'Факт';
+cardText.innerText = currentCard.text;
+aiTag.style.display = currentCard.isAI ? 'block' : 'none';
+cardEl.style.transition = 'none';
+cardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
+cardEl.style.opacity = '1';
+stampTrue.style.opacity = '0';
+stampFake.style.opacity = '0';
+isAnimating = false;
+}
+loadNextCard();
+var lostStreakCache = 0;
+function handleAnswer(userSaysTrue) {
+if (isAnimating || !currentCard) return;
+isAnimating = true;
+lostStreakCache = streak;
+var dir = userSaysTrue ? 1 : -1;
+cardEl.style.transition = 'transform 0.3s ease-out, opacity 0.3s';
+cardEl.style.transform = 'translate(' + (dir * 450) + 'px, 40px) rotate(' + (dir * 22) + 'deg)';
+cardEl.style.opacity = '0';
+var isCorrect = (userSaysTrue === currentCard.isTrue);
+if (tg && tg.HapticFeedback) {
+try { tg.HapticFeedback.notificationOccurred(isCorrect ? 'success' : 'error'); } catch (e) {}
+}
+setTimeout(function() {
+factTruth.innerText = currentCard.isTrue ? 'На самом деле: ЭТО ПРАВДА!' : 'На самом деле: ЭТО ФЕЙК!';
+factStory.innerText = currentCard.story;
+if (isCorrect) {
+streak++;
+if (streak > bestStreak) {
+bestStreak = streak;
+localStorage.setItem('tf_best_streak', bestStreak);
+bestTxt.innerText = bestStreak;
+}
+streakTxt.innerText = streak;
+verdictBadge.className = 'verdict-badge verdict-win';
+verdictBadge.innerText = 'В точку! +1 к серии';
+saveStreakBtn.style.display = 'none';
+nextBtn.innerText = 'Дальше \u2192';
+playBeep(660, 'sine', 0.15);
+} else {
+verdictBadge.className = 'verdict-badge verdict-lose';
+verdictBadge.innerText = 'Ошибочка! Интуиция подвела';
+if (streak >= 2) {
+saveStreakBtn.style.display = 'block';
+saveStreakBtn.innerText = 'Спасти серию (' + streak + ') за рекламу';
+} else {
+saveStreakBtn.style.display = 'none';
+}
+streak = 0;
+streakTxt.innerText = streak;
+nextBtn.innerText = 'Начать заново \u2192';
+playBeep(180, 'sawtooth', 0.25);
+}
+resultModal.style.display = 'flex';
+}, 240);
+}
+var startX = 0, currentX = 0, dragging = false;
+function onDragStart(x) {
+if (isAnimating) return;
+dragging = true;
+startX = x;
+currentX = 0;
+cardEl.classList.add('dragging');
+}
+function onDragMove(x) {
+if (!dragging) return;
+currentX = x - startX;
+var rot = currentX * 0.06;
+cardEl.style.transform = 'translate(' + currentX + 'px, 0px) rotate(' + rot + 'deg)';
+if (currentX > 25) {
+stampTrue.style.opacity = Math.min(1, (currentX - 25) / 80);
+stampFake.style.opacity = '0';
+} else if (currentX < -25) {
+stampFake.style.opacity = Math.min(1, (-currentX - 25) / 80);
+stampTrue.style.opacity = '0';
+} else {
+stampTrue.style.opacity = '0';
+stampFake.style.opacity = '0';
+}
+}
+function onDragEnd() {
+if (!dragging) return;
+dragging = false;
+cardEl.classList.remove('dragging');
+if (currentX > 95) {
+handleAnswer(true);
+} else if (currentX < -95) {
+handleAnswer(false);
+} else {
+cardEl.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+cardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
+stampTrue.style.opacity = '0';
+stampFake.style.opacity = '0';
+}
+}
+cardEl.addEventListener('touchstart', function(e) { if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX); }, { passive: true });
+cardEl.addEventListener('touchmove', function(e) { if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX); }, { passive: true });
+cardEl.addEventListener('touchend', onDragEnd);
+cardEl.addEventListener('mousedown', function(e) { onDragStart(e.clientX); });
+window.addEventListener('mousemove', function(e) { onDragMove(e.clientX); });
+window.addEventListener('mouseup', onDragEnd);
+document.getElementById('btn-true').addEventListener('click', function() { handleAnswer(true); });
+document.getElementById('btn-fake').addEventListener('click', function() { handleAnswer(false); });
+saveStreakBtn.addEventListener('click', function() {
+streak = lostStreakCache;
+streakTxt.innerText = streak;
+resultModal.style.display = 'none';
+loadNextCard();
+});
+nextBtn.addEventListener('click', function() {
+resultModal.style.display = 'none';
+loadNextCard();
+});
+
+</script>
+</body>
+</html>
