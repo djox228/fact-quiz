@@ -3,151 +3,188 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Правда или Фейк — Интуиция</title>
+<title>Челлендж Арена — Проверь себя</title>
 <script src="https://telegram.org"></script>
 <script src="https://adsgram.ai"></script>
 <style>
 * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-    background: #090b10; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #07090e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #fff; display: flex; flex-direction: column; align-items: center;
 }
 .app {
-    width: 100%; max-width: 430px; height: 100%; padding: 14px 16px 20px 16px;
+    width: 100%; max-width: 430px; height: 100%; padding: 12px 14px 18px 14px;
     display: flex; flex-direction: column; justify-content: space-between;
 }
 
 .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .pill {
-    background: #131722; border: 1px solid #242c3d; padding: 7px 11px; border-radius: 14px;
+    background: #111622; border: 1px solid #222b3d; padding: 7px 11px; border-radius: 14px;
     font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 5px;
 }
 .streak-val { color: #f59e0b; font-size: 14px; }
-.best-val { color: #38bdf8; }
-.ai-badge { color: #34d399; border-color: rgba(52, 211, 153, 0.35); font-size: 11px; }
+.rank-val { color: #38bdf8; }
 
-.card-arena {
-    flex: 1; position: relative; display: flex; align-items: center; justify-content: center;
-    margin: 14px 0; perspective: 1000px;
+.tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0;
 }
-.swipe-card {
-    width: 100%; height: 100%; max-height: 440px;
-    background: linear-gradient(155deg, #161b29 0%, #0e121b 100%);
-    border: 1.5px solid #283248; border-radius: 26px; padding: 22px 18px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
-    position: relative; touch-action: none; cursor: grab;
-    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s;
+.tab-btn {
+    background: #111622; border: 1.5px solid #1e2638; color: #94a3b8;
+    padding: 9px 4px; border-radius: 14px; font-size: 11px; font-weight: 800;
+    cursor: pointer; text-align: center; transition: 0.15s; display: flex; flex-direction: column; align-items: center; gap: 3px;
 }
-.swipe-card.dragging { transition: none; cursor: grabbing; }
-
-.card-header { display: flex; justify-content: space-between; align-items: center; }
-.card-tag {
-    background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35);
-    color: #7dd3fc; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
-}
-.ai-tag {
-    background: rgba(52, 211, 153, 0.18); border: 1px solid rgba(52, 211, 153, 0.45);
-    color: #6ee7b7; padding: 4px 9px; border-radius: 10px; font-size: 10px; font-weight: 900; display: none;
+.tab-btn span.ico { font-size: 16px; }
+.tab-btn.active {
+    background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #fff;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
 }
 
-.card-statement {
-    font-size: 17px; font-weight: 800; line-height: 1.42; color: #f8fafc; text-align: center; margin: auto 0;
-    overflow-y: auto; max-height: 290px; padding: 4px;
-}
-.card-hint {
-    display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;
+.arena {
+    flex: 1; background: radial-gradient(circle at center, #131929 0%, #0b0e17 100%);
+    border: 1.5px solid #222c42; border-radius: 26px; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 18px 16px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,0.6);
 }
 
-.stamp {
-    position: absolute; top: 26px; padding: 6px 14px; border-radius: 10px;
-    font-size: 20px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
-    border: 3px solid; opacity: 0; pointer-events: none; z-index: 5;
-}
-.stamp-true { left: 20px; color: #22c55e; border-color: #22c55e; transform: rotate(-12deg); }
-.stamp-fake { right: 20px; color: #ef4444; border-color: #ef4444; transform: rotate(12deg); }
+.mode-title { font-size: 18px; font-weight: 900; text-align: center; letter-spacing: 0.3px; }
+.mode-sub { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 4px; }
 
-.controls { display: flex; gap: 12px; }
-.choice-btn {
-    flex: 1; padding: 16px; border-radius: 18px; border: 2px solid;
-    font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase;
-    letter-spacing: 0.5px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.choice-btn:active { transform: scale(0.95); }
-.btn-fake { background: rgba(239, 68, 68, 0.12); border-color: #ef4444; color: #fca5a5; }
-.btn-true { background: rgba(34, 197, 94, 0.12); border-color: #22c55e; color: #86efac; }
+.screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-between; }
+.screen.active { display: flex; }
 
-.modal {
-    position: fixed; inset: 0; background: rgba(6, 8, 13, 0.88); backdrop-filter: blur(6px);
-    display: none; flex-direction: column; justify-content: center; align-items: center;
-    padding: 20px; z-index: 30;
+/* Экран 1: Идеальный круг */
+#circle-canvas {
+    width: 260px; height: 260px; touch-action: none; cursor: crosshair;
+    border-radius: 50%; background: rgba(255,255,255,0.02); border: 1px dashed #28354f;
 }
-.modal-box {
-    width: 100%; max-width: 400px; background: #131722; border: 1.5px solid #283248;
-    border-radius: 24px; padding: 22px 20px; display: flex; flex-direction: column; gap: 14px;
-    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-}
-.verdict-badge {
-    align-self: center; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
-}
-.verdict-win { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; }
-.verdict-lose { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; }
-.fact-truth { font-size: 18px; font-weight: 900; color: #fff; }
-.fact-story { font-size: 14px; line-height: 1.55; color: #cbd5e1; text-align: left; background: #0b0e15; padding: 14px; border-radius: 14px; border: 1px solid #1e2536; }
+.big-score { font-size: 38px; font-weight: 900; color: #38bdf8; text-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
 
-.action-btn {
-    width: 100%; padding: 15px; border-radius: 15px; border: none;
-    background: linear-gradient(90deg, #3b82f6, #2563eb); color: #fff;
-    font-size: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase;
+/* Экран 2: Возраст слуха */
+.hz-display {
+    font-size: 42px; font-weight: 900; color: #34d399; font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 24px rgba(52, 211, 153, 0.45);
 }
-.action-btn.save-streak { background: linear-gradient(90deg, #f59e0b, #ea580c); box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4); }
+.wave-bar {
+    width: 100%; height: 12px; background: #1a2234; border-radius: 10px; overflow: hidden; border: 1px solid #2a3652;
+}
+.wave-fill {
+    height: 100%; width: 0%; background: linear-gradient(90deg, #34d399, #38bdf8, #f43f5e); transition: width 0.1s linear;
+}
+.hear-btn {
+    width: 170px; height: 170px; border-radius: 50%; border: 3px solid #34d399;
+    background: radial-gradient(circle, rgba(52,211,153,0.22) 0%, rgba(16,185,129,0.05) 100%);
+    color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+    box-shadow: 0 0 30px rgba(52, 211, 153, 0.25); transition: transform 0.1s;
+}
+.hear-btn:active { transform: scale(0.94); }
+.hear-btn.running { border-color: #f43f5e; background: radial-gradient(circle, rgba(244,63,94,0.28) 0%, rgba(244,63,94,0.06) 100%); box-shadow: 0 0 30px rgba(244,63,94,0.35); }
+
+/* Экран 3: Слепой таймер */
+.timer-box {
+    font-size: 52px; font-weight: 900; font-variant-numeric: tabular-nums; color: #f59e0b;
+    text-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+}
+.hold-pad {
+    width: 100%; height: 150px; border-radius: 22px; border: 2px dashed #f59e0b;
+    background: rgba(245, 158, 11, 0.08); display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900; color: #fcd34d; text-transform: uppercase; cursor: pointer; touch-action: none;
+}
+.hold-pad.active { background: rgba(245, 158, 11, 0.25); border-style: solid; }
+
+/* Экран 4: Реакция F1 */
+.f1-lights { display: flex; gap: 10px; background: #090c12; padding: 14px 18px; border-radius: 18px; border: 1px solid #263147; }
+.lamp { width: 34px; height: 34px; border-radius: 50%; background: #1e2536; border: 2px solid #334155; transition: 0.08s; }
+.lamp.on { background: #ef4444; border-color: #fca5a5; box-shadow: 0 0 22px #ef4444; }
+.lamp.go { background: #22c55e; border-color: #86efac; box-shadow: 0 0 22px #22c55e; }
+.react-pad {
+    width: 100%; height: 165px; border-radius: 22px; background: #161e31; border: 2px solid #2e3b59;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900;
+    text-transform: uppercase; cursor: pointer; touch-action: none;
+}
+
+.bottom-actions { display: flex; gap: 10px; margin-top: 10px; }
+.btn {
+    flex: 1; padding: 14px 10px; border-radius: 16px; border: none; font-size: 13px; font-weight: 900;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.btn-share { background: linear-gradient(90deg, #3b82f6, #2563eb); color: #fff; }
+.btn-ad { background: linear-gradient(90deg, #f59e0b, #ea580c); color: #fff; box-shadow: 0 4px 18px rgba(234, 88, 12, 0.35); }
 </style>
 </head>
 <body>
 
 <div class="app">
     <div class="top-bar">
-        <div class="pill">🔥 Серия: <span class="streak-val" id="streak-txt">0</span></div>
-        <div class="pill ai-badge" id="wiki-status">📄 Новых: 85</div>
-        <div class="pill">🏆 Рекорд: <span class="best-val" id="best-txt">0</span></div>
+        <div class="pill">🔥 Дней подряд: <span class="streak-val" id="day-streak">1</span></div>
+        <div class="pill">🏆 Очки: <span class="rank-val" id="total-pts">0</span></div>
     </div>
 
-    <div class="card-arena">
-        <div class="swipe-card" id="card">
-            <div class="stamp stamp-true" id="stamp-true">ПРАВДА</div>
-            <div class="stamp stamp-fake" id="stamp-fake">ФЕЙК</div>
-            <div class="card-header">
-                <div class="card-tag" id="card-cat">Категория</div>
-                <div class="ai-tag" id="ai-tag">🌐 ИЗ СЕТИ</div>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="circle"><span class="ico">⭕</span>Круг</button>
+        <button class="tab-btn" data-tab="ear"><span class="ico">👂</span>Слух</button>
+        <button class="tab-btn" data-tab="time"><span class="ico">⏱</span>10.00с</button>
+        <button class="tab-btn" data-tab="react"><span class="ico">⚡</span>F1 Старт</button>
+    </div>
+
+    <div class="arena">
+        <!-- 1. ИДЕАЛЬНЫЙ КРУГ -->
+        <div class="screen active" id="scr-circle">
+            <div>
+                <div class="mode-title">Нарисуй идеальный круг</div>
+                <div class="mode-sub" id="circle-best">Рекорд: 0.0% • Веди пальцем вокруг точки</div>
             </div>
-            <div class="card-statement" id="card-text">Загрузка факта...</div>
-            <div class="card-hint">
-                <span>← Свайп: Фейк</span>
-                <span>Правда: Свайп →</span>
+            <canvas id="circle-canvas" width="260" height="260"></canvas>
+            <div class="big-score" id="circle-score">— %</div>
+        </div>
+
+        <!-- 2. ВОЗРАСТ СЛУХА -->
+        <div class="screen" id="scr-ear">
+            <div>
+                <div class="mode-title">Узнай возраст своих ушей</div>
+                <div class="mode-sub" id="ear-res">Включи звук и нажми «Стоп», когда перестанешь слышать</div>
             </div>
+            <div class="hz-display" id="hz-val">8 000 Гц</div>
+            <div class="wave-bar"><div class="wave-fill" id="hz-bar"></div></div>
+            <button class="hear-btn" id="ear-btn">▶ Запустить тест</button>
+        </div>
+
+        <!-- 3. СЛЕПОЙ ТАЙМЕР -->
+        <div class="screen" id="scr-time">
+            <div>
+                <div class="mode-title">Поймай ровно 10.00 секунд</div>
+                <div class="mode-sub" id="time-best">Цифры исчезнут через 2 сек! Считай про себя</div>
+            </div>
+            <div class="timer-box" id="timer-val">0.00</div>
+            <div class="hold-pad" id="time-pad">Удерживай палец здесь</div>
+        </div>
+
+        <!-- 4. РЕАКЦИЯ F1 -->
+        <div class="screen" id="scr-react">
+            <div>
+                <div class="mode-title">Реакция пилота Формулы-1</div>
+                <div class="mode-sub" id="react-best">Жми сразу, как погаснут все красные огни!</div>
+            </div>
+            <div class="f1-lights">
+                <div class="lamp" id="l1"></div>
+                <div class="lamp" id="l2"></div>
+                <div class="lamp" id="l3"></div>
+                <div class="lamp" id="l4"></div>
+                <div class="lamp" id="l5"></div>
+            </div>
+            <div class="react-pad" id="react-pad">Нажми для старта</div>
         </div>
     </div>
 
-    <div class="controls">
-        <button class="choice-btn btn-fake" id="btn-fake">❌ Фейк</button>
-        <button class="choice-btn btn-true" id="btn-true">✅ Правда</button>
-    </div>
-</div>
-
-<div class="modal" id="result-modal">
-    <div class="modal-box">
-        <div class="verdict-badge" id="verdict-badge">Вердикт</div>
-        <div class="fact-truth" id="fact-truth">Это чистая правда!</div>
-        <div class="fact-story" id="fact-story">История...</div>
-        <button class="action-btn save-streak" id="save-streak-btn" style="display:none;">❤️ Сохранить серию (за рекламу)</button>
-        <button class="action-btn" id="next-btn">Следующая карточка →</button>
+    <div class="bottom-actions">
+        <button class="btn btn-ad" id="ad-boost-btn">🎬 x2 Очки (Реклама)</button>
+        <button class="btn btn-share" id="share-btn">🔥 Вызов другу</button>
     </div>
 </div>
 
 <script>
 var tg = window.Telegram ? window.Telegram.WebApp : null;
-function openFullScreen() {
+function initTg() {
     if (!tg) return;
     try {
         tg.ready();
@@ -156,8 +193,8 @@ function openFullScreen() {
         if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
     } catch (e) {}
 }
-openFullScreen();
-setTimeout(openFullScreen, 300);
+initTg();
+setTimeout(initTg, 300);
 
 var AdController = null;
 function initAds() {
@@ -168,431 +205,344 @@ function initAds() {
     } catch (e) {}
 }
 initAds();
-setTimeout(initAds, 1000);
 
-var audioCtx = null;
-function playBeep(freq, type, dur) {
-    try {
-        if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (!audioCtx) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        var osc = audioCtx.createOscillator();
-        var gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + dur);
-    } catch (e) {}
+function haptic(type) {
+    if (tg && tg.HapticFeedback) {
+        try {
+            if (type === 'light') tg.HapticFeedback.impactOccurred('light');
+            else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
+            else tg.HapticFeedback.notificationOccurred(type);
+        } catch (e) {}
+    }
 }
 
-var baseFacts = [
-    { id: 'f1', cat: 'Безумные истории', text: 'В 1987 году американец купил пожизненный безлимит на полёты первым классом за $250 000 и налетал на $21 миллион.', isTrue: true, story: 'Реальная история! Стив Ротштейн купил проездной AAirpass у American Airlines и совершил более 10 000 перелётов.' },
-    { id: 'f2', cat: 'Природа и мир', text: 'В Японии есть целый остров, где почти нет людей, но живут больше тысячи диких ручных кроликов.', isTrue: true, story: 'Чистая правда! Остров Окуносима называют «Островом кроликов».' },
-    { id: 'f3', cat: 'Законы мира', text: 'В Швейцарии законом запрещено держать дома только одну морскую свинку — их обязаны покупать парой.', isTrue: true, story: 'Реальный закон Швейцарии! Морские свинки в одиночестве впадают в депрессию.' },
-    { id: 'f4', cat: 'Технологии', text: 'Первый компьютерный вирус создали в 1986 году два брата из Пакистана, чтобы наказать пиратов за кражу их программы.', isTrue: true, story: 'Правда! Вирус Brain вшили в медицинский софт для защиты от копирования.' },
-    { id: 'f5', cat: 'Мифы и наука', text: 'Великая Китайская стена — единственное сооружение на Земле, которое легко видно невооружённым глазом с Луны.', isTrue: false, story: 'Популярный фейк! Ширина стены всего 5–6 метров, её не видно даже с орбиты МКС без оптики.' },
-{ id: 'f6', cat: 'Криминал и аферы', text: 'В 1990-х мошенник умудрился продать банку несуществующий аэропорт за $242 миллиона, используя поддельные снимки.', isTrue: true, story: 'Реальная афера нигерийца Эммануэля Нвуде против бразильского банка Banco Noroeste.' },
-{ id: 'f7', cat: 'Еда и бренды', text: 'Coca-Cola изначально продавалась в аптеках как лечебный сироп от головной боли и расстройства нервов.', isTrue: true, story: 'Так и есть! В 1886 году фармацевт Джон Пембертон продавал этот сироп по 5 центов за стакан.' },
-{ id: 'f8', cat: 'Космос', text: 'На Венере одни сутки длятся дольше, чем целый венерианский год (оборот планеты вокруг Солнца).', isTrue: true, story: 'Абсолютная правда! Сутки на Венере длятся 243 земных дня, а год — 225 дней.' },
-{ id: 'f9', cat: 'Животный мир', text: 'Страусы при испуге действительно прячут голову в песок, чтобы хищники не заметили их светлую шею.', isTrue: false, story: 'Известный миф! Страусы убегают со скоростью до 70 км/ч либо прижимают шею к земле.' },
-{ id: 'f10', cat: 'Невероятные случаи', text: 'Американец Рой Салливан за свою жизнь пережил 7 прямых попаданий молнии и попал в Книгу рекордов Гиннесса.', isTrue: true, story: 'Реальный факт! Смотритель парка в Вирджинии пережил 7 ударов молнии с 1942 по 1977 год.' },
-{ id: 'f11', cat: 'История', text: 'Наполеон Бонапарт был карликом ростом 148 см, из-за чего и появился термин «комплекс Наполеона».', isTrue: false, story: 'Исторический фейк! Рост Наполеона был около 169 см — выше среднего для XIX века.' },
-{ id: 'f12', cat: 'Игры и кино', text: 'Создатель игры Tetris Алексей Пажитнов первые 10 лет не получал за неё ни копейки, так как права принадлежали государству.', isTrue: true, story: 'Правда! Пажитнов написал тетрис в 1984 году, а права вернулись к нему только в 1996 году.' },
-{ id: 'f13', cat: 'Психология', text: 'Человек использует свой мозг всего на 10%, а остальные 90% находятся в спящем режиме.', isTrue: false, story: 'Это киношный миф! МРТ показывает, что задействованы практически все отделы мозга.' },
-{ id: 'f14', cat: 'Природа и мир', text: 'У осьминога три сердца, девять мозгов и голубая кровь.', isTrue: true, story: 'Чистая правда! В крови осьминога вместо железа содержится медь, придающая ей голубой цвет.' },
-{ id: 'f15', cat: 'Технологии', text: 'Первая веб-камера в мире была установлена в Кембридже исключительно для того, чтобы следить за уровнем кофе в кофеварке.', isTrue: true, story: 'Реальный факт! В 1991 году программисты направили камеру на кофеварку в соседней комнате.' },
-{ id: 'f16', cat: 'История', text: 'Викинги носили в бою рогатые шлемы, чтобы устрашать врагов и бодать противников в ближнем бою.', isTrue: false, story: 'Полный вымысел! Археологи не нашли ни одного боевого шлема викингов с рогами.' },
-{ id: 'f17', cat: 'Деньги и бизнес', text: 'Компания Nintendo была основана в 1889 году — ещё до изобретения кино и автомобилей — и делала игральные карты ручной работы.', isTrue: true, story: 'Абсолютная правда! Компания открылась в Киото для выпуска японских карт «Ханафуда».' },
-{ id: 'f18', cat: 'Животный мир', text: 'Золотые рыбки помнят события всего 3 секунды, поэтому каждый круг в аквариуме для них как новый мир.', isTrue: false, story: 'Миф! Учёные доказали, что память золотых рыбок хранит информацию минимум 3–5 месяцев.' },
-{ id: 'f19', cat: 'Спорт', text: 'На Олимпийских играх с 1912 по 1948 год медали вручали не только спортсменам, но и художникам, поэтам и музыкантам.', isTrue: true, story: 'Правда! Проводились «Конкурсы искусств» на спортивную тематику.' },
-{ id: 'f20', cat: 'Еда и бренды', text: 'Мёд — единственный продукт питания, который практически не портится: археологи находили съедобный мёд в гробницах возрастом 3000 лет.', isTrue: true, story: 'Научный факт! Благодаря низкой влажности и кислотности бактерии в мёде не выживают.' },
-{ id: 'f21', cat: 'География', text: 'В Австралии диких кенгуру живёт больше, чем людей на всём континенте.', isTrue: true, story: 'Чистая правда! Людей в Австралии около 26 млн, а кенгуру — более 40–50 млн.' },
-{ id: 'f22', cat: 'Наука', text: 'Молния никогда не бьёт в одно и то же место дважды.', isTrue: false, story: 'Опасный миф! В небоскрёб Эмпайр-стейт-билдинг молния попадает 20–25 раз в год.' },
-{ id: 'f23', cat: 'Законы мира', text: 'В Сингапуре запрещён ввоз и продажа жевательной резинки — за нарушение можно получить крупный штраф.', isTrue: true, story: 'Реальный закон! В 1992 году власти запретили жвачку из-за вандалов в метро.' },
-{ id: 'f24', cat: 'Космос', text: 'На планете Сатурн и Юпитер действительно идут настоящие дожди из алмазов.', isTrue: true, story: 'Научная правда! Под огромным давлением углерод в атмосфере сжимается в кристаллы алмазов.' },
-{ id: 'f25', cat: 'История', text: 'В Древнем Египте пирамиды строили исключительно закованные в цепи рабы под ударами надсмотрщиков.', isTrue: false, story: 'Исторический миф! Пирамиды возводили наёмные квалифицированные рабочие за зарплату.' },
-{ id: 'f26', cat: 'Животный мир', text: 'У вомбатов — австралийских сумчатых зверьков — экскременты имеют форму почти идеальных кубиков.', isTrue: true, story: 'Чистая правда! Кубическая форма нужна, чтобы пометки территории не скатывались со склонов.' },
-{ id: 'f27', cat: 'Еда и бренды', text: 'В составе газировки Fanta изначально не было апельсинов — её придумали в Германии во время войны из яблочного жмыха и молочной сыворотки.', isTrue: true, story: 'Реальный факт! В 1940 году немецкому отделению Coca-Cola не хватало сиропа из-за блокады.' },
-{ id: 'f28', cat: 'Природа и мир', text: 'Бананы с точки зрения ботаники являются ягодами, а клубника ягодой не является.', isTrue: true, story: 'Научный факт! Банан — классическая ягода, а клубника — многоорешек.' },
-{ id: 'f29', cat: 'Мифы и наука', text: 'Если бросить монетку с крыши небоскрёба Эмпайр-стейт-билдинг, она разгонится так сильно, что пробьёт голову прохожему.', isTrue: false, story: 'Физический фейк! Сопротивление воздуха ограничивает скорость монеты до 50–80 км/ч.' },
-{ id: 'f30', cat: 'Игры и кино', text: 'Маскот Sega ёж Соник был придуман в 1991 году как прямой конкурент водопроводчику Марио от Nintendo.', isTrue: true, story: 'Так и есть! Синий цвет Соника выбрали под цвет логотипа компании Sega.' },
-{ id: 'f31', cat: 'Невероятные случаи', text: 'В 1971 году угонщик самолёта Дэн Купер выпрыгнул с парашютом и $200 000 над лесами США и бесследно исчез — его не нашли до сих пор.', isTrue: true, story: 'Реальная тайна ФБР! Единственный нераскрытый угон самолёта в истории США.' },
-{ id: 'f32', cat: 'Животный мир', text: 'Быки приходят в ярость именно от красного цвета плаща матадора.', isTrue: false, story: 'Заблуждение! Быки не различают красный цвет — их злит резкое движение ткани.' },
-{ id: 'f33', cat: 'Технологии', text: 'Первым в мире SMS-сообщением был текст «С Рождеством» (Merry Christmas), отправленный в декабре 1992 года.', isTrue: true, story: 'Чистая правда! Сообщение отправил инженер Нил Папуорт 3 декабря 1992 года.' },
-{ id: 'f34', cat: 'География', text: 'В России больше часовых поясов, чем в любой другой стране мира — целых 11.', isTrue: false, story: 'Ловушка! Мировой рекордсмен — Франция (12 часовых поясов благодаря заморским территориям).' },
-{ id: 'f35', cat: 'Наука', text: 'Горячая вода при определённых условиях может замерзать быстрее холодной.', isTrue: true, story: 'Реальный физический эффект Мпембы.' },
-{ id: 'f36', cat: 'История', text: 'В Древнем Риме мочу использовали как жидкость для полоскания рта и отбеливания зубов.', isTrue: true, story: 'Жуткая правда! В моче содержится аммиак, который действительно отбеливал эмаль.' },
-{ id: 'f37', cat: 'Космос', text: 'Следы астронавтов на Луне исчезнут через пару лет из-за сильных лунных ветров.', isTrue: false, story: 'Фейк! На Луне нет атмосферы и ветра, поэтому следы сохранятся миллионы лет.' },
-{ id: 'f38', cat: 'Животный мир', text: 'У коал отпечатки пальцев настолько похожи на человеческие, что их можно спутать даже под микроскопом.', isTrue: true, story: 'Чистая правда! Это редкий пример конвергентной эволюции.' },
-{ id: 'f39', cat: 'Еда и бренды', text: 'Белый шоколад на самом деле не содержит какао-тёртого, а делается только из какао-масла, сахара и молока.', isTrue: true, story: 'Правда! Именно поэтому он имеет цвет слоновой кости, а не коричневый.' },
-{ id: 'f40', cat: 'Технологии', text: 'Символ «@» (собака) придумали программисты в 1971 году специально для электронной почты.', isTrue: false, story: 'Фейк! Этот символ использовали ещё средневековые монахи и купцы для обозначения меры веса.' },
-{ id: 'f41', cat: 'Природа и мир', text: 'Акулы появились на Земле раньше, чем деревья и динозавры.', isTrue: true, story: 'Абсолютная правда! Акулы существуют около 400 млн лет, а первые деревья — около 350 млн.' },
-{ id: 'f42', cat: 'История', text: 'Клеопатра жила ближе по времени к высадке человека на Луну, чем к строительству пирамид в Гизе.', isTrue: true, story: 'Факт! Пирамиды построили за 2500 лет до Клеопатры, а до высадки на Луну прошло около 2000 лет.' },
-{ id: 'f43', cat: 'Мифы и наука', text: 'Хамелеоны меняют цвет кожи исключительно для того, чтобы слиться с окружающей средой.', isTrue: false, story: 'Миф! В первую очередь цвет хамелеона зависит от его настроения, температуры и общения с сородичами.' },
-{ id: 'f44', cat: 'Криминал и аферы', text: 'В 1925 году мошенник Виктор Люстиг дважды умудрился «продать» Эйфелеву башню на металлолом.', isTrue: true, story: 'Реальная история! После первой аферы он вернулся в Париж и провернул трюк ещё раз.' },
-{ id: 'f45', cat: 'География', text: 'Площадь поверхности Плутона меньше, чем площадь территории России.', isTrue: true, story: 'Чистая правда! Площадь Плутона около 17,7 млн км², а площадь России — 17,1 млн км² (почти равны, Плутон чуть больше, но меньше Евразии — это утверждение ФЕЙК!).', isTrue: false, story: 'Подвох! Площадь поверхности Плутона (17,7 млн км²) чуть больше площади России (17,1 млн км²).' },
-{ id: 'f46', cat: 'Наука', text: 'Человеческая ДНК на 50–60% совпадает с ДНК обычного банана.', isTrue: true, story: 'Научный факт! Базовые гены, отвечающие за деление клеток, общие для всех живых организмов.' },
-{ id: 'f47', cat: 'Игры и кино', text: 'Звук световых мечей в «Звёздных войнах» создали с помощью гудения старого кинопроектора и помех телевизора.', isTrue: true, story: 'Чистая правда! Звукорежиссёр Бен Бёртт записал гул проектора и наложил на него наводки микрофона у телеэкрана.' },
-{ id: 'f48', cat: 'Животный мир', text: 'Летучие мыши абсолютно слепы и ориентируются в пространстве только с помощью эхолокации.', isTrue: false, story: 'Миф! Все виды летучих мышей умеют видеть, а крупные крыланы видят даже лучше людей в сумерках.' },
-{ id: 'f49', cat: 'Деньги и бизнес', text: 'Основатель сети IKEA Ингвар Кампрад до глубокой старости ездил на старенькой Volvo и летал эконом-классом.', isTrue: true, story: 'Правда! Несмотря на миллиардное состояние, он был известен патологической бережливостью.' },
-{ id: 'f50', cat: 'Законы мира', text: 'В Японии официально запрещено быть толстым — закон «Метабо» обязывает компании ежегодно измерять талию сотрудников старше 40 лет.', isTrue: true, story: 'Реальный закон 2008 года! Норма талии: до 85 см для мужчин и до 90 см для женщин.' },
-{ id: 'f51', cat: 'Космос', text: 'Солнце на самом деле белого цвета, а жёлтым кажется нам только из-за земной атмосферы.', isTrue: true, story: 'Научный факт! Из космоса Солнце выглядит ослепительно белым.' },
-{ id: 'f52', cat: 'История', text: 'Знаменитый полководец Александр Македонский никогда не проиграл ни одного сражения за всю свою жизнь.', isTrue: true, story: 'Исторический факт! За 15 лет завоеваний он не потерпел ни одного поражения.' },
-{ id: 'f53', cat: 'Мифы и наука', text: 'Волосы и ногти человека продолжают расти ещё несколько дней после смерти.', isTrue: false, story: 'Миф! Кожа после смерти высыхает и стягивается, из-за чего кажется, что ногти и щетина стали длиннее.' },
-{ id: 'f54', cat: 'Еда и бренды', text: 'Кетчуп в начале XIX века продавался в США как лекарство от расстройства желудка и желтухи.', isTrue: true, story: 'Правда! В 1834 году доктор Джон Кук Беннетт выпускал томатные таблетки на основе кетчупа.' },
-{ id: 'f55', cat: 'Природа и мир', text: 'Самое громкое живое существо на планете — не синий кит, а крошечная креветка-щелкун.', isTrue: false, story: 'Фейк! Креветка-щелкун издаёт щелчок до 200 дБ, но синий кит и кашалот громче (до 230 дБ).' },
-{ id: 'f56', cat: 'Технологии', text: 'Первая компьютерная мышь, созданная Дугласом Энгельбартом в 1964 году, была сделана из дерева.', isTrue: true, story: 'Чистая правда! У неё был деревянный корпус и две металлические колёсика.' },
-{ id: 'f57', cat: 'География', text: 'В Антарктиде есть действующий вулкан Эребус, который выбрасывает в воздух микроскопические частицы настоящего золота.', isTrue: true, story: 'Научный факт! Ежедневно вулкан выбрасывает около 80 граммов золотой пыли.' },
-{ id: 'f58', cat: 'Животный мир', text: 'Крокодилы не умеют высовывать язык изо рта.', isTrue: true, story: 'Правда! Язык крокодила прирос к нижней челюсти специальной мембраной.' },
-{ id: 'f59', cat: 'История', text: 'В Средние века люди массово верили, что Земля плоская, и боялись упасть с её края.', isTrue: false, story: 'Исторический миф XIX века! Образованные люди знали о шарообразности Земли ещё со времён Древней Греции.' },
-{ id: 'f60', cat: 'Спорт', text: 'Баскетбол изначально играли обычным футбольным мячом, а вместо колец использовали корзины из-под персиков.', isTrue: true, story: 'Чистая правда! После каждого гола судье приходилось залезать по лестнице, чтобы достать мяч.' },
-{ id: 'f61', cat: 'Наука', text: 'В стакане воды атомов больше, чем стаканов воды во всех океанах Земли.', isTrue: true, story: 'Математический факт! В одном стакане около 10^25 атомов, а стаканов в океанах — около 10^21.' },
-{ id: 'f62', cat: 'Игры и кино', text: 'В фильме «Титаник» 1997 года рисунки в альбоме Джека на самом деле рисовал сам режиссёр Джеймс Кэмерон.', isTrue: true, story: 'Правда! Кэмерон левша, поэтому при монтаже кадры с его руками отзеркалили под правшу Ди Каприо.' },
-{ id: 'f63', cat: 'Законы мира', text: 'В Великобритании запрещено умирать в здании Парламента, так как умершего там придётся хоронить за государственный счёт.', isTrue: false, story: 'Городская легенда! Такого закона никогда не существовало, хотя этот миф очень популярен в Лондоне.' },
-{ id: 'f64', cat: 'Природа и мир', text: 'Грибы с точки зрения биологии ближе к животным, чем к растениям.', isTrue: true, story: 'Научный факт! У грибов нет хлорофилла, а их клеточные стенки состоят из хитина, как у насекомых.' },
-{ id: 'f65', cat: 'Космос', text: 'Один день на Меркурии длится в два раза дольше, чем целый меркурианский год.', isTrue: true, story: 'Правда! Меркурий делает оборот вокруг Солнца за 88 земных дней, а солнечные сутки там длятся 176 дней.' },
-{ id: 'f66', cat: 'Деньги и бизнес', text: 'Основатель Amazon Джефф Безос изначально хотел назвать свой магазин «Cadabra» (от слова Абракадабра).', isTrue: true, story: 'Чистая правда! Юрист отговорил его, так как по телефону слово звучало как «cadaver» (труп).' },
-{ id: 'f67', cat: 'Животный мир', text: 'Слоны — единственные млекопитающие, которые физически не умеют прыгать.', isTrue: true, story: 'Правда! Из-за огромного веса и строения ног слон не может оторвать все четыре конечности от земли.' },
-{ id: 'f68', cat: 'Мифы и наука', text: 'Если разбудить лунатика во время хождения во сне, он может умереть от разрыва сердца.', isTrue: false, story: 'Миф! Разбуженный лунатик просто испугается и дезориентируется, но это не смертельно.' },
-{ id: 'f69', cat: 'История', text: 'В 1932 году австралийская армия с пулемётами объявила настоящую войну диким птицам эму и проиграла её.', isTrue: true, story: 'Знаменитая «Война с эму»! Птицы оказались слишком быстрыми и живучими для военных.' },
-{ id: 'f70', cat: 'Технологии', text: 'Знаменитые «падающие зелёные символы» в фильме «Матрица» на самом деле являются отсканированными рецептами японских суши.', isTrue: true, story: 'Чистая правда! Дизайнер Саймон Уайтли отсканировал символы из кулинарной книги своей жены-японки.' },
-{ id: 'f71', cat: 'Еда и бренды', text: 'Арахис на самом деле не является орехом — он относится к семейству бобовых, как горох и фасоль.', isTrue: true, story: 'Ботанический факт! Плоды арахиса созревают под землёй.' },
-{ id: 'f72', cat: 'География', text: 'Самая сухая пустыня на Земле — это пустыня Сахара в Африке.', isTrue: false, story: 'Фейк! Самое сухое место на планете — пустыня Атакама в Чили (и сухие долины Мак-Мердо в Антарктиде).' },
-{ id: 'f73', cat: 'Психология', text: 'Эффект Манделы — это явление, когда тысячи людей одновременно имеют ложные воспоминания об одном и том же событии.', isTrue: true, story: 'Правда! Термин появился после того, как многие были уверены, что Нельсон Мандела умер в тюрьме в 1980-х.' },
-{ id: 'f74', cat: 'Наука', text: 'Стекло на самом деле является очень густой жидкостью, поэтому старинные витражи в соборах толще снизу.', isTrue: false, story: 'Популярный миф! Стекло — аморфное твёрдое тело, а витражи ставили толстым краем вниз сами мастера для устойчивости.' },
-{ id: 'f75', cat: 'Игры и кино', text: 'Персонаж Марио в самой первой игре Donkey Kong 1981 года был плотником, а не водопроводчиком.', isTrue: true, story: 'Чистая правда! Профессию водопроводчика он получил позже, когда действие перенесли в подземелья.' },
-{ id: 'f76', cat: 'Невероятные случаи', text: 'Японец Цутому Ямагути официально признан человеком, пережившим обе атомные бомбардировки — и в Хиросиме, и в Нагасаки.', isTrue: true, story: 'Реальный факт! Он был в командировке в Хиросиме 6 августа, а 9 августа вернулся домой в Нагасаки и прожил до 93 лет.' },
-{ id: 'f77', cat: 'Животный мир', text: 'У жирафа в шее столько же позвонков, сколько и у человека — ровно семь.', isTrue: true, story: 'Научный факт! Просто каждый позвонок жирафа достигает 25 сантиметров в длину.' },
-{ id: 'f78', cat: 'Криминал и аферы', text: 'Знаменитый гангстер Аль Капоне сел в тюрьму не за убийства и бутлегерство, а за неуплату налогов.', isTrue: true, story: 'Исторический факт! В 1931 году его приговорили к 11 годам именно за уклонение от налогов.' },
-{ id: 'f79', cat: 'Космос', text: 'В космосе невозможно заплакать, потому что из-за отсутствия гравитации слёзы не текут, а собираются в шар на глазах.', isTrue: true, story: 'Правда! Астронавты подтвердили, что слёзы просто накапливаются вокруг глазного яблока и щиплют.' },
-{ id: 'f80', cat: 'История', text: 'Эйфелева башня летом становится выше примерно на 15 сантиметров из-за теплового расширения металла.', isTrue: true, story: 'Физический факт! На жаре железные конструкции башни расширяются.' }
-];
-var wikiFacts = [];
-try {
-wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v8') || '[]');
-} catch (e) { wikiFacts = []; }
-var seenIds = [];
-try {
-seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v8') || '[]');
-} catch (e) { seenIds = []; }
-function persistSeenHistory() {
-var trimmed = seenIds.slice(-1000);
-try { localStorage.setItem('tf_seen_ids_v8', JSON.stringify(trimmed)); } catch (e) {}
-if (tg && tg.CloudStorage) {
-try {
-var packed = trimmed.slice(-300).join(',');
-tg.CloudStorage.setItem('seen_v8', packed);
-} catch (e) {}
+// Прогресс и очки
+var totalPts = parseInt(localStorage.getItem('ca_pts') || '0', 10);
+var bestCircle = parseFloat(localStorage.getItem('ca_circle') || '0');
+var bestTimeDiff = parseFloat(localStorage.getItem('ca_time') || '99');
+var bestReact = parseInt(localStorage.getItem('ca_react') || '999', 10);
+var lastShareText = 'Проверь свои сверхспособности в Челлендж Арене!';
+
+var ptsEl = document.getElementById('total-pts');
+ptsEl.innerText = totalPts;
+function addPoints(p) {
+totalPts += p;
+ptsEl.innerText = totalPts;
+localStorage.setItem('ca_pts', totalPts);
 }
+// Ударная серия дней
+(function updateDayStreak() {
+var today = new Date().toDateString();
+var lastDay = localStorage.getItem('ca_last_day');
+var dStreak = parseInt(localStorage.getItem('ca_day_streak') || '1', 10);
+if (lastDay && lastDay !== today) {
+var diff = (new Date(today) - new Date(lastDay)) / (1000 * 3600 * 24);
+dStreak = (diff === 1) ? dStreak + 1 : 1;
 }
-function getFactHash(str) {
-var hash = 0;
-for (var i = 0; i < str.length; i++) {
-hash = ((hash << 5) - hash) + str.charCodeAt(i);
-hash |= 0;
+localStorage.setItem('ca_last_day', today);
+localStorage.setItem('ca_day_streak', dStreak);
+document.getElementById('day-streak').innerText = dStreak;
+})();
+// Переключение вкладок
+var tabs = document.querySelectorAll('.tab-btn');
+var screens = document.querySelectorAll('.screen');
+tabs.forEach(function(btn) {
+btn.addEventListener('click', function() {
+stopEarTest();
+tabs.forEach(function(b) { b.classList.remove('active'); });
+screens.forEach(function(s) { s.classList.remove('active'); });
+btn.classList.add('active');
+document.getElementById('scr-' + btn.dataset.tab).classList.add('active');
+haptic('light');
+});
+});
+// ================= 1. ИДЕАЛЬНЫЙ КРУГ =================
+var canvas = document.getElementById('circle-canvas');
+var ctx = canvas.getContext('2d');
+var circleScoreEl = document.getElementById('circle-score');
+var circleBestEl = document.getElementById('circle-best');
+if (bestCircle > 0) circleBestEl.innerText = 'Твой рекорд: ' + bestCircle.toFixed(1) + '%';
+var drawing = false;
+var points = [];
+var cx = 130, cy = 130;
+function drawCenterDot() {
+ctx.clearRect(0, 0, 260, 260);
+ctx.beginPath();
+ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+ctx.fillStyle = '#38bdf8';
+ctx.fill();
 }
-return 'h' + Math.abs(hash).toString(36);
+drawCenterDot();
+function getPos(e) {
+var rect = canvas.getBoundingClientRect();
+var clientX = e.touches ? e.touches.clientX : e.clientX;
+var clientY = e.touches ? e.touches.clientY : e.clientY;
+return { x: clientX - rect.left, y: clientY - rect.top };
 }
-var deck = [];
-var currentCard = null;
-var streak = 0;
-var bestStreak = parseInt(localStorage.getItem('tf_best_streak') || '0', 10);
-var isAnimating = false;
-var isFetchingWiki = false;
-var streakTxt = document.getElementById('streak-txt');
-var bestTxt = document.getElementById('best-txt');
-var wikiStatus = document.getElementById('wiki-status');
-bestTxt.innerText = bestStreak;
-var cardEl = document.getElementById('card');
-var cardCat = document.getElementById('card-cat');
-var aiTag = document.getElementById('ai-tag');
-var cardText = document.getElementById('card-text');
-var stampTrue = document.getElementById('stamp-true');
-var stampFake = document.getElementById('stamp-fake');
-var resultModal = document.getElementById('result-modal');
-var verdictBadge = document.getElementById('verdict-badge');
-var factTruth = document.getElementById('fact-truth');
-var factStory = document.getElementById('fact-story');
-var saveStreakBtn = document.getElementById('save-streak-btn');
-var nextBtn = document.getElementById('next-btn');
-// JSONP-загрузчик для Википедии (обходит блокировки CORS в мобильных браузерах)
-function fetchWikipediaJSONP() {
-if (isFetchingWiki) return;
-isFetchingWiki = true;
-var cbName = 'wikiCb_' + Date.now();
-var script = document.createElement('script');
-window[cbName] = function(data) {
-try {
-if (data && data.query && data.query.pages) {
-var pages = Object.values(data.query.pages);
-var added = 0;
-for (var i = 0; i < pages.length; i++) {
-var p = pages[i];
-if (!p.extract || p.extract.length < 55) continue;
-if (p.title && (p.title.indexOf('(значения)') !== -1 || p.title.indexOf('Список ') === 0)) continue;
-var cleanText = p.extract.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
-if (cleanText.length < 50) continue;
-if (cleanText.length > 320) {
-var firstDot = cleanText.indexOf('. ', 60);
-if (firstDot !== -1 && firstDot < 300) {
-cleanText = cleanText.substring(0, firstDot + 1);
+function startDraw(e) {
+drawing = true;
+points = [];
+drawCenterDot();
+var p = getPos(e);
+points.push(p);
+circleScoreEl.innerText = 'Рисуй...';
+circleScoreEl.style.color = '#94a3b8';
+}
+function moveDraw(e) {
+if (!drawing) return;
+if (e.cancelable) e.preventDefault();
+var p = getPos(e);
+var prev = points[points.length - 1];
+points.push(p);
+var dist = Math.hypot(p.x - cx, p.y - cy);
+ctx.beginPath();
+ctx.moveTo(prev.x, prev.y);
+ctx.lineTo(p.x, p.y);
+ctx.lineWidth = 5;
+ctx.lineCap = 'round';
+ctx.strokeStyle = dist < 25 ? '#ef4444' : '#38bdf8';
+ctx.stroke();
+}
+function endDraw() {
+if (!drawing) return;
+drawing = false;
+if (points.length < 25) {
+circleScoreEl.innerText = 'Слишком коротко!';
+return;
+}
+var radii = points.map(function(p) { return Math.hypot(p.x - cx, p.y - cy); });
+var avgR = radii.reduce(function(a, b) { return a + b; }, 0) / radii.length;
+if (avgR < 30) {
+circleScoreEl.innerText = 'Рисуй шире!';
+return;
+}
+// Проверка угла охвата (замкнут ли круг)
+var minA = 999, maxA = -999, totalAngle = 0;
+for (var i = 1; i < points.length; i++) {
+var a1 = Math.atan2(points[i - 1].y - cy, points[i - 1].x - cx);
+var a2 = Math.atan2(points[i].y - cy, points[i].x - cx);
+var da = a2 - a1;
+if (da > Math.PI) da -= Math.PI * 2;
+if (da < -Math.PI) da += Math.PI * 2;
+totalAngle += da;
+}
+var coverage = Math.min(1, Math.abs(totalAngle) / (Math.PI * 1.85));
+var variance = radii.reduce(function(acc, r) { return acc + Math.abs(r - avgR); }, 0) / radii.length;
+var rawScore = Math.max(0, (1 - (variance / avgR) * 2.1)) * 100 * coverage;
+var finalScore = Math.min(99.9, Math.max(12.4, rawScore));
+circleScoreEl.innerText = finalScore.toFixed(1) + '%';
+circleScoreEl.style.color = finalScore >= 92 ? '#22c55e' : (finalScore >= 80 ? '#38bdf8' : '#f59e0b');
+if (finalScore > bestCircle) {
+bestCircle = finalScore;
+localStorage.setItem('ca_circle', bestCircle.toFixed(1));
+circleBestEl.innerText = 'Новый рекорд: ' + bestCircle.toFixed(1) + '%';
+haptic('success');
 } else {
-continue;
+haptic('light');
 }
+addPoints(Math.round(finalScore / 5));
+lastShareText = 'Я нарисовал идеальный круг на ' + finalScore.toFixed(1) + '%! Спорим, не побьёшь?';
 }
-var cardId = 'w' + p.pageid;
-if (seenIds.indexOf(cardId) !== -1) continue;
-if (deck.some(function(d) { return d.id === cardId; })) continue;
-var makeFake = false;
-var displayText = cleanText;
-var storyText = 'Чистая правда из энциклопедии о теме «' + p.title + '».';
-var yearMatch = cleanText.match(/\b(1[4-9]\d\d|20[0-2]\d)\b/);
-if (yearMatch && yearMatch.length > 0 && Math.random() < 0.5) {
-var realYearStr = yearMatch;
-var realYear = parseInt(realYearStr, 10);
-var fakeYear = realYear + (Math.random() < 0.5 ? 18 : -21);
-if (fakeYear > 2025) fakeYear = realYear - 24;
-displayText = cleanText.replace(realYearStr, String(fakeYear));
-makeFake = true;
-storyText = 'Подвох в дате! На самом деле в статье Википедии о теме «' + p.title + '» указан ' + realYearStr + ' год, а не ' + fakeYear + '.';
+canvas.addEventListener('touchstart', startDraw, { passive: false });
+canvas.addEventListener('touchmove', moveDraw, { passive: false });
+canvas.addEventListener('touchend', endDraw);
+canvas.addEventListener('mousedown', startDraw);
+window.addEventListener('mousemove', moveDraw);
+window.addEventListener('mouseup', endDraw);
+// ================= 2. ВОЗРАСТ СЛУХА =================
+var earBtn = document.getElementById('ear-btn');
+var hzVal = document.getElementById('hz-val');
+var hzBar = document.getElementById('hz-bar');
+var earRes = document.getElementById('ear-res');
+var earAudio = null, earOsc = null, earTimer = null, currentHz = 8000, isHearing = false;
+function stopEarTest() {
+if (!isHearing) return;
+isHearing = false;
+clearInterval(earTimer);
+try { if (earOsc) earOsc.stop(); } catch (e) {}
+earBtn.classList.remove('running');
+earBtn.innerText = '▶ Пройти заново';
+var age = 65;
+if (currentHz >= 18500) age = 16;
+else if (currentHz >= 17000) age = 20;
+else if (currentHz >= 15500) age = 25;
+else if (currentHz >= 14000) age = 32;
+else if (currentHz >= 12000) age = 40;
+else if (currentHz >= 10000) age = 50;
+earRes.innerText = 'Биологический возраст твоих ушей: ~' + age + ' лет!';
+addPoints(25);
+haptic('success');
+lastShareText = 'Мой слух на ' + Math.round(currentHz) + ' Гц — ушам всего ' + age + ' лет! Проверь свои:';
 }
-var cardObj = {
-id: cardId,
-cat: 'Энциклопедия',
-text: displayText,
-isTrue: !makeFake,
-isWiki: true,
-story: storyText
-};
-wikiFacts.push(cardObj);
-deck.unshift(cardObj);
-added++;
+earBtn.addEventListener('click', function() {
+if (isHearing) {
+stopEarTest();
+return;
 }
-if (added > 0) {
-if (wikiFacts.length > 500) wikiFacts = wikiFacts.slice(-500);
-try { localStorage.setItem('tf_wiki_cache_v8', JSON.stringify(wikiFacts)); } catch (e) {}
-wikiStatus.innerHTML = '📄 Новых: ' + deck.length;
-}
-}
-} catch (e) {}
-cleanup();
-};
-function cleanup() {
-isFetchingWiki = false;
-try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-if (script.parentNode) script.parentNode.removeChild(script);
-}
-script.onerror = cleanup;
-script.src = 'wikipedia.org∝=extracts&exintro=1&explaintext=1&exsentences=2&format=json&callback=' + cbName;
-document.head.appendChild(script);
-setTimeout(cleanup, 6000);
-}
-function buildFreshDeck() {
-var all = baseFacts.concat(wikiFacts);
-var unseen = all.filter(function(item) {
-return seenIds.indexOf(item.id) === -1 && seenIds.indexOf(getFactHash(item.text)) === -1;
-});
-for (var i = unseen.length - 1; i > 0; i--) {
-var j = Math.floor(Math.random() * (i + 1));
-var temp = unseen[i];
-unseen[i] = unseen[j];
-unseen[j] = temp;
-}
-deck = unseen;
-wikiStatus.innerHTML = '📄 Новых: ' + deck.length;
-}
-function loadNextCard() {
-if (deck.length === 0) buildFreshDeck();
-if (deck.length < 20) fetchWikipediaJSONP();
-if (deck.length === 0) {
-// Если пройдены абсолютно все 80+ карточек и офлайн, открываем самые старые 15
-seenIds = seenIds.slice(15);
-persistSeenHistory();
-buildFreshDeck();
-}
-currentCard = deck.pop();
-if (currentCard) {
-if (currentCard.id && seenIds.indexOf(currentCard.id) === -1) {
-seenIds.push(currentCard.id);
-}
-var textHash = getFactHash(currentCard.text);
-if (seenIds.indexOf(textHash) === -1) {
-seenIds.push(textHash);
-}
-persistSeenHistory();
-}
-wikiStatus.innerHTML = '📄 Новых: ' + deck.length;
-cardCat.innerText = currentCard.cat || 'Факт';
-cardText.innerText = currentCard.text;
-aiTag.style.display = currentCard.isWiki ? 'block' : 'none';
-cardEl.style.transition = 'none';
-cardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
-cardEl.style.opacity = '1';
-stampTrue.style.opacity = '0';
-stampFake.style.opacity = '0';
-isAnimating = false;
-}
-function initGameWithCloud() {
-if (tg && tg.CloudStorage) {
 try {
-tg.CloudStorage.getItem('seen_v8', function(err, cloudVal) {
-if (!err && cloudVal) {
-var cloudArr = cloudVal.split(',').filter(Boolean);
-for (var i = 0; i < cloudArr.length; i++) {
-if (seenIds.indexOf(cloudArr[i]) === -1) {
-seenIds.push(cloudArr[i]);
+if (!earAudio) earAudio = new (window.AudioContext || window.webkitAudioContext)();
+if (earAudio.state === 'suspended') earAudio.resume();
+earOsc = earAudio.createOscillator();
+var gain = earAudio.createGain();
+gain.gain.setValueAtTime(0.12, earAudio.currentTime);
+currentHz = 8000;
+earOsc.frequency.setValueAtTime(currentHz, earAudio.currentTime);
+earOsc.connect(gain);
+gain.connect(earAudio.destination);
+earOsc.start();
+} catch (e) {
+earRes.innerText = 'Включи звук на телефоне для теста!';
+return;
 }
+isHearing = true;
+earBtn.classList.add('running');
+earBtn.innerText = '⏹ Я перестал слышать!';
+earRes.innerText = 'Слушай внимательно... Нажми кнопку, как звук пропадёт';
+earTimer = setInterval(function() {
+currentHz += 120;
+if (currentHz >= 20000) {
+currentHz = 20000;
+stopEarTest();
+return;
 }
-try { localStorage.setItem('tf_seen_ids_v8', JSON.stringify(seenIds)); } catch (e) {}
-}
-buildFreshDeck();
-loadNextCard();
-fetchWikipediaJSONP();
+try { earOsc.frequency.setValueAtTime(currentHz, earAudio.currentTime); } catch (e) {}
+hzVal.innerText = currentHz.toLocaleString('ru-RU') + ' Гц';
+hzBar.style.width = ((currentHz - 8000) / 12000 * 100) + '%';
+}, 100);
 });
+// ================= 3. СЛЕПОЙ ТАЙМЕР 10.00с =================
+var timerVal = document.getElementById('timer-val');
+var timePad = document.getElementById('time-pad');
+var timeBestEl = document.getElementById('time-best');
+var timeStart = 0, timeInt = null, isTiming = false;
+function startBlindTimer(e) {
+if (e && e.cancelable) e.preventDefault();
+if (isTiming) return;
+isTiming = true;
+timeStart = performance.now();
+timePad.classList.add('active');
+timePad.innerText = 'Отпусти ровно на 10.00 сек!';
+haptic('light');
+timeInt = setInterval(function() {
+var sec = (performance.now() - timeStart) / 1000;
+if (sec < 2.2) {
+timerVal.innerText = sec.toFixed(2);
+timerVal.style.opacity = '1';
+} else {
+timerVal.innerText = '??.??';
+timerVal.style.opacity = '0.45';
+}
+}, 30);
+}
+function stopBlindTimer() {
+if (!isTiming) return;
+isTiming = false;
+clearInterval(timeInt);
+timePad.classList.remove('active');
+timePad.innerText = 'Удерживай палец здесь';
+var finalSec = (performance.now() - timeStart) / 1000;
+timerVal.style.opacity = '1';
+timerVal.innerText = finalSec.toFixed(2) + ' с';
+var diff = Math.abs(10.0 - finalSec);
+if (diff < bestTimeDiff) {
+bestTimeDiff = diff;
+localStorage.setItem('ca_time', diff.toFixed(2));
+}
+timeBestEl.innerText = 'Погрешность: ' + diff.toFixed(2) + ' сек (Рекорд: ' + bestTimeDiff.toFixed(2) + 'с)';
+addPoints(diff < 0.25 ? 40 : 15);
+haptic(diff < 0.2 ? 'success' : 'heavy');
+lastShareText = 'Я остановил слепой таймер на ' + finalSec.toFixed(2) + ' сек (цель 10.00)! Попробуй повторить:';
+}
+timePad.addEventListener('touchstart', startBlindTimer, { passive: false });
+timePad.addEventListener('touchend', stopBlindTimer);
+timePad.addEventListener('mousedown', startBlindTimer);
+window.addEventListener('mouseup', stopBlindTimer);
+// ================= 4. РЕАКЦИЯ F1 =================
+var reactPad = document.getElementById('react-pad');
+var reactBestEl = document.getElementById('react-best');
+var lamps = [1,2,3,4,5].map(function(i) { return document.getElementById('l' + i); });
+var f1State = 'idle', f1Timers = [], goTime = 0;
+function resetLamps() {
+f1Timers.forEach(clearTimeout);
+f1Timers = [];
+lamps.forEach(function(l) { l.className = 'lamp'; });
+}
+reactPad.addEventListener('pointerdown', function() {
+if (f1State === 'idle') {
+f1State = 'waiting';
+resetLamps();
+reactPad.innerText = 'Жди, когда погаснут огни...';
+reactPad.style.borderColor = '#ef4444';
+for (var i = 0; i < 5; i++) {
+(function(idx) {
+f1Timers.push(setTimeout(function() {
+lamps[idx].classList.add('on');
+haptic('light');
+}, (idx + 1) * 550));
+})(i);
+}
+var randomDelay = 3000 + Math.random() * 2200;
+f1Timers.push(setTimeout(function() {
+lamps.forEach(function(l) { l.className = 'lamp go'; });
+f1State = 'go';
+goTime = performance.now();
+reactPad.innerText = 'ЖМИ СЕЙЧАС!';
+reactPad.style.borderColor = '#22c55e';
+haptic('heavy');
+}, randomDelay));
+} else if (f1State === 'waiting') {
+resetLamps();
+f1State = 'idle';
+reactPad.innerText = '❌ ФАЛЬСТАРТ! Нажми заново';
+reactPad.style.borderColor = '#ef4444';
+haptic('error');
+} else if (f1State === 'go') {
+var ms = Math.round(performance.now() - goTime);
+f1State = 'idle';
+if (ms < bestReact) {
+bestReact = ms;
+localStorage.setItem('ca_react', bestReact);
+}
+reactPad.innerText = '⚡ ' + ms + ' мс! (Нажми ещё)';
+reactBestEl.innerText = 'Лучшая реакция: ' + bestReact + ' мс';
+addPoints(ms < 250 ? 35 : 15);
+haptic('success');
+lastShareText = 'Моя реакция на старте F1 — ' + ms + ' мс! Быстрее тебя?';
+}
+});
+// ================= КНОПКИ РЕКЛАМЫ И ВЫЗОВА =================
+document.getElementById('share-btn').addEventListener('click', function() {
+if (tg && tg.switchInlineQuery) {
+try {
+tg.switchInlineQuery(lastShareText + ' @reaction_duel_1v1_bot', ['users', 'groups', 'channels']);
 return;
 } catch (e) {}
 }
-buildFreshDeck();
-loadNextCard();
-fetchWikipediaJSONP();
-}
-initGameWithCloud();
-var lostStreakCache = 0;
-function handleAnswer(userSaysTrue) {
-if (isAnimating || !currentCard) return;
-isAnimating = true;
-lostStreakCache = streak;
-var dir = userSaysTrue ? 1 : -1;
-cardEl.style.transition = 'transform 0.3s ease-out, opacity 0.3s';
-cardEl.style.transform = 'translate(' + (dir * 450) + 'px, 40px) rotate(' + (dir * 22) + 'deg)';
-cardEl.style.opacity = '0';
-var isCorrect = (userSaysTrue === currentCard.isTrue);
-if (tg && tg.HapticFeedback) {
-try { tg.HapticFeedback.notificationOccurred(isCorrect ? 'success' : 'error'); } catch (e) {}
-}
-setTimeout(function() {
-factTruth.innerText = currentCard.isTrue ? 'На самом деле: ЭТО ПРАВДА!' : 'На самом деле: ЭТО ФЕЙК!';
-factStory.innerText = currentCard.story;
-if (isCorrect) {
-streak++;
-if (streak > bestStreak) {
-bestStreak = streak;
-localStorage.setItem('tf_best_streak', bestStreak);
-bestTxt.innerText = bestStreak;
-}
-streakTxt.innerText = streak;
-verdictBadge.className = 'verdict-badge verdict-win';
-verdictBadge.innerText = 'В точку! +1 к серии';
-saveStreakBtn.style.display = 'none';
-nextBtn.innerText = 'Дальше \u2192';
-playBeep(660, 'sine', 0.15);
-} else {
-verdictBadge.className = 'verdict-badge verdict-lose';
-verdictBadge.innerText = 'Ошибочка! Интуиция подвела';
-if (streak >= 2) {
-saveStreakBtn.style.display = 'block';
-saveStreakBtn.innerText = '❤️ Спасти серию (' + streak + ') за рекламу';
-} else {
-saveStreakBtn.style.display = 'none';
-}
-streak = 0;
-streakTxt.innerText = streak;
-nextBtn.innerText = 'Следующий факт \u2192';
-playBeep(180, 'sawtooth', 0.25);
-}
-resultModal.style.display = 'flex';
-}, 240);
-}
-var startX = 0, currentX = 0, dragging = false;
-function onDragStart(x) {
-if (isAnimating || !currentCard) return;
-dragging = true;
-startX = x;
-currentX = 0;
-cardEl.classList.add('dragging');
-}
-function onDragMove(x) {
-if (!dragging) return;
-currentX = x - startX;
-var rot = currentX * 0.06;
-cardEl.style.transform = 'translate(' + currentX + 'px, 0px) rotate(' + rot + 'deg)';
-if (currentX > 25) {
-stampTrue.style.opacity = Math.min(1, (currentX - 25) / 80);
-stampFake.style.opacity = '0';
-} else if (currentX < -25) {
-stampFake.style.opacity = Math.min(1, (-currentX - 25) / 80);
-stampTrue.style.opacity = '0';
-} else {
-stampTrue.style.opacity = '0';
-stampFake.style.opacity = '0';
-}
-}
-function onDragEnd() {
-if (!dragging) return;
-dragging = false;
-cardEl.classList.remove('dragging');
-if (currentX > 95) {
-handleAnswer(true);
-} else if (currentX < -95) {
-handleAnswer(false);
-} else {
-cardEl.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
-cardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
-stampTrue.style.opacity = '0';
-stampFake.style.opacity = '0';
-}
-}
-cardEl.addEventListener('touchstart', function(e) { if (e.touches && e.touches.length > 0) onDragStart(e.touches.clientX); }, { passive: true });
-cardEl.addEventListener('touchmove', function(e) { if (e.touches && e.touches.length > 0) onDragMove(e.touches.clientX); }, { passive: true });
-cardEl.addEventListener('touchend', onDragEnd);
-cardEl.addEventListener('mousedown', function(e) { onDragStart(e.clientX); });
-window.addEventListener('mousemove', function(e) { onDragMove(e.clientX); });
-window.addEventListener('mouseup', onDragEnd);
-document.getElementById('btn-fake').addEventListener('click', function() { handleAnswer(false); });
-document.getElementById('btn-true').addEventListener('click', function() { handleAnswer(true); });
-nextBtn.addEventListener('click', function() {
-resultModal.style.display = 'none';
-loadNextCard();
+var shareUrl = 't.me' + encodeURIComponent('t.me') + '&text=' + encodeURIComponent(lastShareText);
+window.open(shareUrl, '_blank');
 });
-saveStreakBtn.addEventListener('click', function() {
-saveStreakBtn.disabled = true;
-saveStreakBtn.innerText = 'Подключение рекламы...';
-function launchAd() {
+var adBtn = document.getElementById('ad-boost-btn');
+adBtn.addEventListener('click', function() {
+adBtn.disabled = true;
+adBtn.innerText = 'Загрузка рекламы...';
 initAds();
 if (!AdController) {
-saveStreakBtn.disabled = false;
-saveStreakBtn.innerText = 'Реклама пока недоступна (повторить)';
+adBtn.disabled = false;
+adBtn.innerText = 'Реклама недоступна';
+setTimeout(function() { adBtn.innerText = '🎬 +100 Очков (Реклама)'; }, 2000);
 return;
 }
-saveStreakBtn.innerText = 'Загрузка ролика...';
 AdController.show().then(function() {
-streak = lostStreakCache;
-streakTxt.innerText = streak;
-saveStreakBtn.disabled = false;
-saveStreakBtn.style.display = 'none';
-resultModal.style.display = 'none';
-loadNextCard();
+addPoints(100);
+haptic('success');
+adBtn.disabled = false;
+adBtn.innerText = '✅ +100 Очков получено!';
+setTimeout(function() { adBtn.innerText = '🎬 +100 Очков (Реклама)'; }, 2500);
 }).catch(function() {
-saveStreakBtn.disabled = false;
-saveStreakBtn.innerText = 'Нет доступных роликов (повторить)';
+adBtn.disabled = false;
+adBtn.innerText = 'Роликов пока нет';
+setTimeout(function() { adBtn.innerText = '🎬 +100 Очков (Реклама)'; }, 2000);
 });
-}
-if (!window.Adsgram) {
-var s = document.createElement('script');
-s.src = 'adsgram.ai';
-s.onload = launchAd;
-s.onerror = function() {
-saveStreakBtn.disabled = false;
-saveStreakBtn.innerText = 'Ошибка сети / блокировщик рекламы';
-};
-document.head.appendChild(s);
-} else {
-launchAd();
-}
 });
     </script>
 </body>
