@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Челлендж Арена — Проверь себя</title>
+<title>Интуиция: Что дальше?</title>
 <script src="https://telegram.org"></script>
 <script src="https://adsgram.ai"></script>
 <style>
 * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 html, body {
     margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-    background: #07090e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #080a0f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #fff; display: flex; flex-direction: column; align-items: center;
 }
 .app {
@@ -20,165 +20,167 @@ html, body {
 
 .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .pill {
-    background: #111622; border: 1px solid #222b3d; padding: 7px 11px; border-radius: 14px;
+    background: #121724; border: 1px solid #232d42; padding: 7px 11px; border-radius: 14px;
     font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 5px;
 }
-.streak-val { color: #f59e0b; font-size: 14px; }
+.bank-val { color: #fbbf24; font-size: 14px; }
 .rank-val { color: #38bdf8; }
+.streak-val { color: #f43f5e; }
 
-.tabs {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0;
-}
-.tab-btn {
-    background: #111622; border: 1.5px solid #1e2638; color: #94a3b8;
-    padding: 9px 4px; border-radius: 14px; font-size: 11px; font-weight: 800;
-    cursor: pointer; text-align: center; transition: 0.15s; display: flex; flex-direction: column; align-items: center; gap: 3px;
-}
-.tab-btn span.ico { font-size: 16px; }
-.tab-btn.active {
-    background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #fff;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+.story-card {
+    flex: 1; margin: 10px 0;
+    background: linear-gradient(160deg, #151b2b 0%, #0d111a 100%);
+    border: 1.5px solid #263149; border-radius: 24px; padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65); overflow-y: auto;
 }
 
-.arena {
-    flex: 1; background: radial-gradient(circle at center, #131929 0%, #0b0e17 100%);
-    border: 1.5px solid #222c42; border-radius: 26px; position: relative;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-    padding: 18px 16px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+.card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.cat-badge {
+    background: rgba(56, 189, 248, 0.14); border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #7dd3fc; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase;
+}
+.mult-badge {
+    background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.45);
+    color: #fcd34d; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 900;
 }
 
-.mode-title { font-size: 18px; font-weight: 900; text-align: center; letter-spacing: 0.3px; }
-.mode-sub { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 4px; }
-
-.screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: space-between; }
-.screen.active { display: flex; }
-
-/* Экран 1: Идеальный круг */
-#circle-canvas {
-    width: 260px; height: 260px; touch-action: none; cursor: crosshair;
-    border-radius: 50%; background: rgba(255,255,255,0.02); border: 1px dashed #28354f;
+.situation-text {
+    font-size: 16.5px; font-weight: 700; line-height: 1.45; color: #f1f5f9;
+    margin: auto 0; padding: 6px 0;
 }
-.big-score { font-size: 38px; font-weight: 900; color: #38bdf8; text-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
-
-/* Экран 2: Возраст слуха */
-.hz-display {
-    font-size: 42px; font-weight: 900; color: #34d399; font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 24px rgba(52, 211, 153, 0.45);
-}
-.wave-bar {
-    width: 100%; height: 12px; background: #1a2234; border-radius: 10px; overflow: hidden; border: 1px solid #2a3652;
-}
-.wave-fill {
-    height: 100%; width: 0%; background: linear-gradient(90deg, #34d399, #38bdf8, #f43f5e); transition: width 0.1s linear;
-}
-.hear-btn {
-    width: 170px; height: 170px; border-radius: 50%; border: 3px solid #34d399;
-    background: radial-gradient(circle, rgba(52,211,153,0.22) 0%, rgba(16,185,129,0.05) 100%);
-    color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase;
-    box-shadow: 0 0 30px rgba(52, 211, 153, 0.25); transition: transform 0.1s;
-}
-.hear-btn:active { transform: scale(0.94); }
-.hear-btn.running { border-color: #f43f5e; background: radial-gradient(circle, rgba(244,63,94,0.28) 0%, rgba(244,63,94,0.06) 100%); box-shadow: 0 0 30px rgba(244,63,94,0.35); }
-
-/* Экран 3: Слепой таймер */
-.timer-box {
-    font-size: 52px; font-weight: 900; font-variant-numeric: tabular-nums; color: #f59e0b;
-    text-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
-}
-.hold-pad {
-    width: 100%; height: 150px; border-radius: 22px; border: 2px dashed #f59e0b;
-    background: rgba(245, 158, 11, 0.08); display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 900; color: #fcd34d; text-transform: uppercase; cursor: pointer; touch-action: none;
-}
-.hold-pad.active { background: rgba(245, 158, 11, 0.25); border-style: solid; }
-
-/* Экран 4: Реакция F1 */
-.f1-lights { display: flex; gap: 10px; background: #090c12; padding: 14px 18px; border-radius: 18px; border: 1px solid #263147; }
-.lamp { width: 34px; height: 34px; border-radius: 50%; background: #1e2536; border: 2px solid #334155; transition: 0.08s; }
-.lamp.on { background: #ef4444; border-color: #fca5a5; box-shadow: 0 0 22px #ef4444; }
-.lamp.go { background: #22c55e; border-color: #86efac; box-shadow: 0 0 22px #22c55e; }
-.react-pad {
-    width: 100%; height: 165px; border-radius: 22px; background: #161e31; border: 2px solid #2e3b59;
-    display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900;
-    text-transform: uppercase; cursor: pointer; touch-action: none;
+.pause-line {
+    margin-top: 10px; padding: 8px 12px; border-radius: 12px;
+    background: rgba(244, 63, 94, 0.12); border: 1px dashed rgba(244, 63, 94, 0.45);
+    color: #fda4af; font-size: 12px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-.bottom-actions { display: flex; gap: 10px; margin-top: 10px; }
-.btn {
-    flex: 1; padding: 14px 10px; border-radius: 16px; border: none; font-size: 13px; font-weight: 900;
-    cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px;
+.bet-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 10px;
+    background: #101520; padding: 6px; border-radius: 14px; border: 1px solid #1e273b;
 }
-.btn-share { background: linear-gradient(90deg, #3b82f6, #2563eb); color: #fff; }
-.btn-ad { background: linear-gradient(90deg, #f59e0b, #ea580c); color: #fff; box-shadow: 0 4px 18px rgba(234, 88, 12, 0.35); }
+.bet-label { font-size: 11px; font-weight: 800; color: #94a3b8; padding-left: 6px; text-transform: uppercase; }
+.bet-btns { display: flex; gap: 5px; }
+.bet-btn {
+    background: #182032; border: 1px solid #2b3854; color: #cbd5e1;
+    padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer;
+}
+.bet-btn.active {
+    background: #f59e0b; border-color: #fbbf24; color: #090b10;
+}
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+.opt-btn {
+    width: 100%; padding: 14px 14px; border-radius: 16px;
+    background: #141b29; border: 1.5px solid #283550; color: #f8fafc;
+    font-size: 14px; font-weight: 800; text-align: left; cursor: pointer;
+    transition: transform 0.1s, border-color 0.15s, background 0.15s;
+    display: flex; align-items: center; gap: 10px;
+}
+.opt-btn:active { transform: scale(0.98); border-color: #38bdf8; }
+.opt-letter {
+    min-width: 26px; height: 26px; border-radius: 8px; background: #1e293b;
+    color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;
+}
+
+.modal {
+    position: fixed; inset: 0; background: rgba(5, 7, 12, 0.9); backdrop-filter: blur(6px);
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+    padding: 18px; z-index: 30;
+}
+.modal-box {
+    width: 100%; max-width: 400px; background: #131824; border: 1.5px solid #28344d;
+    border-radius: 24px; padding: 20px 18px; display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+}
+.res-header { display: flex; justify-content: space-between; align-items: center; }
+.res-badge {
+    padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 900; text-transform: uppercase;
+}
+.res-win { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; }
+.res-lose { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; }
+.res-money { font-size: 16px; font-weight: 900; }
+
+.crowd-box {
+    background: #0c1018; border: 1px solid #1e273b; border-radius: 14px; padding: 10px 12px;
+}
+.crowd-title { font-size: 11px; font-weight: 800; color: #94a3b8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.crowd-bar { height: 10px; background: #1e293b; border-radius: 8px; overflow: hidden; display: flex; }
+.crowd-fill-win { background: #22c55e; height: 100%; }
+.crowd-fill-lose { background: #ef4444; height: 100%; }
+
+.outcome-text {
+    font-size: 14px; line-height: 1.5; color: #e2e8f0; background: #0c1018;
+    padding: 12px; border-radius: 14px; border: 1px solid #1e273b;
+}
+
+.modal-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.m-btn {
+    width: 100%; padding: 14px; border-radius: 14px; border: none;
+    font-size: 14px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+}
+.m-btn-next { background: linear-gradient(90deg, #3b82f6, #2563eb); color: #fff; }
+.m-btn-ad { background: linear-gradient(90deg, #f59e0b, #ea580c); color: #fff; box-shadow: 0 5px 18px rgba(234, 88, 12, 0.4); }
+.m-btn-share { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; font-size: 12px; padding: 11px; }
 </style>
 </head>
 <body>
 
 <div class="app">
     <div class="top-bar">
-        <div class="pill">🔥 Дней подряд: <span class="streak-val" id="day-streak">1</span></div>
-        <div class="pill">🏆 Очки: <span class="rank-val" id="total-pts">0</span></div>
+        <div class="pill">🪙 <span class="bank-val" id="bank-txt">1000</span></div>
+        <div class="pill">🧠 <span class="rank-val" id="rank-txt">Новичок</span></div>
+        <div class="pill">🔥 <span class="streak-val" id="streak-txt">0</span></div>
     </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="circle"><span class="ico">⭕</span>Круг</button>
-        <button class="tab-btn" data-tab="ear"><span class="ico">👂</span>Слух</button>
-        <button class="tab-btn" data-tab="time"><span class="ico">⏱</span>10.00с</button>
-        <button class="tab-btn" data-tab="react"><span class="ico">⚡</span>F1 Старт</button>
+    <div class="story-card">
+        <div class="card-meta">
+            <div class="cat-badge" id="cat-txt">Реальный случай</div>
+            <div class="mult-badge" id="mult-txt">Коэф: x2.0</div>
+        </div>
+        <div class="situation-text" id="sit-txt">Загрузка ситуации...</div>
+        <div class="pause-line">⏸ Стоп-кадр: что произошло дальше?</div>
     </div>
 
-    <div class="arena">
-        <!-- 1. ИДЕАЛЬНЫЙ КРУГ -->
-        <div class="screen active" id="scr-circle">
-            <div>
-                <div class="mode-title">Нарисуй идеальный круг</div>
-                <div class="mode-sub" id="circle-best">Рекорд: 0.0% • Веди пальцем вокруг точки</div>
+    <div>
+        <div class="bet-bar">
+            <div class="bet-label">Ставка:</div>
+            <div class="bet-btns">
+                <button class="bet-btn active" data-bet="100">100</button>
+                <button class="bet-btn" data-bet="300">300</button>
+                <button class="bet-btn" data-bet="all">ВА-БАНК</button>
             </div>
-            <canvas id="circle-canvas" width="260" height="260"></canvas>
-            <div class="big-score" id="circle-score">— %</div>
         </div>
 
-        <!-- 2. ВОЗРАСТ СЛУХА -->
-        <div class="screen" id="scr-ear">
-            <div>
-                <div class="mode-title">Узнай возраст своих ушей</div>
-                <div class="mode-sub" id="ear-res">Включи звук и нажми «Стоп», когда перестанешь слышать</div>
-            </div>
-            <div class="hz-display" id="hz-val">8 000 Гц</div>
-            <div class="wave-bar"><div class="wave-fill" id="hz-bar"></div></div>
-            <button class="hear-btn" id="ear-btn">▶ Запустить тест</button>
-        </div>
-
-        <!-- 3. СЛЕПОЙ ТАЙМЕР -->
-        <div class="screen" id="scr-time">
-            <div>
-                <div class="mode-title">Поймай ровно 10.00 секунд</div>
-                <div class="mode-sub" id="time-best">Цифры исчезнут через 2 сек! Считай про себя</div>
-            </div>
-            <div class="timer-box" id="timer-val">0.00</div>
-            <div class="hold-pad" id="time-pad">Удерживай палец здесь</div>
-        </div>
-
-        <!-- 4. РЕАКЦИЯ F1 -->
-        <div class="screen" id="scr-react">
-            <div>
-                <div class="mode-title">Реакция пилота Формулы-1</div>
-                <div class="mode-sub" id="react-best">Жми сразу, как погаснут все красные огни!</div>
-            </div>
-            <div class="f1-lights">
-                <div class="lamp" id="l1"></div>
-                <div class="lamp" id="l2"></div>
-                <div class="lamp" id="l3"></div>
-                <div class="lamp" id="l4"></div>
-                <div class="lamp" id="l5"></div>
-            </div>
-            <div class="react-pad" id="react-pad">Нажми для старта</div>
-        </div>
+        <div class="options" id="options-box"></div>
     </div>
+</div>
 
-    <div class="bottom-actions">
-        <button class="btn btn-ad" id="ad-boost-btn">🎬 x2 Очки (Реклама)</button>
-        <button class="btn btn-share" id="share-btn">🔥 Вызов другу</button>
+<div class="modal" id="res-modal">
+    <div class="modal-box">
+        <div class="res-header">
+            <div class="res-badge res-win" id="res-badge">УГАДАЛ!</div>
+            <div class="res-money" id="res-money">+200 🪙</div>
+        </div>
+
+        <div class="crowd-box">
+            <div class="crowd-title">
+                <span>Выбор игроков в TikTok / TG:</span>
+                <span id="crowd-pct">24% угадали</span>
+            </div>
+            <div class="crowd-bar">
+                <div class="crowd-fill-win" id="bar-win" style="width:24%"></div>
+                <div class="crowd-fill-lose" id="bar-lose" style="width:76%"></div>
+            </div>
+        </div>
+
+        <div class="outcome-text" id="outcome-txt">Развязка...</div>
+
+        <div class="modal-btns">
+            <button class="m-btn m-btn-ad" id="ad-refill-btn" style="display:none;">🎬 Пополнить банк +1000 🪙 (Реклама)</button>
+            <button class="m-btn m-btn-next" id="next-btn">Следующая ситуация →</button>
+            <button class="m-btn m-btn-share" id="share-btn">🔥 Скинуть эту ситуацию другу</button>
+        </div>
     </div>
 </div>
 
@@ -210,340 +212,360 @@ function haptic(type) {
     if (tg && tg.HapticFeedback) {
         try {
             if (type === 'light') tg.HapticFeedback.impactOccurred('light');
-            else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
             else tg.HapticFeedback.notificationOccurred(type);
         } catch (e) {}
     }
 }
 
-// Прогресс и очки
-var totalPts = parseInt(localStorage.getItem('ca_pts') || '0', 10);
-var bestCircle = parseFloat(localStorage.getItem('ca_circle') || '0');
-var bestTimeDiff = parseFloat(localStorage.getItem('ca_time') || '99');
-var bestReact = parseInt(localStorage.getItem('ca_react') || '999', 10);
-var lastShareText = 'Проверь свои сверхспособности в Челлендж Арене!';
-
-var ptsEl = document.getElementById('total-pts');
-ptsEl.innerText = totalPts;
-function addPoints(p) {
-totalPts += p;
-ptsEl.innerText = totalPts;
-localStorage.setItem('ca_pts', totalPts);
+var situations = [
+    {
+        id: 's1', cat: 'Криминал и аферы', mult: 2.2, winPct: 21,
+        text: 'В 1995 году грабитель в Питтсбурге средь бела дня ограбил два банка без маски и даже улыбнулся в камеры наблюдения. Когда полиция арестовала его через час, он искренне удивился, как его нашли. Почему он не прятал лицо?',
+        opts: [
+            'Намазал лицо лимонным соком, веря, что станет невидимым для камер',
+            'Думал, что камеры в банке — это муляжи из картона',
+            'Сделал пластическую операцию накануне и считал себя другим человеком'
+        ],
+        correct: 0,
+        outcome: 'Он прочитал, что лимонный сок используют как невидимые чернила, и решил, что на камерах его лицо не проявится! Этот случай вдохновил учёных на открытие «эффекта Даннинга — Крюгера».'
+    },
+    {
+        id: 's2', cat: 'Выживание', mult: 2.0, winPct: 34,
+text: 'В 1972 году самолёт с командой регбистов разбился в заснеженных Андах. Еда закончилась, вокруг только лёд и скалы. Два игрока решили идти за помощью пешком без альпинистского снаряжения. Сколько дней они шли по горам до спасения?',
+opts: [
+'10 дней через ледники и перевалы высотой 4500 метров',
+'2 дня — оказалось, что трасса была за соседним холмом',
+'28 дней, питаясь только растопленным снегом'
+],
+correct: 0,
+outcome: 'Нандо Паррадо и Роберто Канесса шли 10 дней по ледникам в кедах и самодельных спальниках, пока не встретили чилийского пастуха на другом берегу реки — и спасли 16 выживших.'
+},
+{
+id: 's3', cat: 'Психология толпы', mult: 1.8, winPct: 42,
+text: 'В 2013 году в Нью-Йорке провели эксперимент: на оживлённой улице поставили стол с двумя банками чаевых. На первой написали «На колледж», на второй — провокационную фразу. Вторая банка собрала в 5 раз больше денег. Что на ней было написано?',
+opts: [
+'«Бэтмен против Супермена — кто победит?»',
+'«Помогите, меня похитили инопланетяне»',
+'«Не кладите сюда деньги, я ненавижу чаевые»'
+],
+correct: 0,
+outcome: 'Люди обожают спорить и доказывать правоту даже деньгами! Прохожие кидали купюры в банку любимого супергероя, чтобы «он победил» в голосовании.'
+},
+{
+id: 's4', cat: 'Безумный бизнес', mult: 2.4, winPct: 19,
+text: 'В 1975 году рекламщик Гэри Дал заметил, что друзья постоянно жалуются на уход за домашними животными. Он запустил в продажу «идеального питомца» в картонной коробке с дырочками для воздуха и заработал $15 миллионов за полгода. Что лежало внутри коробки?',
+opts: [
+'Обычный гладкий камень с пляжа (Pet Rock)',
+'Пластиковый тамагочи с одной кнопкой',
+'Пустота и инструкция «Представь его сам»'
+],
+correct: 0,
+outcome: 'Он продавал обычные камни по $4 за штуку как «Камень-питомец», которого не нужно кормить, выгуливать и лечить! В комплекте шла книжка с командами «Сидеть» и «Лежать».'
+},
+{
+id: 's5', cat: 'Ограбление века', mult: 2.1, winPct: 28,
+text: 'В 2003 году банда воров вскрыла неприступное хранилище алмазов в Антверпене, обойдя 10 уровней защиты, датчики тепла, сейсмические сенсоры и замок на 100 млн комбинаций. Они унесли камней на $100 млн, но попались на следующий день из-за глупой улики в лесу. Что их выдало?',
+opts: [
+'Надкусанный сэндвич с салями и чек из супермаркета в мусорном пакете',
+'Один из грабителей выложил фото с алмазами в соцсети',
+'Забытый в хранилище паспорт главаря банды'
+],
+correct: 0,
+outcome: 'Главарь Леонардо Нотарбартоло выбросил мешок с уликами в лесу, думая, что никто не найдёт. Хозяин участка вызвал полицию из-за мусора, и по ДНК на сэндвиче и чеку из магазина вычислили всю банду.'
+},
+{
+id: 's6', cat: 'Социальный эксперимент', mult: 1.9, winPct: 37,
+text: 'В знаменитом «Зефирном эксперименте» детям давали одну зефирку и обещали дать вторую, если они не съедят первую за 15 минут, пока взрослый выйдет из комнаты. Какой трюк придумывали дети, которым удавалось выдержать?',
+opts: [
+'Отворачивались, закрывали глаза руками или пели песни, чтобы не смотреть на неё',
+'Лизали зефирку со всех сторон, чтобы она стала некрасивой',
+'Прятали зефирку в карман и говорили, что она исчезла'
+],
+correct: 0,
+outcome: 'Дети, которые просто смотрели на зефирку, срывались через 2 минуты. А те, кто переключал внимание и не смотрел на соблазн, спокойно дожидались двойной награды.'
+},
+{
+id: 's7', cat: 'Игры и кино', mult: 2.3, winPct: 23,
+text: 'При разработке первой игры GTA (Grand Theft Auto) в 1997 году игра изначально называлась Race’n’Chase, где игрок был полицейским и ловил преступников. Игра была скучной и проваливалась на тестах, пока один баг в коде не превратил её в мировой хит. Что это был за баг?',
+opts: [
+'Полицейские машины взбесились и начали насмерть таранить игрока',
+'У главного героя бесконечный боезапас гранатомёта',
+'Пешеходы начали угонять машины друг у друга'
+],
+correct: 0,
+outcome: 'Из-за ошибки в алгоритме копы стали невероятно агрессивными и таранили машину игрока на полной скорости. Тестировщикам так понравилось уходить от безумных погонь, что игру переделали под бандитов!'
+},
+{
+id: 's8', cat: 'Секреты спецслужб', mult: 2.5, winPct: 16,
+text: 'Во время Второй мировой войны британская разведка придумала хитрый способ передавать военнопленным секретные карты Германии, компасы и деньги прямо в лагеря под носом у охраны. Куда их прятали?',
+opts: [
+'Внутрь наборов настольной игры «Монополия»',
+'В подошвы армейских сапог красного креста',
+'В банки с консервированным пудингом'
+],
+correct: 0,
+outcome: 'Охранники разрешали передавать пленным настольные игры для досуга. Специальная фабрика печатала «Монополию» с шёлковыми картами побега, мини-компасами в фишках и настоящими рейхсмарками среди игровых денег!'
+},
+{
+id: 's9', cat: 'Психология денег', mult: 1.8, winPct: 45,
+text: 'В 1980-х сеть ресторанов A&W запустила бургер «Треть фунта» (1/3), который был больше и дешевле легендарного «Четвертьфунтового» (1/4) из McDonald’s. На слепых дегустациях он побеждал, но в продажах с треском провалился. Почему покупатели его не брали?',
+opts: [
+'Покупатели думали, что 1/3 меньше, чем 1/4, потому что цифра 3 меньше 4',
+'Название звучало слишком сложно для заказа на кассе',
+'В рекламе забыли показать фотографию самого бургера'
+],
+correct: 0,
+outcome: 'Опросы показали шокирующую правду: больше половины клиентов возмущались, почему им пытаются продать «меньший» бургер (3 меньше 4!) по цене «большого»!'
+},
+{
+id: 's10', cat: 'Невероятный побег', mult: 2.2, winPct: 25,
+text: 'В 1962 году трое заключённых сбежали из самой охраняемой тюрьмы мира — Алькатраса, окружённой ледяным заливом с акулами и сильным течением. Как они переплыли пролив, если у них не было лодки?',
+opts: [
+'Склеили надувной плот и жилеты из 50 украденных резиновых плащей-дождевиков',
+'Проплыли под водой в аквалангах из огнетушителей',
+'Спрятались в ящиках с грязным бельём на пароме'
+],
+correct: 0,
+outcome: 'Они месяцами собирали прорезиненные плащи, склеили их на горячих паровых трубах в полноценный плот и сделали насос из меха гармони!'
+},
+{
+id: 's11', cat: 'Хитрость на миллион', mult: 2.0, winPct: 31,
+text: 'В 1999 году программист из США купил ноутбук с предустановленной Windows, но принципиально не пользовался ей, поставив Linux. Он потребовал у производителя вернуть деньги только за операционную систему — и выиграл суд, создав мировой прецедент. Сколько денег он отсудил?',
+opts: [
+'110 долларов — ровно столько стоила лицензия Windows в комплекте',
+'1 миллион долларов за навязывание услуг',
+'Ничего — ему просто подарили второй ноутбук'
+],
+correct: 0,
+outcome: 'Джефф Боннерт доказал в суде, что по лицензионному соглашению пользователь имеет право отказаться от ПО и вернуть его стоимость — ему выплатили чек на $110.'
+},
+{
+id: 's12', cat: 'Космос и риск', mult: 2.1, winPct: 29,
+text: 'В 1965 году космонавт Алексей Леонов впервые в истории вышел в открытый космос. Когда пришло время возвращаться, случилась смертельная внештатная ситуация: его скафандр раздулся в вакууме и не пролезал в люк корабля. Как он спасся?',
+opts: [
+'На свой страх и риск стравил давление в скафандре почти до критического и втиснулся головой вперёд',
+'Разрезал внешний слой скафандра ножом для строп',
+'Напарник вытащил его за трос лебёдкой с силой'
+],
+correct: 0,
+outcome: 'Нарушив все инструкции (ждать разрешения с Земли не было времени — кончался кислород), Леонов сбросил давление в скафандре и с огромным трудом протиснулся в шлюз.'
+},
+{
+id: 's13', cat: 'Спорт и хитрость', mult: 1.9, winPct: 39,
+text: 'На Олимпиаде 1904 года американский бегун Фред Лорз первым прибежал к финишу марафона, опередив соперников на 15 минут. Зрители ликовали, но через 10 минут его с позором дисквалифицировали. Как он сжульничал?',
+opts: [
+'Проехал 17 километров дистанции на машине своего тренера, когда устал',
+'Срезал путь через лес, сократив дистанцию вдвое',
+'Подменил себя братом-близнецом на середине трассы'
+],
+correct: 0,
+outcome: 'Из-за жары у него свело ноги на 14-м километре. Тренер посадил его в автомобиль, но за 8 км до финиша машина сломалась — и Лорз как ни в чём не бывало добежал до стадиона!'
+},
+{
+id: 's14', cat: 'Психология влияния', mult: 2.0, winPct: 33,
+text: 'В гостиницах заметили, что постояльцы слишком часто меняют полотенца, тратя тонны воды и порошка. Стандартные таблички «Берегите природу!» не работали. Тогда текст на табличке изменили — и число повторных использований полотенец выросло на 33%. Что написали?',
+opts: [
+'«75% гостей, живших в этом номере, использовали полотенца повторно»',
+'«За каждое сэкономленное полотенце мы посадим дерево»',
+'«Смена полотенца стоит $5 при выезде»'
+],
+correct: 0,
+outcome: 'Социальное доказательство работает мощнее экологии! Когда люди видят, что большинство в их конкретном номере делает так же, мозг автоматически копирует поведение группы.'
+},
+{
+id: 's15', cat: 'Дерзкий пранк', mult: 2.3, winPct: 22,
+text: 'В 1974 году жители городка Ситка на Аляске проснулись утром 1 апреля и увидели, что спящий вулкан Эджкомб рядом с городом начал извергать густой чёрный дым. В городе началась паника, вызвали береговую охрану. Что увидели спасатели, подлетев на вертолёте к кратеру?',
+opts: [
+'Гигантскую кучу горящих старых покрышек и надпись краской на снегу «1 АПРЕЛЯ»',
+'Дымовые шашки, которые сбросили студенты с самолёта',
+'Настоящее начало извержения, которое само затихло через час'
+],
+correct: 0,
+outcome: 'Местный шутник Оливер Бикар 3 года завозил на вертолёте в кратер 70 старых покрышек и поджёг их на рассвете 1 апреля!'
 }
-// Ударная серия дней
-(function updateDayStreak() {
-var today = new Date().toDateString();
-var lastDay = localStorage.getItem('ca_last_day');
-var dStreak = parseInt(localStorage.getItem('ca_day_streak') || '1', 10);
-if (lastDay && lastDay !== today) {
-var diff = (new Date(today) - new Date(lastDay)) / (1000 * 3600 * 24);
-dStreak = (diff === 1) ? dStreak + 1 : 1;
+];
+var bank = parseInt(localStorage.getItem('int_bank') || '1000', 10);
+var streak = parseInt(localStorage.getItem('int_streak') || '0', 10);
+var seenIds = [];
+try { seenIds = JSON.parse(localStorage.getItem('int_seen') || '[]'); } catch (e) { seenIds = []; }
+var currentBetType = '100';
+var currentSit = null;
+var shuffledMap = [];
+var isAnswered = false;
+var bankTxt = document.getElementById('bank-txt');
+var rankTxt = document.getElementById('rank-txt');
+var streakTxt = document.getElementById('streak-txt');
+var catTxt = document.getElementById('cat-txt');
+var multTxt = document.getElementById('mult-txt');
+var sitTxt = document.getElementById('sit-txt');
+var optionsBox = document.getElementById('options-box');
+var resModal = document.getElementById('res-modal');
+var resBadge = document.getElementById('res-badge');
+var resMoney = document.getElementById('res-money');
+var crowdPct = document.getElementById('crowd-pct');
+var barWin = document.getElementById('bar-win');
+var barLose = document.getElementById('bar-lose');
+var outcomeTxt = document.getElementById('outcome-txt');
+var adRefillBtn = document.getElementById('ad-refill-btn');
+var nextBtn = document.getElementById('next-btn');
+function updateStatsUI() {
+bankTxt.innerText = bank;
+streakTxt.innerText = streak;
+var rank = 'Новичок';
+if (bank >= 25000) rank = 'Оракул 🔮';
+else if (bank >= 10000) rank = 'Провидец ⚡';
+else if (bank >= 4000) rank = 'Мастер 🧠';
+else if (bank >= 2000) rank = 'Знаток 🎯';
+rankTxt.innerText = rank;
+localStorage.setItem('int_bank', bank);
+localStorage.setItem('int_streak', streak);
 }
-localStorage.setItem('ca_last_day', today);
-localStorage.setItem('ca_day_streak', dStreak);
-document.getElementById('day-streak').innerText = dStreak;
-})();
-// Переключение вкладок
-var tabs = document.querySelectorAll('.tab-btn');
-var screens = document.querySelectorAll('.screen');
-tabs.forEach(function(btn) {
+updateStatsUI();
+function saveSeen(id) {
+if (seenIds.indexOf(id) === -1) {
+seenIds.push(id);
+try { localStorage.setItem('int_seen', JSON.stringify(seenIds)); } catch (e) {}
+if (tg && tg.CloudStorage) {
+try { tg.CloudStorage.setItem('int_seen_v1', seenIds.join(',')); } catch (e) {}
+}
+}
+}
+function getBetAmount() {
+if (bank <= 0) return 0;
+if (currentBetType === 'all') return bank;
+var val = parseInt(currentBetType, 10);
+return Math.min(bank, val);
+}
+// Переключение ставок
+document.querySelectorAll('.bet-btn').forEach(function(btn) {
 btn.addEventListener('click', function() {
-stopEarTest();
-tabs.forEach(function(b) { b.classList.remove('active'); });
-screens.forEach(function(s) { s.classList.remove('active'); });
+document.querySelectorAll('.bet-btn').forEach(function(b) { b.classList.remove('active'); });
 btn.classList.add('active');
-document.getElementById('scr-' + btn.dataset.tab).classList.add('active');
+currentBetType = btn.dataset.bet;
 haptic('light');
 });
 });
-// ================= 1. ИДЕАЛЬНЫЙ КРУГ =================
-var canvas = document.getElementById('circle-canvas');
-var ctx = canvas.getContext('2d');
-var circleScoreEl = document.getElementById('circle-score');
-var circleBestEl = document.getElementById('circle-best');
-if (bestCircle > 0) circleBestEl.innerText = 'Твой рекорд: ' + bestCircle.toFixed(1) + '%';
-var drawing = false;
-var points = [];
-var cx = 130, cy = 130;
-function drawCenterDot() {
-ctx.clearRect(0, 0, 260, 260);
-ctx.beginPath();
-ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-ctx.fillStyle = '#38bdf8';
-ctx.fill();
+function loadSituation() {
+isAnswered = false;
+var unseen = situations.filter(function(s) { return seenIds.indexOf(s.id) === -1; });
+if (unseen.length === 0) {
+// Если пройдены все ситуации, начинаем новый цикл в случайном порядке
+seenIds = [];
+try { localStorage.setItem('int_seen', '[]'); } catch (e) {}
+unseen = situations.slice();
 }
-drawCenterDot();
-function getPos(e) {
-var rect = canvas.getBoundingClientRect();
-var clientX = e.touches ? e.touches.clientX : e.clientX;
-var clientY = e.touches ? e.touches.clientY : e.clientY;
-return { x: clientX - rect.left, y: clientY - rect.top };
+currentSit = unseen[Math.floor(Math.random() * unseen.length)];
+saveSeen(currentSit.id);
+catTxt.innerText = currentSit.cat;
+multTxt.innerText = 'Коэф: x' + currentSit.mult.toFixed(1);
+sitTxt.innerText = currentSit.text;
+// Перемешиваем варианты ответа, чтобы правильный не был всегда первым
+var indices =;
+for (var i = indices.length - 1; i > 0; i--) {
+var j = Math.floor(Math.random() * (i + 1));
+var t = indices[i]; indices[i] = indices[j]; indices[j] = t;
 }
-function startDraw(e) {
-drawing = true;
-points = [];
-drawCenterDot();
-var p = getPos(e);
-points.push(p);
-circleScoreEl.innerText = 'Рисуй...';
-circleScoreEl.style.color = '#94a3b8';
+shuffledMap = indices;
+optionsBox.innerHTML = '';
+var letters = ['А', 'Б', 'В'];
+for (var k = 0; k < indices.length; k++) {
+var origIdx = indices[k];
+var btn = document.createElement('button');
+btn.className = 'opt-btn';
+btn.innerHTML = '' + letters[k] + '' + currentSit.opts[origIdx] + '';
+(function(selectedOrigIdx) {
+btn.addEventListener('click', function() { checkAnswer(selectedOrigIdx); });
+})(origIdx);
+optionsBox.appendChild(btn);
 }
-function moveDraw(e) {
-if (!drawing) return;
-if (e.cancelable) e.preventDefault();
-var p = getPos(e);
-var prev = points[points.length - 1];
-points.push(p);
-var dist = Math.hypot(p.x - cx, p.y - cy);
-ctx.beginPath();
-ctx.moveTo(prev.x, prev.y);
-ctx.lineTo(p.x, p.y);
-ctx.lineWidth = 5;
-ctx.lineCap = 'round';
-ctx.strokeStyle = dist < 25 ? '#ef4444' : '#38bdf8';
-ctx.stroke();
 }
-function endDraw() {
-if (!drawing) return;
-drawing = false;
-if (points.length < 25) {
-circleScoreEl.innerText = 'Слишком коротко!';
-return;
-}
-var radii = points.map(function(p) { return Math.hypot(p.x - cx, p.y - cy); });
-var avgR = radii.reduce(function(a, b) { return a + b; }, 0) / radii.length;
-if (avgR < 30) {
-circleScoreEl.innerText = 'Рисуй шире!';
-return;
-}
-// Проверка угла охвата (замкнут ли круг)
-var minA = 999, maxA = -999, totalAngle = 0;
-for (var i = 1; i < points.length; i++) {
-var a1 = Math.atan2(points[i - 1].y - cy, points[i - 1].x - cx);
-var a2 = Math.atan2(points[i].y - cy, points[i].x - cx);
-var da = a2 - a1;
-if (da > Math.PI) da -= Math.PI * 2;
-if (da < -Math.PI) da += Math.PI * 2;
-totalAngle += da;
-}
-var coverage = Math.min(1, Math.abs(totalAngle) / (Math.PI * 1.85));
-var variance = radii.reduce(function(acc, r) { return acc + Math.abs(r - avgR); }, 0) / radii.length;
-var rawScore = Math.max(0, (1 - (variance / avgR) * 2.1)) * 100 * coverage;
-var finalScore = Math.min(99.9, Math.max(12.4, rawScore));
-circleScoreEl.innerText = finalScore.toFixed(1) + '%';
-circleScoreEl.style.color = finalScore >= 92 ? '#22c55e' : (finalScore >= 80 ? '#38bdf8' : '#f59e0b');
-if (finalScore > bestCircle) {
-bestCircle = finalScore;
-localStorage.setItem('ca_circle', bestCircle.toFixed(1));
-circleBestEl.innerText = 'Новый рекорд: ' + bestCircle.toFixed(1) + '%';
+function checkAnswer(selectedOrigIdx) {
+if (isAnswered) return;
+isAnswered = true;
+var bet = getBetAmount();
+var isWin = (selectedOrigIdx === currentSit.correct);
+if (isWin) {
+var profit = Math.round(bet * (currentSit.mult - 1));
+if (bet === 0) profit = 100; // Бонус при пустом банке
+bank += profit;
+streak++;
+resBadge.className = 'res-badge res-win';
+resBadge.innerText = 'ИНТУИЦИЯ В ТОЧКУ!';
+resMoney.style.color = '#4ade80';
+resMoney.innerText = '+' + profit + ' 🪙';
 haptic('success');
 } else {
-haptic('light');
-}
-addPoints(Math.round(finalScore / 5));
-lastShareText = 'Я нарисовал идеальный круг на ' + finalScore.toFixed(1) + '%! Спорим, не побьёшь?';
-}
-canvas.addEventListener('touchstart', startDraw, { passive: false });
-canvas.addEventListener('touchmove', moveDraw, { passive: false });
-canvas.addEventListener('touchend', endDraw);
-canvas.addEventListener('mousedown', startDraw);
-window.addEventListener('mousemove', moveDraw);
-window.addEventListener('mouseup', endDraw);
-// ================= 2. ВОЗРАСТ СЛУХА =================
-var earBtn = document.getElementById('ear-btn');
-var hzVal = document.getElementById('hz-val');
-var hzBar = document.getElementById('hz-bar');
-var earRes = document.getElementById('ear-res');
-var earAudio = null, earOsc = null, earTimer = null, currentHz = 8000, isHearing = false;
-function stopEarTest() {
-if (!isHearing) return;
-isHearing = false;
-clearInterval(earTimer);
-try { if (earOsc) earOsc.stop(); } catch (e) {}
-earBtn.classList.remove('running');
-earBtn.innerText = '▶ Пройти заново';
-var age = 65;
-if (currentHz >= 18500) age = 16;
-else if (currentHz >= 17000) age = 20;
-else if (currentHz >= 15500) age = 25;
-else if (currentHz >= 14000) age = 32;
-else if (currentHz >= 12000) age = 40;
-else if (currentHz >= 10000) age = 50;
-earRes.innerText = 'Биологический возраст твоих ушей: ~' + age + ' лет!';
-addPoints(25);
-haptic('success');
-lastShareText = 'Мой слух на ' + Math.round(currentHz) + ' Гц — ушам всего ' + age + ' лет! Проверь свои:';
-}
-earBtn.addEventListener('click', function() {
-if (isHearing) {
-stopEarTest();
-return;
-}
-try {
-if (!earAudio) earAudio = new (window.AudioContext || window.webkitAudioContext)();
-if (earAudio.state === 'suspended') earAudio.resume();
-earOsc = earAudio.createOscillator();
-var gain = earAudio.createGain();
-gain.gain.setValueAtTime(0.12, earAudio.currentTime);
-currentHz = 8000;
-earOsc.frequency.setValueAtTime(currentHz, earAudio.currentTime);
-earOsc.connect(gain);
-gain.connect(earAudio.destination);
-earOsc.start();
-} catch (e) {
-earRes.innerText = 'Включи звук на телефоне для теста!';
-return;
-}
-isHearing = true;
-earBtn.classList.add('running');
-earBtn.innerText = '⏹ Я перестал слышать!';
-earRes.innerText = 'Слушай внимательно... Нажми кнопку, как звук пропадёт';
-earTimer = setInterval(function() {
-currentHz += 120;
-if (currentHz >= 20000) {
-currentHz = 20000;
-stopEarTest();
-return;
-}
-try { earOsc.frequency.setValueAtTime(currentHz, earAudio.currentTime); } catch (e) {}
-hzVal.innerText = currentHz.toLocaleString('ru-RU') + ' Гц';
-hzBar.style.width = ((currentHz - 8000) / 12000 * 100) + '%';
-}, 100);
-});
-// ================= 3. СЛЕПОЙ ТАЙМЕР 10.00с =================
-var timerVal = document.getElementById('timer-val');
-var timePad = document.getElementById('time-pad');
-var timeBestEl = document.getElementById('time-best');
-var timeStart = 0, timeInt = null, isTiming = false;
-function startBlindTimer(e) {
-if (e && e.cancelable) e.preventDefault();
-if (isTiming) return;
-isTiming = true;
-timeStart = performance.now();
-timePad.classList.add('active');
-timePad.innerText = 'Отпусти ровно на 10.00 сек!';
-haptic('light');
-timeInt = setInterval(function() {
-var sec = (performance.now() - timeStart) / 1000;
-if (sec < 2.2) {
-timerVal.innerText = sec.toFixed(2);
-timerVal.style.opacity = '1';
-} else {
-timerVal.innerText = '??.??';
-timerVal.style.opacity = '0.45';
-}
-}, 30);
-}
-function stopBlindTimer() {
-if (!isTiming) return;
-isTiming = false;
-clearInterval(timeInt);
-timePad.classList.remove('active');
-timePad.innerText = 'Удерживай палец здесь';
-var finalSec = (performance.now() - timeStart) / 1000;
-timerVal.style.opacity = '1';
-timerVal.innerText = finalSec.toFixed(2) + ' с';
-var diff = Math.abs(10.0 - finalSec);
-if (diff < bestTimeDiff) {
-bestTimeDiff = diff;
-localStorage.setItem('ca_time', diff.toFixed(2));
-}
-timeBestEl.innerText = 'Погрешность: ' + diff.toFixed(2) + ' сек (Рекорд: ' + bestTimeDiff.toFixed(2) + 'с)';
-addPoints(diff < 0.25 ? 40 : 15);
-haptic(diff < 0.2 ? 'success' : 'heavy');
-lastShareText = 'Я остановил слепой таймер на ' + finalSec.toFixed(2) + ' сек (цель 10.00)! Попробуй повторить:';
-}
-timePad.addEventListener('touchstart', startBlindTimer, { passive: false });
-timePad.addEventListener('touchend', stopBlindTimer);
-timePad.addEventListener('mousedown', startBlindTimer);
-window.addEventListener('mouseup', stopBlindTimer);
-// ================= 4. РЕАКЦИЯ F1 =================
-var reactPad = document.getElementById('react-pad');
-var reactBestEl = document.getElementById('react-best');
-var lamps = [1,2,3,4,5].map(function(i) { return document.getElementById('l' + i); });
-var f1State = 'idle', f1Timers = [], goTime = 0;
-function resetLamps() {
-f1Timers.forEach(clearTimeout);
-f1Timers = [];
-lamps.forEach(function(l) { l.className = 'lamp'; });
-}
-reactPad.addEventListener('pointerdown', function() {
-if (f1State === 'idle') {
-f1State = 'waiting';
-resetLamps();
-reactPad.innerText = 'Жди, когда погаснут огни...';
-reactPad.style.borderColor = '#ef4444';
-for (var i = 0; i < 5; i++) {
-(function(idx) {
-f1Timers.push(setTimeout(function() {
-lamps[idx].classList.add('on');
-haptic('light');
-}, (idx + 1) * 550));
-})(i);
-}
-var randomDelay = 3000 + Math.random() * 2200;
-f1Timers.push(setTimeout(function() {
-lamps.forEach(function(l) { l.className = 'lamp go'; });
-f1State = 'go';
-goTime = performance.now();
-reactPad.innerText = 'ЖМИ СЕЙЧАС!';
-reactPad.style.borderColor = '#22c55e';
-haptic('heavy');
-}, randomDelay));
-} else if (f1State === 'waiting') {
-resetLamps();
-f1State = 'idle';
-reactPad.innerText = '❌ ФАЛЬСТАРТ! Нажми заново';
-reactPad.style.borderColor = '#ef4444';
+bank = Math.max(0, bank - bet);
+streak = 0;
+resBadge.className = 'res-badge res-lose';
+resBadge.innerText = 'ПОПАЛСЯ НА УЛОВКУ!';
+resMoney.style.color = '#f87171';
+resMoney.innerText = bet > 0 ? ('-' + bet + ' 🪙') : '0 🪙';
 haptic('error');
-} else if (f1State === 'go') {
-var ms = Math.round(performance.now() - goTime);
-f1State = 'idle';
-if (ms < bestReact) {
-bestReact = ms;
-localStorage.setItem('ca_react', bestReact);
 }
-reactPad.innerText = '⚡ ' + ms + ' мс! (Нажми ещё)';
-reactBestEl.innerText = 'Лучшая реакция: ' + bestReact + ' мс';
-addPoints(ms < 250 ? 35 : 15);
-haptic('success');
-lastShareText = 'Моя реакция на старте F1 — ' + ms + ' мс! Быстрее тебя?';
+updateStatsUI();
+crowdPct.innerText = 'Только ' + currentSit.winPct + '% угадали';
+barWin.style.width = currentSit.winPct + '%';
+barLose.style.width = (100 - currentSit.winPct) + '%';
+outcomeTxt.innerText = currentSit.outcome;
+if (bank < 100) {
+adRefillBtn.style.display = 'block';
+} else {
+adRefillBtn.style.display = 'none';
 }
+resModal.style.display = 'flex';
+}
+nextBtn.addEventListener('click', function() {
+resModal.style.display = 'none';
+loadSituation();
 });
-// ================= КНОПКИ РЕКЛАМЫ И ВЫЗОВА =================
+// Вызов другу в чат
 document.getElementById('share-btn').addEventListener('click', function() {
+var txt = 'Ситуация: ' + currentSit.text.slice(0, 95) + '... Только ' + currentSit.winPct + '% людей угадывают финал! Проверь свою интуицию: @reaction_duel_1v1_bot';
 if (tg && tg.switchInlineQuery) {
 try {
-tg.switchInlineQuery(lastShareText + ' @reaction_duel_1v1_bot', ['users', 'groups', 'channels']);
+tg.switchInlineQuery(txt, ['users', 'groups', 'channels']);
 return;
 } catch (e) {}
 }
-var shareUrl = 't.me' + encodeURIComponent('t.me') + '&text=' + encodeURIComponent(lastShareText);
-window.open(shareUrl, '_blank');
+window.open('t.me' + encodeURIComponent('t.me') + '&text=' + encodeURIComponent(txt), '_blank');
 });
-var adBtn = document.getElementById('ad-boost-btn');
-adBtn.addEventListener('click', function() {
-adBtn.disabled = true;
-adBtn.innerText = 'Загрузка рекламы...';
+// Пополнение банка за рекламу AdsGram (56776)
+adRefillBtn.addEventListener('click', function() {
+adRefillBtn.disabled = true;
+adRefillBtn.innerText = 'Загрузка рекламы...';
 initAds();
 if (!AdController) {
-adBtn.disabled = false;
-adBtn.innerText = 'Реклама недоступна';
-setTimeout(function() { adBtn.innerText = '🎬 +100 Очков (Реклама)'; }, 2000);
+adRefillBtn.disabled = false;
+adRefillBtn.innerText = 'Реклама пока недоступна';
 return;
 }
 AdController.show().then(function() {
-addPoints(100);
+bank += 1000;
+updateStatsUI();
+adRefillBtn.disabled = false;
+adRefillBtn.style.display = 'none';
 haptic('success');
-adBtn.disabled = false;
-adBtn.innerText = '✅ +100 Очков получено!';
-setTimeout(function() { adBtn.innerText = '🎬 +100 Очков (Реклама)'; }, 2500);
 }).catch(function() {
-adBtn.disabled = false;
-adBtn.innerText = 'Роликов пока нет';
-setTimeout(function() { adBtn.innerText = '🎬 +100 Очков (Реклама)'; }, 2000);
+adRefillBtn.disabled = false;
+adRefillBtn.innerText = 'Нет роликов (повторить)';
 });
 });
-    </script>
+// Синхронизация с CloudStorage при старте
+if (tg && tg.CloudStorage) {
+try {
+tg.CloudStorage.getItem('int_seen_v1', function(err, val) {
+if (!err && val) {
+var arr = val.split(',').filter(Boolean);
+arr.forEach(function(id) { if (seenIds.indexOf(id) === -1) seenIds.push(id); });
+try { localStorage.setItem('int_seen', JSON.stringify(seenIds)); } catch (e) {}
+}
+loadSituation();
+});
+} catch (e) { loadSituation(); }
+} else {
+loadSituation();
+}
+</script>
 </body>
 </html>
