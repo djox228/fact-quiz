@@ -128,7 +128,7 @@ html, body {
 
 <div class="app">
     <div class="top-bar">
-        <div class="pill">🪙 <span class="bank-val" id="bank-txt">1000</span></div>
+        <div class="pill">💰 <span class="bank-val" id="bank-txt">1000</span></div>
         <div class="pill">🧠 <span class="rank-val" id="rank-txt">Новичок</span></div>
         <div class="pill">🔥 <span class="streak-val" id="streak-txt">0</span></div>
     </div>
@@ -160,12 +160,12 @@ html, body {
     <div class="modal-box">
         <div class="res-header">
             <div class="res-badge res-win" id="res-badge">УГАДАЛ!</div>
-            <div class="res-money" id="res-money">+200 🪙</div>
+            <div class="res-money" id="res-money">+200 💰</div>
         </div>
 
         <div class="crowd-box">
             <div class="crowd-title">
-                <span>Выбор игроков в TikTok / TG:</span>
+                <span>Выбор игроков:</span>
                 <span id="crowd-pct">24% угадали</span>
             </div>
             <div class="crowd-bar">
@@ -177,7 +177,7 @@ html, body {
         <div class="outcome-text" id="outcome-txt">Развязка...</div>
 
         <div class="modal-btns">
-            <button class="m-btn m-btn-ad" id="ad-refill-btn" style="display:none;">🎬 Пополнить банк +1000 🪙 (Реклама)</button>
+            <button class="m-btn m-btn-ad" id="ad-refill-btn" style="display:none;">🎬 Пополнить банк +1000 💰 (Реклама)</button>
             <button class="m-btn m-btn-next" id="next-btn">Следующая ситуация →</button>
             <button class="m-btn m-btn-share" id="share-btn">🔥 Скинуть эту ситуацию другу</button>
         </div>
@@ -217,180 +217,182 @@ function haptic(type) {
     }
 }
 
-var situations = [
+var situations = new Array(
     {
         id: 's1', cat: 'Криминал и аферы', mult: 2.2, winPct: 21,
         text: 'В 1995 году грабитель в Питтсбурге средь бела дня ограбил два банка без маски и даже улыбнулся в камеры наблюдения. Когда полиция арестовала его через час, он искренне удивился, как его нашли. Почему он не прятал лицо?',
-        opts: [
+        opts: new Array(
             'Намазал лицо лимонным соком, веря, что станет невидимым для камер',
             'Думал, что камеры в банке — это муляжи из картона',
             'Сделал пластическую операцию накануне и считал себя другим человеком'
-        ],
+        ),
         correct: 0,
         outcome: 'Он прочитал, что лимонный сок используют как невидимые чернила, и решил, что на камерах его лицо не проявится! Этот случай вдохновил учёных на открытие «эффекта Даннинга — Крюгера».'
     },
     {
         id: 's2', cat: 'Выживание', mult: 2.0, winPct: 34,
 text: 'В 1972 году самолёт с командой регбистов разбился в заснеженных Андах. Еда закончилась, вокруг только лёд и скалы. Два игрока решили идти за помощью пешком без альпинистского снаряжения. Сколько дней они шли по горам до спасения?',
-opts: [
+opts: new Array(
 '10 дней через ледники и перевалы высотой 4500 метров',
 '2 дня — оказалось, что трасса была за соседним холмом',
 '28 дней, питаясь только растопленным снегом'
-],
+),
 correct: 0,
 outcome: 'Нандо Паррадо и Роберто Канесса шли 10 дней по ледникам в кедах и самодельных спальниках, пока не встретили чилийского пастуха на другом берегу реки — и спасли 16 выживших.'
 },
 {
 id: 's3', cat: 'Психология толпы', mult: 1.8, winPct: 42,
 text: 'В 2013 году в Нью-Йорке провели эксперимент: на оживлённой улице поставили стол с двумя банками чаевых. На первой написали «На колледж», на второй — провокационную фразу. Вторая банка собрала в 5 раз больше денег. Что на ней было написано?',
-opts: [
+opts: new Array(
 '«Бэтмен против Супермена — кто победит?»',
 '«Помогите, меня похитили инопланетяне»',
 '«Не кладите сюда деньги, я ненавижу чаевые»'
-],
+),
 correct: 0,
 outcome: 'Люди обожают спорить и доказывать правоту даже деньгами! Прохожие кидали купюры в банку любимого супергероя, чтобы «он победил» в голосовании.'
 },
 {
 id: 's4', cat: 'Безумный бизнес', mult: 2.4, winPct: 19,
 text: 'В 1975 году рекламщик Гэри Дал заметил, что друзья постоянно жалуются на уход за домашними животными. Он запустил в продажу «идеального питомца» в картонной коробке с дырочками для воздуха и заработал $15 миллионов за полгода. Что лежало внутри коробки?',
-opts: [
+opts: new Array(
 'Обычный гладкий камень с пляжа (Pet Rock)',
 'Пластиковый тамагочи с одной кнопкой',
 'Пустота и инструкция «Представь его сам»'
-],
+),
 correct: 0,
 outcome: 'Он продавал обычные камни по $4 за штуку как «Камень-питомец», которого не нужно кормить, выгуливать и лечить! В комплекте шла книжка с командами «Сидеть» и «Лежать».'
 },
 {
 id: 's5', cat: 'Ограбление века', mult: 2.1, winPct: 28,
 text: 'В 2003 году банда воров вскрыла неприступное хранилище алмазов в Антверпене, обойдя 10 уровней защиты, датчики тепла, сейсмические сенсоры и замок на 100 млн комбинаций. Они унесли камней на $100 млн, но попались на следующий день из-за глупой улики в лесу. Что их выдало?',
-opts: [
+opts: new Array(
 'Надкусанный сэндвич с салями и чек из супермаркета в мусорном пакете',
 'Один из грабителей выложил фото с алмазами в соцсети',
 'Забытый в хранилище паспорт главаря банды'
-],
+),
 correct: 0,
 outcome: 'Главарь Леонардо Нотарбартоло выбросил мешок с уликами в лесу, думая, что никто не найдёт. Хозяин участка вызвал полицию из-за мусора, и по ДНК на сэндвиче и чеку из магазина вычислили всю банду.'
 },
 {
 id: 's6', cat: 'Социальный эксперимент', mult: 1.9, winPct: 37,
 text: 'В знаменитом «Зефирном эксперименте» детям давали одну зефирку и обещали дать вторую, если они не съедят первую за 15 минут, пока взрослый выйдет из комнаты. Какой трюк придумывали дети, которым удавалось выдержать?',
-opts: [
+opts: new Array(
 'Отворачивались, закрывали глаза руками или пели песни, чтобы не смотреть на неё',
 'Лизали зефирку со всех сторон, чтобы она стала некрасивой',
 'Прятали зефирку в карман и говорили, что она исчезла'
-],
+),
 correct: 0,
 outcome: 'Дети, которые просто смотрели на зефирку, срывались через 2 минуты. А те, кто переключал внимание и не смотрел на соблазн, спокойно дожидались двойной награды.'
 },
 {
 id: 's7', cat: 'Игры и кино', mult: 2.3, winPct: 23,
 text: 'При разработке первой игры GTA (Grand Theft Auto) в 1997 году игра изначально называлась Race’n’Chase, где игрок был полицейским и ловил преступников. Игра была скучной и проваливалась на тестах, пока один баг в коде не превратил её в мировой хит. Что это был за баг?',
-opts: [
+opts: new Array(
 'Полицейские машины взбесились и начали насмерть таранить игрока',
 'У главного героя бесконечный боезапас гранатомёта',
 'Пешеходы начали угонять машины друг у друга'
-],
+),
 correct: 0,
 outcome: 'Из-за ошибки в алгоритме копы стали невероятно агрессивными и таранили машину игрока на полной скорости. Тестировщикам так понравилось уходить от безумных погонь, что игру переделали под бандитов!'
 },
 {
 id: 's8', cat: 'Секреты спецслужб', mult: 2.5, winPct: 16,
 text: 'Во время Второй мировой войны британская разведка придумала хитрый способ передавать военнопленным секретные карты Германии, компасы и деньги прямо в лагеря под носом у охраны. Куда их прятали?',
-opts: [
+opts: new Array(
 'Внутрь наборов настольной игры «Монополия»',
 'В подошвы армейских сапог красного креста',
 'В банки с консервированным пудингом'
-],
+),
 correct: 0,
 outcome: 'Охранники разрешали передавать пленным настольные игры для досуга. Специальная фабрика печатала «Монополию» с шёлковыми картами побега, мини-компасами в фишках и настоящими рейхсмарками среди игровых денег!'
 },
 {
 id: 's9', cat: 'Психология денег', mult: 1.8, winPct: 45,
 text: 'В 1980-х сеть ресторанов A&W запустила бургер «Треть фунта» (1/3), который был больше и дешевле легендарного «Четвертьфунтового» (1/4) из McDonald’s. На слепых дегустациях он побеждал, но в продажах с треском провалился. Почему покупатели его не брали?',
-opts: [
+opts: new Array(
 'Покупатели думали, что 1/3 меньше, чем 1/4, потому что цифра 3 меньше 4',
 'Название звучало слишком сложно для заказа на кассе',
 'В рекламе забыли показать фотографию самого бургера'
-],
+),
 correct: 0,
 outcome: 'Опросы показали шокирующую правду: больше половины клиентов возмущались, почему им пытаются продать «меньший» бургер (3 меньше 4!) по цене «большого»!'
 },
 {
 id: 's10', cat: 'Невероятный побег', mult: 2.2, winPct: 25,
 text: 'В 1962 году трое заключённых сбежали из самой охраняемой тюрьмы мира — Алькатраса, окружённой ледяным заливом с акулами и сильным течением. Как они переплыли пролив, если у них не было лодки?',
-opts: [
+opts: new Array(
 'Склеили надувной плот и жилеты из 50 украденных резиновых плащей-дождевиков',
 'Проплыли под водой в аквалангах из огнетушителей',
 'Спрятались в ящиках с грязным бельём на пароме'
-],
+),
 correct: 0,
 outcome: 'Они месяцами собирали прорезиненные плащи, склеили их на горячих паровых трубах в полноценный плот и сделали насос из меха гармони!'
 },
 {
 id: 's11', cat: 'Хитрость на миллион', mult: 2.0, winPct: 31,
 text: 'В 1999 году программист из США купил ноутбук с предустановленной Windows, но принципиально не пользовался ей, поставив Linux. Он потребовал у производителя вернуть деньги только за операционную систему — и выиграл суд, создав мировой прецедент. Сколько денег он отсудил?',
-opts: [
+opts: new Array(
 '110 долларов — ровно столько стоила лицензия Windows в комплекте',
 '1 миллион долларов за навязывание услуг',
 'Ничего — ему просто подарили второй ноутбук'
-],
+),
 correct: 0,
 outcome: 'Джефф Боннерт доказал в суде, что по лицензионному соглашению пользователь имеет право отказаться от ПО и вернуть его стоимость — ему выплатили чек на $110.'
 },
 {
 id: 's12', cat: 'Космос и риск', mult: 2.1, winPct: 29,
 text: 'В 1965 году космонавт Алексей Леонов впервые в истории вышел в открытый космос. Когда пришло время возвращаться, случилась смертельная внештатная ситуация: его скафандр раздулся в вакууме и не пролезал в люк корабля. Как он спасся?',
-opts: [
+opts: new Array(
 'На свой страх и риск стравил давление в скафандре почти до критического и втиснулся головой вперёд',
 'Разрезал внешний слой скафандра ножом для строп',
 'Напарник вытащил его за трос лебёдкой с силой'
-],
+),
 correct: 0,
 outcome: 'Нарушив все инструкции (ждать разрешения с Земли не было времени — кончался кислород), Леонов сбросил давление в скафандре и с огромным трудом протиснулся в шлюз.'
 },
 {
 id: 's13', cat: 'Спорт и хитрость', mult: 1.9, winPct: 39,
 text: 'На Олимпиаде 1904 года американский бегун Фред Лорз первым прибежал к финишу марафона, опередив соперников на 15 минут. Зрители ликовали, но через 10 минут его с позором дисквалифицировали. Как он сжульничал?',
-opts: [
+opts: new Array(
 'Проехал 17 километров дистанции на машине своего тренера, когда устал',
 'Срезал путь через лес, сократив дистанцию вдвое',
 'Подменил себя братом-близнецом на середине трассы'
-],
+),
 correct: 0,
 outcome: 'Из-за жары у него свело ноги на 14-м километре. Тренер посадил его в автомобиль, но за 8 км до финиша машина сломалась — и Лорз как ни в чём не бывало добежал до стадиона!'
 },
 {
 id: 's14', cat: 'Психология влияния', mult: 2.0, winPct: 33,
 text: 'В гостиницах заметили, что постояльцы слишком часто меняют полотенца, тратя тонны воды и порошка. Стандартные таблички «Берегите природу!» не работали. Тогда текст на табличке изменили — и число повторных использований полотенец выросло на 33%. Что написали?',
-opts: [
+opts: new Array(
 '«75% гостей, живших в этом номере, использовали полотенца повторно»',
 '«За каждое сэкономленное полотенце мы посадим дерево»',
 '«Смена полотенца стоит $5 при выезде»'
-],
+),
 correct: 0,
 outcome: 'Социальное доказательство работает мощнее экологии! Когда люди видят, что большинство в их конкретном номере делает так же, мозг автоматически копирует поведение группы.'
 },
 {
 id: 's15', cat: 'Дерзкий пранк', mult: 2.3, winPct: 22,
 text: 'В 1974 году жители городка Ситка на Аляске проснулись утром 1 апреля и увидели, что спящий вулкан Эджкомб рядом с городом начал извергать густой чёрный дым. В городе началась паника, вызвали береговую охрану. Что увидели спасатели, подлетев на вертолёте к кратеру?',
-opts: [
+opts: new Array(
 'Гигантскую кучу горящих старых покрышек и надпись краской на снегу «1 АПРЕЛЯ»',
 'Дымовые шашки, которые сбросили студенты с самолёта',
 'Настоящее начало извержения, которое само затихло через час'
-],
+),
 correct: 0,
 outcome: 'Местный шутник Оливер Бикар 3 года завозил на вертолёте в кратер 70 старых покрышек и поджёг их на рассвете 1 апреля!'
 }
-];
+);
 var bank = parseInt(localStorage.getItem('int_bank') || '1000', 10);
 var streak = parseInt(localStorage.getItem('int_streak') || '0', 10);
-var seenIds = [];
-try { seenIds = JSON.parse(localStorage.getItem('int_seen') || '[]'); } catch (e) { seenIds = []; }
+var seenIds = new Array();
+try {
+var saved = JSON.parse(localStorage.getItem('int_seen') || '[]');
+if (Array.isArray(saved)) seenIds = saved;
+} catch (e) {}
 var currentBetType = '100';
 var currentSit = null;
-var shuffledMap = [];
 var isAnswered = false;
 var bankTxt = document.getElementById('bank-txt');
 var rankTxt = document.getElementById('rank-txt');
@@ -417,8 +419,10 @@ else if (bank >= 10000) rank = 'Провидец ⚡';
 else if (bank >= 4000) rank = 'Мастер 🧠';
 else if (bank >= 2000) rank = 'Знаток 🎯';
 rankTxt.innerText = rank;
+try {
 localStorage.setItem('int_bank', bank);
 localStorage.setItem('int_streak', streak);
+} catch (e) {}
 }
 updateStatsUI();
 function saveSeen(id) {
@@ -436,21 +440,22 @@ if (currentBetType === 'all') return bank;
 var val = parseInt(currentBetType, 10);
 return Math.min(bank, val);
 }
-// Переключение ставок
-document.querySelectorAll('.bet-btn').forEach(function(btn) {
+var betBtns = document.querySelectorAll('.bet-btn');
+for (var b = 0; b < betBtns.length; b++) {
+(function(btn) {
 btn.addEventListener('click', function() {
-document.querySelectorAll('.bet-btn').forEach(function(b) { b.classList.remove('active'); });
+for (var x = 0; x < betBtns.length; x++) betBtns[x].classList.remove('active');
 btn.classList.add('active');
-currentBetType = btn.dataset.bet;
+currentBetType = btn.getAttribute('data-bet');
 haptic('light');
 });
-});
+})(betBtns[b]);
+}
 function loadSituation() {
 isAnswered = false;
 var unseen = situations.filter(function(s) { return seenIds.indexOf(s.id) === -1; });
 if (unseen.length === 0) {
-// Если пройдены все ситуации, начинаем новый цикл в случайном порядке
-seenIds = [];
+seenIds = new Array();
 try { localStorage.setItem('int_seen', '[]'); } catch (e) {}
 unseen = situations.slice();
 }
@@ -459,15 +464,13 @@ saveSeen(currentSit.id);
 catTxt.innerText = currentSit.cat;
 multTxt.innerText = 'Коэф: x' + currentSit.mult.toFixed(1);
 sitTxt.innerText = currentSit.text;
-// Перемешиваем варианты ответа, чтобы правильный не был всегда первым
-var indices =;
+var indices = new Array(0, 1, 2);
 for (var i = indices.length - 1; i > 0; i--) {
 var j = Math.floor(Math.random() * (i + 1));
 var t = indices[i]; indices[i] = indices[j]; indices[j] = t;
 }
-shuffledMap = indices;
 optionsBox.innerHTML = '';
-var letters = ['А', 'Б', 'В'];
+var letters = new Array('А', 'Б', 'В');
 for (var k = 0; k < indices.length; k++) {
 var origIdx = indices[k];
 var btn = document.createElement('button');
@@ -486,13 +489,13 @@ var bet = getBetAmount();
 var isWin = (selectedOrigIdx === currentSit.correct);
 if (isWin) {
 var profit = Math.round(bet * (currentSit.mult - 1));
-if (bet === 0) profit = 100; // Бонус при пустом банке
+if (bet === 0) profit = 100;
 bank += profit;
 streak++;
 resBadge.className = 'res-badge res-win';
 resBadge.innerText = 'ИНТУИЦИЯ В ТОЧКУ!';
 resMoney.style.color = '#4ade80';
-resMoney.innerText = '+' + profit + ' 🪙';
+resMoney.innerText = '+' + profit + ' 💰';
 haptic('success');
 } else {
 bank = Math.max(0, bank - bet);
@@ -500,7 +503,7 @@ streak = 0;
 resBadge.className = 'res-badge res-lose';
 resBadge.innerText = 'ПОПАЛСЯ НА УЛОВКУ!';
 resMoney.style.color = '#f87171';
-resMoney.innerText = bet > 0 ? ('-' + bet + ' 🪙') : '0 🪙';
+resMoney.innerText = bet > 0 ? ('-' + bet + ' 💰') : '0 💰';
 haptic('error');
 }
 updateStatsUI();
@@ -519,18 +522,17 @@ nextBtn.addEventListener('click', function() {
 resModal.style.display = 'none';
 loadSituation();
 });
-// Вызов другу в чат
 document.getElementById('share-btn').addEventListener('click', function() {
+if (!currentSit) return;
 var txt = 'Ситуация: ' + currentSit.text.slice(0, 95) + '... Только ' + currentSit.winPct + '% людей угадывают финал! Проверь свою интуицию: @reaction_duel_1v1_bot';
 if (tg && tg.switchInlineQuery) {
 try {
-tg.switchInlineQuery(txt, ['users', 'groups', 'channels']);
+tg.switchInlineQuery(txt, new Array('users', 'groups', 'channels'));
 return;
 } catch (e) {}
 }
 window.open('t.me' + encodeURIComponent('t.me') + '&text=' + encodeURIComponent(txt), '_blank');
 });
-// Пополнение банка за рекламу AdsGram (56776)
 adRefillBtn.addEventListener('click', function() {
 adRefillBtn.disabled = true;
 adRefillBtn.innerText = 'Загрузка рекламы...';
@@ -551,20 +553,26 @@ adRefillBtn.disabled = false;
 adRefillBtn.innerText = 'Нет роликов (повторить)';
 });
 });
-// Синхронизация с CloudStorage при старте
+// Мгновенный запуск + фоновая синхронизация с облаком
+loadSituation();
 if (tg && tg.CloudStorage) {
 try {
 tg.CloudStorage.getItem('int_seen_v1', function(err, val) {
 if (!err && val) {
 var arr = val.split(',').filter(Boolean);
-arr.forEach(function(id) { if (seenIds.indexOf(id) === -1) seenIds.push(id); });
+var updated = false;
+for (var i = 0; i < arr.length; i++) {
+if (seenIds.indexOf(arr[i]) === -1) {
+seenIds.push(arr[i]);
+updated = true;
+}
+}
+if (updated) {
 try { localStorage.setItem('int_seen', JSON.stringify(seenIds)); } catch (e) {}
 }
-loadSituation();
+}
 });
-} catch (e) { loadSituation(); }
-} else {
-loadSituation();
+} catch (e) {}
 }
 </script>
 </body>
