@@ -107,9 +107,9 @@ html, body {
 
 <div class="app">
     <div class="top-bar">
-        <div class="pill">&#128293; Серия: <span class="streak-val" id="streak-txt">0</span></div>
-        <div class="pill ai-badge" id="wiki-status">&#128196; Осталось: 35</div>
-        <div class="pill">&#127942; Рекорд: <span class="best-val" id="best-txt">0</span></div>
+        <div class="pill">🔥 Серия: <span class="streak-val" id="streak-txt">0</span></div>
+        <div class="pill ai-badge" id="wiki-status">📄 В колоде: 35</div>
+        <div class="pill">🏆 Рекорд: <span class="best-val" id="best-txt">0</span></div>
     </div>
 
     <div class="card-arena">
@@ -118,19 +118,19 @@ html, body {
             <div class="stamp stamp-fake" id="stamp-fake">ФЕЙК</div>
             <div class="card-header">
                 <div class="card-tag" id="card-cat">Категория</div>
-                <div class="ai-tag" id="ai-tag">&#127760; WIKI ФАКТ</div>
+                <div class="ai-tag" id="ai-tag">🌐 WIKI ФАКТ</div>
             </div>
             <div class="card-statement" id="card-text">Загрузка факта...</div>
             <div class="card-hint">
-                <span>&#8592; Свайп: Фейк</span>
-                <span>Правда: Свайп &#8594;</span>
+                <span>← Свайп: Фейк</span>
+                <span>Правда: Свайп →</span>
             </div>
         </div>
     </div>
 
     <div class="controls">
-        <button class="choice-btn btn-fake" id="btn-fake">&#10060; Фейк</button>
-        <button class="choice-btn btn-true" id="btn-true">&#9989; Правда</button>
+        <button class="choice-btn btn-fake" id="btn-fake">❌ Фейк</button>
+        <button class="choice-btn btn-true" id="btn-true">✅ Правда</button>
     </div>
 </div>
 
@@ -139,8 +139,8 @@ html, body {
         <div class="verdict-badge" id="verdict-badge">Вердикт</div>
         <div class="fact-truth" id="fact-truth">Это чистая правда!</div>
         <div class="fact-story" id="fact-story">История...</div>
-        <button class="action-btn save-streak" id="save-streak-btn" style="display:none;">&#10084;&#65039; Сохранить серию (за рекламу)</button>
-        <button class="action-btn" id="next-btn">Следующая карточка &#8594;</button>
+        <button class="action-btn save-streak" id="save-streak-btn" style="display:none;">❤️ Сохранить серию (за рекламу)</button>
+        <button class="action-btn" id="next-btn">Следующая карточка →</button>
     </div>
 </div>
 
@@ -158,7 +158,6 @@ function openFullScreen() {
 openFullScreen();
 setTimeout(openFullScreen, 300);
 
-// Инициализация рекламного блока AdsGram (UnitID: 56776)
 var AdController = null;
 function initAds() {
     try {
@@ -212,42 +211,42 @@ var baseFacts = [
 { id: 'f20', cat: 'Еда и бренды', text: 'Мёд — единственный продукт питания, который практически не портится: археологи находили съедобный мёд в гробницах возрастом 3000 лет.', isTrue: true, story: 'Научный факт! Благодаря низкой влажности, высокой кислотности и природной перекиси водорода бактерии в натуральном мёде не выживают тысячелетиями.' },
 { id: 'f21', cat: 'География', text: 'В Австралии диких кенгуру живёт больше, чем людей на всём континенте.', isTrue: true, story: 'Чистая правда! Население Австралии составляет около 26 миллионов человек, а популяция кенгуру по оценкам экологов превышает 40–50 миллионов особей.' },
 { id: 'f22', cat: 'Наука', text: 'Молния никогда не бьёт в одно и то же место дважды.', isTrue: false, story: 'Опасный миф! Высокие здания и башни притягивают разряды постоянно. Например, в небоскрёб Эмпайр-стейт-билдинг в Нью-Йорке молния попадает в среднем 20–25 раз в год.' },
-{ id: 'f23', cat: 'Кино и музыка', text: 'Рык тираннозавра в фильме «Парк Юрского периода» звукорежиссёры создали, смешав рёв детёныша слона, тигра и аллигатора.', isTrue: true, story: 'Реальный факт из киноиндустрии! Поскольку никто не знал, как звучали динозавры, звукорежиссёр Гэри Райдстром записал звуки реальных животных и замедлил их.' },
-{ id: 'f24', cat: 'История', text: 'В Древнем Риме гладиаторы почти в каждом бою убивали друг друга насмерть на потеху толпе.', isTrue: false, story: 'Киношный стереотип! Обучение и содержание гладиатора стоило огромных денег, поэтому хозяева берегли бойцов. Большинство поединков шло до первой крови или сдачи, а смертельные исходы были редкостью.' },
-{ id: 'f25', cat: 'Космос', text: 'На Сатурне и Юпитере из-за чудовищного давления в атмосфере буквально идут дожди из настоящих алмазов.', isTrue: true, story: 'Научно подтверждённая гипотеза! Мощные молнии превращают метан в сажу, которая при падении вглубь планет сжимается в графит, а затем в твёрдые алмазы.' },
-{ id: 'f26', cat: 'Тело человека', text: 'После смерти человека его ногти и волосы продолжают расти ещё несколько недель.', isTrue: false, story: 'Оптическая иллюзия! Ногти и волосы не растут — просто кожа после смерти теряет влагу и немного усыхает, из-за чего ногтевая пластина и щетина сильнее выступают наружу.' },
-{ id: 'f27', cat: 'Изобретения', text: 'Обычную зажигалку изобрели на несколько лет раньше, чем спички.', isTrue: true, story: 'Правда! Немецкий химик Иоганн Дёберейнер изобрёл первую зажигалку в 1823 году, а безопасные фосфорные спички появились только в 1826–1827 годах.' },
-{ id: 'f28', cat: 'Животный мир', text: 'Быки приходят в бешенство именно от красного цвета плаща матадора.', isTrue: false, story: 'Миф! Быки, как и большинство копытных, не различают красный цвет — для них он выглядит серо-жёлтым. Животное злит само резкое мелькание и движение ткани перед мордой.' },
-{ id: 'f29', cat: 'Деньги и бизнес', text: 'Основатель Apple Стив Джобс был официально уволен из собственной компании, а спустя 12 лет вернулся и спас её от банкротства.', isTrue: true, story: 'Чистая правда! В 1985 году совет директоров отстранил Джобса от работы в Apple. Он основал студию Pixar и компанию NeXT, а в 1997 году Apple выкупила NeXT и вернула Джобса на пост главы.' },
-{ id: 'f30', cat: 'География', text: 'Сахара — самая большая пустыня на планете Земля.', isTrue: false, story: 'Фейк с подвохом! Сахара — самая большая жаркая песчаная пустыня, но самой большой пустыней мира считается Антарктида (14 млн кв. км), так как пустыней называют любую местность с крайне малым количеством осадков.' },
-{ id: 'f31', cat: 'Еда и бренды', text: 'Шоколад смертельно опасен для собак, так как содержит вещество теобромин, которое их организм не умеет перерабатывать.', isTrue: true, story: 'Абсолютная правда! Теобромин, безопасный для человека, у собак вызывает сильное отравление и поражение сердца, особенно тёмный горький шоколад.' },
-{ id: 'f32', cat: 'История', text: 'Во время Второй мировой войны в армии Польши официально служил бурый медведь по кличке Войтек, который подносил артиллерийские снаряды.', isTrue: true, story: 'Реальная история! Медведя Войтека зачислили в 22-ю роту снабжения артиллерии, выдали солдатскую книжку и звание капрала. В битве при Монте-Кассино он действительно таскал тяжёлые ящики со снарядами.' },
-{ id: 'f33', cat: 'Мифы и наука', text: 'Вода в раковине закручивается в разные стороны в Северном и Южном полушариях из-за вращения Земли.', isTrue: false, story: 'Популярный миф! Сила Кориолиса влияет на гигантские циклоны в океане, но для маленькой раковины она ничтожна — направление воронки зависит только от формы слива и напора струи.' },
-{ id: 'f34', cat: 'Технологии', text: 'Первый в истории твит в сети Twitter написал её создатель Джек Дорси в 2006 году, и позже этот пост продали за $2,9 миллиона.', isTrue: true, story: 'Правда! Фразу «just setting up my twttr» («просто настраиваю свой твиттер») в 2021 году продали на аукционе в виде цифрового токена NFT за $2,9 миллиона.' },
-{ id: 'f35', cat: 'Природа и мир', text: 'Акулы появились на Земле раньше, чем первые деревья и динозавры.', isTrue: true, story: 'Научный факт! Предки современных акул плавали в океанах уже более 400 миллионов лет назад, тогда как первые деревья появились на суше около 350 миллионов лет назад.' }
+{ id: 'f23', cat: 'Законы мира', text: 'В Сингапуре запрещён ввоз и продажа жевательной резинки — за нарушение можно получить крупный штраф.', isTrue: true, story: 'Реальный закон! В 1992 году власти Сингапура запретили жвачку из-за вандалов, которые клеили её на датчики дверей поездов метро, вызывая сбои в движении.' },
+{ id: 'f24', cat: 'Космос', text: 'На планете Сатурн и Юпитер действительно идут настоящие дожди из алмазов.', isTrue: true, story: 'Научная правда! Мощные молнии превращают метан в сажу, которая при падении под колоссальным давлением сжимается в графит, а затем в настоящие алмазы.' },
+{ id: 'f25', cat: 'История', text: 'В Древнем Египте пирамиды строили исключительно закованные в цепи рабы под ударами надсмотрщиков.', isTrue: false, story: 'Исторический миф! Раскопки городов строителей в Гизе доказали, что пирамиды возводили наёмные квалифицированные рабочие, которые получали зарплату, хорошее питание и медицинскую помощь.' },
+{ id: 'f26', cat: 'Животный мир', text: 'У вомбатов — австралийских сумчатых зверьков — экскременты имеют форму почти идеальных кубиков.', isTrue: true, story: 'Чистая правда! Это единственный известный вид на Земле, производящий кубический помёт. Такая форма нужна, чтобы пометки территории не скатывались со склонов и камней.' },
+{ id: 'f27', cat: 'Еда и бренды', text: 'В составе газировки Fanta изначально не было апельсинов — её придумали в Германии во время войны из яблочного жмыха и молочной сыворотки.', isTrue: true, story: 'Реальный факт! В 1940 году немецкому отделению Coca-Cola не хватало сиропа из-за блокады, и руководитель Макс Кайт создал новый напиток из доступных пищевых отходов.' },
+{ id: 'f28', cat: 'Природа и мир', text: 'Бананы с точки зрения ботаники являются ягодами, а клубника ягодой не является.', isTrue: true, story: 'Научный факт! Банан развивается из одного цветка с одной завязью и имеет мягкую мякоть с семенами внутри — это классическая ягода. А клубника относится к ложным плодам (многоорешкам).' },
+{ id: 'f29', cat: 'Мифы и наука', text: 'Если бросить монетку с крыши небоскрёба Эмпайр-стейт-билдинг, она разгонится так сильно, что пробьёт голову прохожему.', isTrue: false, story: 'Физический фейк! Из-за плоской формы и сопротивления воздуха предельная скорость падения монеты составляет около 50–80 км/ч. Она оставит синяк, но не причинит смертельного вреда.' },
+{ id: 'f30', cat: 'Игры и кино', text: 'Маскот Sega ёж Соник был придуман в 1991 году как прямой конкурент водопроводчику Марио от Nintendo.', isTrue: true, story: 'Так и есть! Руководство Sega поставило задачу создать яркого персонажа синего цвета (под цвет логотипа компании), который олицетворял бы скорость и драйв.' },
+{ id: 'f31', cat: 'Невероятные случаи', text: 'В 1971 году угонщик самолёта Дэн Купер выпрыгнул с парашютом и $200 000 над лесами США и бесследно исчез — его не нашли до сих пор.', isTrue: true, story: 'Реальная тайна ФБР! Дело Д. Б. Купера остаётся единственным нераскрытым случаем угона самолёта в истории коммерческой авиации США.' },
+{ id: 'f32', cat: 'Животный мир', text: 'Быки приходят в ярость именно от красного цвета плаща матадора.', isTrue: false, story: 'Популярное заблуждение! Быки не различают красный и зелёный цвета — их раздражает не оттенок ткани, а резкие движения плаща перед глазами.' },
+{ id: 'f33', cat: 'Технологии', text: 'Первый в мире SMS-сообщением был текст «С Рождеством» (Merry Christmas), отправленный в декабре 1992 года.', isTrue: true, story: 'Чистая правда! Британский инженер Нил Папуорт отправил это сообщение с компьютера на мобильный телефон директора Vodafone 3 декабря 1992 года.' },
+{ id: 'f34', cat: 'География', text: 'В России больше часовых поясов, чем в любой другой стране мира — целых 11.', isTrue: false, story: 'Хитрая ловушка! У России действительно 11 часовых поясов, но мировым рекордсменом является Франция (12 часовых поясов, а с учётом претензий в Антарктиде — 13) благодаря заморским территориям.' },
+{ id: 'f35', cat: 'Наука', text: 'Горячая вода при определённых условиях может замерзать быстрее холодной.', isTrue: true, story: 'Реальный физический эффект! Это явление называется эффектом Мпембы — в честь танзанийского школьника, который заметил, что горячая смесь для мороженого застывает быстрее холодной.' }
 ];
 var wikiFacts = [];
 try {
-wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v4') || '[]');
+wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v5') || '[]');
 } catch (e) { wikiFacts = []; }
 var seenIds = [];
 try {
-seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v4') || '[]');
+seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v5') || '[]');
 } catch (e) { seenIds = []; }
 function persistSeenHistory() {
-var trimmed = seenIds.slice(-450);
-try { localStorage.setItem('tf_seen_ids_v4', JSON.stringify(trimmed)); } catch (e) {}
+var trimmed = seenIds.slice(-600);
+try { localStorage.setItem('tf_seen_ids_v5', JSON.stringify(trimmed)); } catch (e) {}
 if (tg && tg.CloudStorage) {
 try {
-var packed = trimmed.slice(-300).join(',');
-tg.CloudStorage.setItem('seen_v4', packed);
+var packed = trimmed.slice(-350).join(',');
+tg.CloudStorage.setItem('seen_v5', packed);
 } catch (e) {}
 }
 }
 var deck = [];
 var currentCard = null;
 var streak = 0;
-var bestStreak = parseInt(localStorage.getItem('tf_best_streak') || '0');
+var bestStreak = parseInt(localStorage.getItem('tf_best_streak') || '0', 10);
 var isAnimating = false;
 var isFetchingWiki = false;
 var streakTxt = document.getElementById('streak-txt');
@@ -271,9 +270,7 @@ if (isFetchingWiki) return;
 isFetchingWiki = true;
 try {
 var url = 'wikipedia.org∝=extracts&exintro=1&explaintext=1&exsentences=2&format=json&origin=*';
-var res = await fetch(url, {
-headers: { 'Api-User-Agent': 'FactQuizTelegramApp/1.0' }
-});
+var res = await fetch(url);
 var data = await res.json();
 if (data && data.query && data.query.pages) {
 var pages = Object.values(data.query.pages);
@@ -285,13 +282,17 @@ var cleanText = p.extract.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
 if (cleanText.length < 55) continue;
 var cardId = 'w' + p.pageid;
 if (seenIds.indexOf(cardId) !== -1) continue;
+if (deck.some(function(d) { return d.id === cardId; })) continue;
 var makeFake = false;
 var displayText = cleanText;
 var yearMatch = cleanText.match(/\b(1[5-9]\d\d|20[0-2]\d)\b/);
-if (yearMatch && Math.random() < 0.45) {
-var realYear = parseInt(yearMatch, 10);
-var fakeYear = realYear + (Math.random() < 0.5 ? 17 : -19);
-displayText = cleanText.replace(yearMatch, String(fakeYear));
+var realYearStr = yearMatch ? yearMatch[0] : null;
+var fakeYear = 0;
+if (realYearStr && Math.random() < 0.45) {
+var realYear = parseInt(realYearStr, 10);
+fakeYear = realYear + (Math.random() < 0.5 ? 17 : -19);
+if (fakeYear > 2025) fakeYear = realYear - 23;
+displayText = cleanText.replace(realYearStr, String(fakeYear));
 makeFake = true;
 }
 var cardObj = {
@@ -301,17 +302,17 @@ text: displayText,
 isTrue: !makeFake,
 isWiki: true,
 story: makeFake
-? 'Подвох в дате! На самом деле в статье Википедии о теме «' + p.title + '» указан ' + yearMatch + ' год, а не ' + fakeYear + '.'
+? 'Подвох в дате! На самом деле в статье Википедии о теме «' + p.title + '» указан ' + realYearStr + ' год, а не ' + fakeYear + '.'
 : 'Чистая правда из энциклопедии о теме «' + p.title + '».'
 };
 wikiFacts.push(cardObj);
-deck.push(cardObj);
+deck.unshift(cardObj);
 added++;
 }
 if (added > 0) {
 if (wikiFacts.length > 300) wikiFacts = wikiFacts.slice(-300);
-try { localStorage.setItem('tf_wiki_cache_v4', JSON.stringify(wikiFacts)); } catch (e) {}
-wikiStatus.innerHTML = '📄 Осталось: ' + deck.length;
+try { localStorage.setItem('tf_wiki_cache_v5', JSON.stringify(wikiFacts)); } catch (e) {}
+wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
 }
 }
 } catch (e) {}
@@ -322,12 +323,18 @@ var all = baseFacts.concat(wikiFacts);
 var unseen = all.filter(function(item) {
 return seenIds.indexOf(item.id) === -1;
 });
-deck = unseen.sort(function() { return 0.5 - Math.random(); });
-wikiStatus.innerHTML = '📄 Осталось: ' + deck.length;
+for (var i = unseen.length - 1; i > 0; i--) {
+var j = Math.floor(Math.random() * (i + 1));
+var temp = unseen[i];
+unseen[i] = unseen[j];
+unseen[j] = temp;
+}
+deck = unseen;
+wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
 }
 async function loadNextCard() {
 if (deck.length === 0) buildFreshDeck();
-if (deck.length < 12) fetchWikipediaFacts();
+if (deck.length < 15) fetchWikipediaFacts();
 if (deck.length === 0) {
 cardText.innerText = 'Загружаем свежие факты из сети...';
 await fetchWikipediaFacts();
@@ -342,7 +349,7 @@ if (currentCard && currentCard.id && seenIds.indexOf(currentCard.id) === -1) {
 seenIds.push(currentCard.id);
 persistSeenHistory();
 }
-wikiStatus.innerHTML = '📄 Осталось: ' + deck.length;
+wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
 cardCat.innerText = currentCard.cat || 'Факт';
 cardText.innerText = currentCard.text;
 aiTag.style.display = currentCard.isWiki ? 'block' : 'none';
@@ -356,7 +363,7 @@ isAnimating = false;
 function initGameWithCloud() {
 if (tg && tg.CloudStorage) {
 try {
-tg.CloudStorage.getItem('seen_v4', function(err, cloudVal) {
+tg.CloudStorage.getItem('seen_v5', function(err, cloudVal) {
 if (!err && cloudVal) {
 var cloudArr = cloudVal.split(',').filter(Boolean);
 for (var i = 0; i < cloudArr.length; i++) {
@@ -364,7 +371,7 @@ if (seenIds.indexOf(cloudArr[i]) === -1) {
 seenIds.push(cloudArr[i]);
 }
 }
-try { localStorage.setItem('tf_seen_ids_v4', JSON.stringify(seenIds)); } catch (e) {}
+try { localStorage.setItem('tf_seen_ids_v5', JSON.stringify(seenIds)); } catch (e) {}
 }
 buildFreshDeck();
 loadNextCard();
@@ -412,7 +419,7 @@ verdictBadge.className = 'verdict-badge verdict-lose';
 verdictBadge.innerText = 'Ошибочка! Интуиция подвела';
 if (streak >= 2) {
 saveStreakBtn.style.display = 'block';
-saveStreakBtn.innerText = 'Спасти серию (' + streak + ') за рекламу';
+saveStreakBtn.innerText = '❤️ Спасти серию (' + streak + ') за рекламу';
 } else {
 saveStreakBtn.style.display = 'none';
 }
@@ -463,43 +470,38 @@ stampTrue.style.opacity = '0';
 stampFake.style.opacity = '0';
 }
 }
-cardEl.addEventListener('touchstart', function(e) { if (e.touches && e.touches) onDragStart(e.touches.clientX); }, { passive: true });
-cardEl.addEventListener('touchmove', function(e) { if (e.touches && e.touches) onDragMove(e.touches.clientX); }, { passive: true });
+cardEl.addEventListener('touchstart', function(e) { if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX); }, { passive: true });
+cardEl.addEventListener('touchmove', function(e) { if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX); }, { passive: true });
 cardEl.addEventListener('touchend', onDragEnd);
 cardEl.addEventListener('mousedown', function(e) { onDragStart(e.clientX); });
 window.addEventListener('mousemove', function(e) { onDragMove(e.clientX); });
 window.addEventListener('mouseup', onDragEnd);
-document.getElementById('btn-true').addEventListener('click', function() { handleAnswer(true); });
 document.getElementById('btn-fake').addEventListener('click', function() { handleAnswer(false); });
-// Показ реальной рекламы AdsGram (UnitID: 56776)
-saveStreakBtn.addEventListener('click', function() {
-initAds();
-if (AdController) {
-saveStreakBtn.innerText = 'Загрузка рекламы...';
-AdController.show().then(function() {
-streak = lostStreakCache;
-streakTxt.innerText = streak;
-resultModal.style.display = 'none';
-loadNextCard();
-}).catch(function(err) {
-saveStreakBtn.innerText = 'Реклама сейчас недоступна';
-setTimeout(function() {
-resultModal.style.display = 'none';
-loadNextCard();
-}, 1100);
-});
-} else {
-saveStreakBtn.innerText = 'Блок рекламы не загружен';
-setTimeout(function() {
-resultModal.style.display = 'none';
-loadNextCard();
-}, 1100);
-}
-});
+document.getElementById('btn-true').addEventListener('click', function() { handleAnswer(true); });
 nextBtn.addEventListener('click', function() {
 resultModal.style.display = 'none';
 loadNextCard();
 });
-</script>
+saveStreakBtn.addEventListener('click', function() {
+initAds();
+if (!AdController) {
+alert('Реклама сейчас недоступна, попробуйте позже.');
+return;
+}
+saveStreakBtn.disabled = true;
+saveStreakBtn.innerText = 'Загрузка рекламы...';
+AdController.show().then(function() {
+streak = lostStreakCache;
+streakTxt.innerText = streak;
+saveStreakBtn.disabled = false;
+saveStreakBtn.style.display = 'none';
+resultModal.style.display = 'none';
+loadNextCard();
+}).catch(function() {
+saveStreakBtn.disabled = false;
+saveStreakBtn.innerText = 'Реклама не загрузилась (повторить)';
+});
+});
+    </script>
 </body>
 </html>
