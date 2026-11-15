@@ -32,9 +32,9 @@ html, body {
     margin: 14px 0; perspective: 1000px;
 }
 .swipe-card {
-    width: 100%; height: 100%; max-height: 430px;
+    width: 100%; height: 100%; max-height: 440px;
     background: linear-gradient(155deg, #161b29 0%, #0e121b 100%);
-    border: 1.5px solid #283248; border-radius: 26px; padding: 24px 20px;
+    border: 1.5px solid #283248; border-radius: 26px; padding: 22px 18px;
     display: flex; flex-direction: column; justify-content: space-between;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
     position: relative; touch-action: none; cursor: grab;
@@ -49,11 +49,12 @@ html, body {
 }
 .ai-tag {
     background: rgba(52, 211, 153, 0.18); border: 1px solid rgba(52, 211, 153, 0.45);
-    color: #6ee7b7; padding: 4px 9px; border-radius: 10px; font-size: 10px; font-weight: 900; display: none;
+    color: #6ee7b7; padding: 4px 9px; border-radius: 10px; font-size: 10px; font-weight: 900;
 }
 
 .card-statement {
-    font-size: 19px; font-weight: 800; line-height: 1.42; color: #f8fafc; text-align: center; margin: auto 0;
+    font-size: 17px; font-weight: 800; line-height: 1.42; color: #f8fafc; text-align: center; margin: auto 0;
+    overflow-y: auto; max-height: 290px; padding: 4px;
 }
 .card-hint {
     display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;
@@ -108,7 +109,7 @@ html, body {
 <div class="app">
     <div class="top-bar">
         <div class="pill">🔥 Серия: <span class="streak-val" id="streak-txt">0</span></div>
-        <div class="pill ai-badge" id="wiki-status">📄 В колоде: 35</div>
+        <div class="pill ai-badge" id="wiki-status">🌐 В колоде: 0</div>
         <div class="pill">🏆 Рекорд: <span class="best-val" id="best-txt">0</span></div>
     </div>
 
@@ -117,10 +118,10 @@ html, body {
             <div class="stamp stamp-true" id="stamp-true">ПРАВДА</div>
             <div class="stamp stamp-fake" id="stamp-fake">ФЕЙК</div>
             <div class="card-header">
-                <div class="card-tag" id="card-cat">Категория</div>
-                <div class="ai-tag" id="ai-tag">🌐 WIKI ФАКТ</div>
+                <div class="card-tag" id="card-cat">Энциклопедия</div>
+                <div class="ai-tag" id="ai-tag">🌐 LIVE WIKI</div>
             </div>
-            <div class="card-statement" id="card-text">Загрузка факта...</div>
+            <div class="card-statement" id="card-text">Загружаем факты из сети...</div>
             <div class="card-hint">
                 <span>← Свайп: Фейк</span>
                 <span>Правда: Свайп →</span>
@@ -188,82 +189,50 @@ function playBeep(freq, type, dur) {
     } catch (e) {}
 }
 
-var baseFacts = [
-    { id: 'f1', cat: 'Безумные истории', text: 'В 1987 году американец купил пожизненный безлимит на полёты первым классом за $250 000 и налетал на $21 миллион.', isTrue: true, story: 'Реальная история! Стив Ротштейн купил проездной AAirpass у American Airlines. Он совершил более 10 000 перелётов, часто бронируя соседнее место для вымышленных спутников, пока в 2008 году авиакомпания со скандалом не аннулировала билет.' },
-    { id: 'f2', cat: 'Природа и мир', text: 'В Японии есть целый остров, где почти нет людей, но живут больше тысячи диких ручных кроликов.', isTrue: true, story: 'Чистая правда! Остров Окуносима называют «Островом кроликов». После закрытия старого завода туда завезли несколько кроликов. Без хищников они расплодились до тысячи особей и теперь сами бегут навстречу туристам.' },
-    { id: 'f3', cat: 'Законы мира', text: 'В Швейцарии законом запрещено держать дома только одну морскую свинку — их обязаны покупать парой.', isTrue: true, story: 'Реальный закон Швейцарии! Морские свинки в одиночестве впадают в депрессию. В стране даже есть сервисы аренды морской свинки на время, если одна из пары умерла.' },
-    { id: 'f4', cat: 'Технологии', text: 'Первый компьютерный вирус создали в 1986 году два брата из Пакистана, чтобы наказать пиратов за кражу их программы.', isTrue: true, story: 'Правда! Вирус Brain вшили в медицинский софт. При нелегальном копировании дискеты он выводил на экран имена братьев, адрес в Лахоре и номер телефона для «лечения».' },
-{ id: 'f5', cat: 'Мифы и наука', text: 'Великая Китайская стена — единственное сооружение на Земле, которое легко видно невооружённым глазом с Луны.', isTrue: false, story: 'Популярный фейк! Ширина стены всего 5–6 метров, а её цвет сливается с горами. Космонавты на МКС подтвердили, что разглядеть её без мощного объектива невозможно даже с орбиты.' },
-{ id: 'f6', cat: 'Криминал и аферы', text: 'В 1990-х мошенник умудрился продать банку несуществующий аэропорт за $242 миллиона, используя поддельные снимки.', isTrue: true, story: 'Реальная афера! Нигериец Эммануэль Нвуде убедил директора бразильского банка Banco Noroeste, что строит аэропорт в столице Нигерии Абудже, и выманил $242 млн.' },
-{ id: 'f7', cat: 'Еда и бренды', text: 'Coca-Cola изначально продавалась в аптеках как лечебный сироп от головной боли и расстройства нервов.', isTrue: true, story: 'Так и есть! В 1886 году фармацевт Джон Пембертон продавал этот сироп по 5 центов за стакан как тонизирующее средство. Газированной водой его начали разбавлять позже.' },
-{ id: 'f8', cat: 'Космос', text: 'На Венере одни сутки длятся дольше, чем целый венерианский год (оборот планеты вокруг Солнца).', isTrue: true, story: 'Абсолютная правда! Венера вращается вокруг своей оси невероятно медленно: один оборот занимает 243 земных дня, а полный круг вокруг Солнца она делает за 225 дней.' },
-{ id: 'f9', cat: 'Животный мир', text: 'Страусы при испуге действительно прячут голову в песок, чтобы хищники не заметили их светлую шею.', isTrue: false, story: 'Известный миф! Если бы страус засунул голову в песок, он бы задохнулся. На деле они убегают со скоростью до 70 км/ч либо ложатся и прижимают шею к земле.' },
-{ id: 'f10', cat: 'Невероятные случаи', text: 'Американец Рой Салливан за свою жизнь пережил 7 прямых попаданий молнии и попал в Книгу рекордов Гиннесса.', isTrue: true, story: 'Реальный факт! Смотритель парка в Вирджинии пережил 7 ударов молнии с 1942 по 1977 год и получил прозвище «Человек-громоотвод».' },
-{ id: 'f11', cat: 'История', text: 'Наполеон Бонапарт был карликом ростом 148 см, из-за чего и появился термин «комплекс Наполеона».', isTrue: false, story: 'Исторический фейк! Рост Наполеона был около 169 см, что для XIX века было выше среднего. Путаница возникла из-за разницы между французским и английским дюймом.' },
-{ id: 'f12', cat: 'Игры и кино', text: 'Создатель игры Tetris Алексей Пажитнов первые 10 лет не получал за неё ни копейки, так как права принадлежали государству.', isTrue: true, story: 'Правда! Пажитнов написал тетрис в 1984 году на советском компьютере Электроника-60. Лицензией распоряжалось советское ведомство, и только в 1996 году права вернулись автору.' },
-{ id: 'f13', cat: 'Психология', text: 'Человек использует свой мозг всего на 10%, а остальные 90% находятся в спящем режиме.', isTrue: false, story: 'Это киношный миф! МРТ-сканирование показывает, что даже во время простого разговора или сна задействованы практически все отделы головного мозга.' },
-{ id: 'f14', cat: 'Природа и мир', text: 'У осьминога три сердца, девять мозгов и голубая кровь.', isTrue: true, story: 'Чистая правда! Два сердца качают кровь через жабры, третье — по телу. Кроме центрального мозга, в каждом из 8 щупалец есть свой нервный узел, а в крови вместо железа содержится медь.' },
-{ id: 'f15', cat: 'Технологии', text: 'Первая веб-камера в мире была установлена в Кембридже исключительно для того, чтобы следить за уровнем кофе в кофеварке.', isTrue: true, story: 'Реальный факт! В 1991 году программисты Кембриджского университета устали ходить в соседнюю комнату к пустому кофейнику и направили на него камеру, транслируя картинку в локальную сеть.' },
-{ id: 'f16', cat: 'История', text: 'Викинги носили в бою рогатые шлемы, чтобы устрашать врагов и бодать противников в ближнем бою.', isTrue: false, story: 'Полный вымысел! Археологи не нашли ни одного боевого шлема викингов с рогами — в бою за рога легко схватить или выбить шлем. Этот образ придумали художники оперы в XIX веке.' },
-{ id: 'f17', cat: 'Деньги и бизнес', text: 'Компания Nintendo была основана в 1889 году — ещё до изобретения кино и автомобилей — и делала игральные карты ручной работы.', isTrue: true, story: 'Абсолютная правда! Фусадзиро Ямаути открыл компанию в Киото в 1889 году для выпуска японских карт «Ханафуда». К видеоиграм компания пришла только спустя почти 90 лет.' },
-{ id: 'f18', cat: 'Животный мир', text: 'Золотые рыбки помнят события всего 3 секунды, поэтому каждый круг в аквариуме для них как новый мир.', isTrue: false, story: 'Миф! Учёные доказали, что память золотых рыбок хранит информацию минимум 3–5 месяцев. Их можно научить различать время кормления, цвета и даже проплывать лабиринт.' },
-{ id: 'f19', cat: 'Спорт', text: 'На Олимпийских играх с 1912 по 1948 год медали вручали не только спортсменам, но и художникам, поэтам и музыкантам.', isTrue: true, story: 'Правда! Проводились «Конкурсы искусств», где жюри награждало золотом за живопись, скульптуру и литературу на спортивную тематику.' },
-{ id: 'f20', cat: 'Еда и бренды', text: 'Мёд — единственный продукт питания, который практически не портится: археологи находили съедобный мёд в гробницах возрастом 3000 лет.', isTrue: true, story: 'Научный факт! Благодаря низкой влажности, высокой кислотности и природной перекиси водорода бактерии в натуральном мёде не выживают тысячелетиями.' },
-{ id: 'f21', cat: 'География', text: 'В Австралии диких кенгуру живёт больше, чем людей на всём континенте.', isTrue: true, story: 'Чистая правда! Население Австралии составляет около 26 миллионов человек, а популяция кенгуру по оценкам экологов превышает 40–50 миллионов особей.' },
-{ id: 'f22', cat: 'Наука', text: 'Молния никогда не бьёт в одно и то же место дважды.', isTrue: false, story: 'Опасный миф! Высокие здания и башни притягивают разряды постоянно. Например, в небоскрёб Эмпайр-стейт-билдинг в Нью-Йорке молния попадает в среднем 20–25 раз в год.' },
-{ id: 'f23', cat: 'Законы мира', text: 'В Сингапуре запрещён ввоз и продажа жевательной резинки — за нарушение можно получить крупный штраф.', isTrue: true, story: 'Реальный закон! В 1992 году власти Сингапура запретили жвачку из-за вандалов, которые клеили её на датчики дверей поездов метро, вызывая сбои в движении.' },
-{ id: 'f24', cat: 'Космос', text: 'На планете Сатурн и Юпитер действительно идут настоящие дожди из алмазов.', isTrue: true, story: 'Научная правда! Мощные молнии превращают метан в сажу, которая при падении под колоссальным давлением сжимается в графит, а затем в настоящие алмазы.' },
-{ id: 'f25', cat: 'История', text: 'В Древнем Египте пирамиды строили исключительно закованные в цепи рабы под ударами надсмотрщиков.', isTrue: false, story: 'Исторический миф! Раскопки городов строителей в Гизе доказали, что пирамиды возводили наёмные квалифицированные рабочие, которые получали зарплату, хорошее питание и медицинскую помощь.' },
-{ id: 'f26', cat: 'Животный мир', text: 'У вомбатов — австралийских сумчатых зверьков — экскременты имеют форму почти идеальных кубиков.', isTrue: true, story: 'Чистая правда! Это единственный известный вид на Земле, производящий кубический помёт. Такая форма нужна, чтобы пометки территории не скатывались со склонов и камней.' },
-{ id: 'f27', cat: 'Еда и бренды', text: 'В составе газировки Fanta изначально не было апельсинов — её придумали в Германии во время войны из яблочного жмыха и молочной сыворотки.', isTrue: true, story: 'Реальный факт! В 1940 году немецкому отделению Coca-Cola не хватало сиропа из-за блокады, и руководитель Макс Кайт создал новый напиток из доступных пищевых отходов.' },
-{ id: 'f28', cat: 'Природа и мир', text: 'Бананы с точки зрения ботаники являются ягодами, а клубника ягодой не является.', isTrue: true, story: 'Научный факт! Банан развивается из одного цветка с одной завязью и имеет мягкую мякоть с семенами внутри — это классическая ягода. А клубника относится к ложным плодам (многоорешкам).' },
-{ id: 'f29', cat: 'Мифы и наука', text: 'Если бросить монетку с крыши небоскрёба Эмпайр-стейт-билдинг, она разгонится так сильно, что пробьёт голову прохожему.', isTrue: false, story: 'Физический фейк! Из-за плоской формы и сопротивления воздуха предельная скорость падения монеты составляет около 50–80 км/ч. Она оставит синяк, но не причинит смертельного вреда.' },
-{ id: 'f30', cat: 'Игры и кино', text: 'Маскот Sega ёж Соник был придуман в 1991 году как прямой конкурент водопроводчику Марио от Nintendo.', isTrue: true, story: 'Так и есть! Руководство Sega поставило задачу создать яркого персонажа синего цвета (под цвет логотипа компании), который олицетворял бы скорость и драйв.' },
-{ id: 'f31', cat: 'Невероятные случаи', text: 'В 1971 году угонщик самолёта Дэн Купер выпрыгнул с парашютом и $200 000 над лесами США и бесследно исчез — его не нашли до сих пор.', isTrue: true, story: 'Реальная тайна ФБР! Дело Д. Б. Купера остаётся единственным нераскрытым случаем угона самолёта в истории коммерческой авиации США.' },
-{ id: 'f32', cat: 'Животный мир', text: 'Быки приходят в ярость именно от красного цвета плаща матадора.', isTrue: false, story: 'Популярное заблуждение! Быки не различают красный и зелёный цвета — их раздражает не оттенок ткани, а резкие движения плаща перед глазами.' },
-{ id: 'f33', cat: 'Технологии', text: 'Первый в мире SMS-сообщением был текст «С Рождеством» (Merry Christmas), отправленный в декабре 1992 года.', isTrue: true, story: 'Чистая правда! Британский инженер Нил Папуорт отправил это сообщение с компьютера на мобильный телефон директора Vodafone 3 декабря 1992 года.' },
-{ id: 'f34', cat: 'География', text: 'В России больше часовых поясов, чем в любой другой стране мира — целых 11.', isTrue: false, story: 'Хитрая ловушка! У России действительно 11 часовых поясов, но мировым рекордсменом является Франция (12 часовых поясов, а с учётом претензий в Антарктиде — 13) благодаря заморским территориям.' },
-{ id: 'f35', cat: 'Наука', text: 'Горячая вода при определённых условиях может замерзать быстрее холодной.', isTrue: true, story: 'Реальный физический эффект! Это явление называется эффектом Мпембы — в честь танзанийского школьника, который заметил, что горячая смесь для мороженого застывает быстрее холодной.' }
-];
 var wikiFacts = [];
 try {
-wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v6') || '[]');
+    wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_only_v1') || '[]');
 } catch (e) { wikiFacts = []; }
+
 var seenIds = [];
 try {
-seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v6') || '[]');
+    seenIds = JSON.parse(localStorage.getItem('tf_seen_only_v1') || '[]');
 } catch (e) { seenIds = []; }
+
 function persistSeenHistory() {
-var trimmed = seenIds.slice(-800);
-try { localStorage.setItem('tf_seen_ids_v6', JSON.stringify(trimmed)); } catch (e) {}
-if (tg && tg.CloudStorage) {
-try {
-var packed = trimmed.slice(-300).join(',');
-tg.CloudStorage.setItem('seen_v6', packed);
-} catch (e) {}
+    var trimmed = seenIds.slice(-1000);
+    try { localStorage.setItem('tf_seen_only_v1', JSON.stringify(trimmed)); } catch (e) {}
+    if (tg && tg.CloudStorage) {
+        try {
+            var packed = trimmed.slice(-300).join(',');
+            tg.CloudStorage.setItem('seen_only_v1', packed);
+        } catch (e) {}
+    }
 }
-}
+
 function getFactHash(str) {
-var hash = 0;
-for (var i = 0; i < str.length; i++) {
-hash = ((hash << 5) - hash) + str.charCodeAt(i);
-hash |= 0;
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return 'h' + Math.abs(hash).toString(36);
 }
-return 'h' + Math.abs(hash).toString(36);
-}
+
 var deck = [];
 var currentCard = null;
 var streak = 0;
 var bestStreak = parseInt(localStorage.getItem('tf_best_streak') || '0', 10);
 var isAnimating = false;
 var isFetchingWiki = false;
+
 var streakTxt = document.getElementById('streak-txt');
 var bestTxt = document.getElementById('best-txt');
 var wikiStatus = document.getElementById('wiki-status');
 bestTxt.innerText = bestStreak;
+
 var cardEl = document.getElementById('card');
 var cardCat = document.getElementById('card-cat');
-var aiTag = document.getElementById('ai-tag');
 var cardText = document.getElementById('card-text');
 var stampTrue = document.getElementById('stamp-true');
 var stampFake = document.getElementById('stamp-fake');
@@ -285,50 +254,66 @@ var pages = Object.values(data.query.pages);
 var added = 0;
 for (var i = 0; i < pages.length; i++) {
 var p = pages[i];
-if (!p.extract || p.extract.length < 60 || p.extract.length > 340) continue;
+if (!p.extract || p.extract.length < 55) continue;
+if (p.title && (p.title.indexOf('(значения)') !== -1 || p.title.indexOf('Список ') === 0)) continue;
 var cleanText = p.extract.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
 if (cleanText.length < 50) continue;
+if (cleanText.length > 320) {
+var firstDot = cleanText.indexOf('. ', 60);
+if (firstDot !== -1 && firstDot < 300) {
+cleanText = cleanText.substring(0, firstDot + 1);
+} else {
+continue;
+}
+}
 var cardId = 'w' + p.pageid;
 if (seenIds.indexOf(cardId) !== -1) continue;
 if (deck.some(function(d) { return d.id === cardId; })) continue;
 var makeFake = false;
 var displayText = cleanText;
-var yearMatch = cleanText.match(/\b(1[5-9]\d\d|20[0-2]\d)\b/);
-var realYearStr = yearMatch ? yearMatch[0] : null;
-var fakeYear = 0;
-if (realYearStr && Math.random() < 0.45) {
+var storyText = 'Чистая правда из энциклопедии о теме «' + p.title + '».';
+var yearMatch = cleanText.match(/\b(1[4-9]\d\d|20[0-2]\d)\b/);
+var numMatch = cleanText.match(/\b([2-9]\d|\d{3,})\b/);
+if (yearMatch && yearMatch.length > 0 && Math.random() < 0.5) {
+var realYearStr = yearMatch;
 var realYear = parseInt(realYearStr, 10);
-fakeYear = realYear + (Math.random() < 0.5 ? 17 : -19);
-if (fakeYear > 2025) fakeYear = realYear - 23;
+var shift = Math.random() < 0.5 ? 18 : -21;
+var fakeYear = realYear + shift;
+if (fakeYear > 2025) fakeYear = realYear - 24;
 displayText = cleanText.replace(realYearStr, String(fakeYear));
 makeFake = true;
+storyText = 'Подвох в дате! На самом деле в статье Википедии о теме «' + p.title + '» указан ' + realYearStr + ' год, а не ' + fakeYear + '.';
+} else if (numMatch && numMatch.length > 0 && Math.random() < 0.45) {
+var realNumStr = numMatch;
+var realNum = parseInt(realNumStr, 10);
+var fakeNum = Math.round(realNum * (Math.random() < 0.5 ? 1.6 : 0.45));
+if (fakeNum === realNum || fakeNum <= 0) fakeNum = realNum + 15;
+displayText = cleanText.replace(realNumStr, String(fakeNum));
+makeFake = true;
+storyText = 'Подвох в цифрах! В реальности в статье о теме «' + p.title + '» указано число ' + realNumStr + ', а не ' + fakeNum + '.';
 }
 var cardObj = {
 id: cardId,
 cat: 'Энциклопедия',
 text: displayText,
 isTrue: !makeFake,
-isWiki: true,
-story: makeFake
-? 'Подвох в дате! На самом деле в статье Википедии о теме «' + p.title + '» указан ' + realYearStr + ' год, а не ' + fakeYear + '.'
-: 'Чистая правда из энциклопедии о теме «' + p.title + '».'
+story: storyText
 };
 wikiFacts.push(cardObj);
 deck.unshift(cardObj);
 added++;
 }
 if (added > 0) {
-if (wikiFacts.length > 400) wikiFacts = wikiFacts.slice(-400);
-try { localStorage.setItem('tf_wiki_cache_v6', JSON.stringify(wikiFacts)); } catch (e) {}
-wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
+if (wikiFacts.length > 500) wikiFacts = wikiFacts.slice(-500);
+try { localStorage.setItem('tf_wiki_only_v1', JSON.stringify(wikiFacts)); } catch (e) {}
+wikiStatus.innerHTML = '🌐 В колоде: ' + deck.length;
 }
 }
 } catch (e) {}
 isFetchingWiki = false;
 }
 function buildFreshDeck() {
-var all = baseFacts.concat(wikiFacts);
-var unseen = all.filter(function(item) {
+var unseen = wikiFacts.filter(function(item) {
 return seenIds.indexOf(item.id) === -1 && seenIds.indexOf(getFactHash(item.text)) === -1;
 });
 for (var i = unseen.length - 1; i > 0; i--) {
@@ -338,21 +323,21 @@ unseen[i] = unseen[j];
 unseen[j] = temp;
 }
 deck = unseen;
-wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
+wikiStatus.innerHTML = '🌐 В колоде: ' + deck.length;
 }
 async function loadNextCard() {
 if (deck.length === 0) buildFreshDeck();
 if (deck.length < 15) fetchWikipediaFacts();
 if (deck.length === 0) {
-cardText.innerText = 'Ищем новые факты в сети...';
+cardText.innerText = 'Загружаем свежие факты из сети...';
 await fetchWikipediaFacts();
 if (deck.length === 0) {
 await fetchWikipediaFacts();
 }
 if (deck.length === 0) {
-seenIds = seenIds.slice(10);
-persistSeenHistory();
-buildFreshDeck();
+cardText.innerText = 'Не удалось загрузить факты. Проверьте интернет и нажмите любую кнопку ниже.';
+isAnimating = false;
+return;
 }
 }
 currentCard = deck.pop();
@@ -366,10 +351,9 @@ seenIds.push(textHash);
 }
 persistSeenHistory();
 }
-wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
-cardCat.innerText = currentCard.cat || 'Факт';
+wikiStatus.innerHTML = '🌐 В колоде: ' + deck.length;
+cardCat.innerText = currentCard.cat || 'Энциклопедия';
 cardText.innerText = currentCard.text;
-aiTag.style.display = currentCard.isWiki ? 'block' : 'none';
 cardEl.style.transition = 'none';
 cardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
 cardEl.style.opacity = '1';
@@ -380,7 +364,7 @@ isAnimating = false;
 function initGameWithCloud() {
 if (tg && tg.CloudStorage) {
 try {
-tg.CloudStorage.getItem('seen_v6', function(err, cloudVal) {
+tg.CloudStorage.getItem('seen_only_v1', function(err, cloudVal) {
 if (!err && cloudVal) {
 var cloudArr = cloudVal.split(',').filter(Boolean);
 for (var i = 0; i < cloudArr.length; i++) {
@@ -388,7 +372,7 @@ if (seenIds.indexOf(cloudArr[i]) === -1) {
 seenIds.push(cloudArr[i]);
 }
 }
-try { localStorage.setItem('tf_seen_ids_v6', JSON.stringify(seenIds)); } catch (e) {}
+try { localStorage.setItem('tf_seen_only_v1', JSON.stringify(seenIds)); } catch (e) {}
 }
 buildFreshDeck();
 loadNextCard();
@@ -404,7 +388,11 @@ fetchWikipediaFacts();
 initGameWithCloud();
 var lostStreakCache = 0;
 function handleAnswer(userSaysTrue) {
-if (isAnimating || !currentCard) return;
+if (isAnimating) return;
+if (!currentCard) {
+loadNextCard();
+return;
+}
 isAnimating = true;
 lostStreakCache = streak;
 var dir = userSaysTrue ? 1 : -1;
@@ -442,7 +430,7 @@ saveStreakBtn.style.display = 'none';
 }
 streak = 0;
 streakTxt.innerText = streak;
-nextBtn.innerText = 'Начать заново \u2192';
+nextBtn.innerText = 'Следующий факт \u2192';
 playBeep(180, 'sawtooth', 0.25);
 }
 resultModal.style.display = 'flex';
@@ -450,7 +438,7 @@ resultModal.style.display = 'flex';
 }
 var startX = 0, currentX = 0, dragging = false;
 function onDragStart(x) {
-if (isAnimating) return;
+if (isAnimating || !currentCard) return;
 dragging = true;
 startX = x;
 currentX = 0;
@@ -487,8 +475,8 @@ stampTrue.style.opacity = '0';
 stampFake.style.opacity = '0';
 }
 }
-cardEl.addEventListener('touchstart', function(e) { if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX); }, { passive: true });
-cardEl.addEventListener('touchmove', function(e) { if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX); }, { passive: true });
+cardEl.addEventListener('touchstart', function(e) { if (e.touches && e.touches.length > 0) onDragStart(e.touches.clientX); }, { passive: true });
+cardEl.addEventListener('touchmove', function(e) { if (e.touches && e.touches.length > 0) onDragMove(e.touches.clientX); }, { passive: true });
 cardEl.addEventListener('touchend', onDragEnd);
 cardEl.addEventListener('mousedown', function(e) { onDragStart(e.clientX); });
 window.addEventListener('mousemove', function(e) { onDragMove(e.clientX); });
@@ -535,6 +523,6 @@ document.head.appendChild(s);
 launchAd();
 }
 });
-</script>
+    </script>
 </body>
 </html>
