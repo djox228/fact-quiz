@@ -227,21 +227,29 @@ var baseFacts = [
 ];
 var wikiFacts = [];
 try {
-wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v5') || '[]');
+wikiFacts = JSON.parse(localStorage.getItem('tf_wiki_cache_v6') || '[]');
 } catch (e) { wikiFacts = []; }
 var seenIds = [];
 try {
-seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v5') || '[]');
+seenIds = JSON.parse(localStorage.getItem('tf_seen_ids_v6') || '[]');
 } catch (e) { seenIds = []; }
 function persistSeenHistory() {
-var trimmed = seenIds.slice(-600);
-try { localStorage.setItem('tf_seen_ids_v5', JSON.stringify(trimmed)); } catch (e) {}
+var trimmed = seenIds.slice(-800);
+try { localStorage.setItem('tf_seen_ids_v6', JSON.stringify(trimmed)); } catch (e) {}
 if (tg && tg.CloudStorage) {
 try {
-var packed = trimmed.slice(-350).join(',');
-tg.CloudStorage.setItem('seen_v5', packed);
+var packed = trimmed.slice(-300).join(',');
+tg.CloudStorage.setItem('seen_v6', packed);
 } catch (e) {}
 }
+}
+function getFactHash(str) {
+var hash = 0;
+for (var i = 0; i < str.length; i++) {
+hash = ((hash << 5) - hash) + str.charCodeAt(i);
+hash |= 0;
+}
+return 'h' + Math.abs(hash).toString(36);
 }
 var deck = [];
 var currentCard = null;
@@ -277,9 +285,9 @@ var pages = Object.values(data.query.pages);
 var added = 0;
 for (var i = 0; i < pages.length; i++) {
 var p = pages[i];
-if (!p.extract || p.extract.length < 65 || p.extract.length > 320) continue;
+if (!p.extract || p.extract.length < 60 || p.extract.length > 340) continue;
 var cleanText = p.extract.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
-if (cleanText.length < 55) continue;
+if (cleanText.length < 50) continue;
 var cardId = 'w' + p.pageid;
 if (seenIds.indexOf(cardId) !== -1) continue;
 if (deck.some(function(d) { return d.id === cardId; })) continue;
@@ -310,8 +318,8 @@ deck.unshift(cardObj);
 added++;
 }
 if (added > 0) {
-if (wikiFacts.length > 300) wikiFacts = wikiFacts.slice(-300);
-try { localStorage.setItem('tf_wiki_cache_v5', JSON.stringify(wikiFacts)); } catch (e) {}
+if (wikiFacts.length > 400) wikiFacts = wikiFacts.slice(-400);
+try { localStorage.setItem('tf_wiki_cache_v6', JSON.stringify(wikiFacts)); } catch (e) {}
 wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
 }
 }
@@ -321,7 +329,7 @@ isFetchingWiki = false;
 function buildFreshDeck() {
 var all = baseFacts.concat(wikiFacts);
 var unseen = all.filter(function(item) {
-return seenIds.indexOf(item.id) === -1;
+return seenIds.indexOf(item.id) === -1 && seenIds.indexOf(getFactHash(item.text)) === -1;
 });
 for (var i = unseen.length - 1; i > 0; i--) {
 var j = Math.floor(Math.random() * (i + 1));
@@ -336,17 +344,26 @@ async function loadNextCard() {
 if (deck.length === 0) buildFreshDeck();
 if (deck.length < 15) fetchWikipediaFacts();
 if (deck.length === 0) {
-cardText.innerText = 'Загружаем свежие факты из сети...';
+cardText.innerText = 'Ищем новые факты в сети...';
 await fetchWikipediaFacts();
 if (deck.length === 0) {
-seenIds = [];
+await fetchWikipediaFacts();
+}
+if (deck.length === 0) {
+seenIds = seenIds.slice(10);
 persistSeenHistory();
 buildFreshDeck();
 }
 }
 currentCard = deck.pop();
-if (currentCard && currentCard.id && seenIds.indexOf(currentCard.id) === -1) {
+if (currentCard) {
+if (currentCard.id && seenIds.indexOf(currentCard.id) === -1) {
 seenIds.push(currentCard.id);
+}
+var textHash = getFactHash(currentCard.text);
+if (seenIds.indexOf(textHash) === -1) {
+seenIds.push(textHash);
+}
 persistSeenHistory();
 }
 wikiStatus.innerHTML = '📄 В колоде: ' + deck.length;
@@ -363,7 +380,7 @@ isAnimating = false;
 function initGameWithCloud() {
 if (tg && tg.CloudStorage) {
 try {
-tg.CloudStorage.getItem('seen_v5', function(err, cloudVal) {
+tg.CloudStorage.getItem('seen_v6', function(err, cloudVal) {
 if (!err && cloudVal) {
 var cloudArr = cloudVal.split(',').filter(Boolean);
 for (var i = 0; i < cloudArr.length; i++) {
@@ -371,7 +388,7 @@ if (seenIds.indexOf(cloudArr[i]) === -1) {
 seenIds.push(cloudArr[i]);
 }
 }
-try { localStorage.setItem('tf_seen_ids_v5', JSON.stringify(seenIds)); } catch (e) {}
+try { localStorage.setItem('tf_seen_ids_v6', JSON.stringify(seenIds)); } catch (e) {}
 }
 buildFreshDeck();
 loadNextCard();
@@ -483,13 +500,16 @@ resultModal.style.display = 'none';
 loadNextCard();
 });
 saveStreakBtn.addEventListener('click', function() {
+saveStreakBtn.disabled = true;
+saveStreakBtn.innerText = 'Подключение рекламы...';
+function launchAd() {
 initAds();
 if (!AdController) {
-alert('Реклама сейчас недоступна, попробуйте позже.');
+saveStreakBtn.disabled = false;
+saveStreakBtn.innerText = 'Реклама пока недоступна (повторить)';
 return;
 }
-saveStreakBtn.disabled = true;
-saveStreakBtn.innerText = 'Загрузка рекламы...';
+saveStreakBtn.innerText = 'Загрузка ролика...';
 AdController.show().then(function() {
 streak = lostStreakCache;
 streakTxt.innerText = streak;
@@ -499,9 +519,22 @@ resultModal.style.display = 'none';
 loadNextCard();
 }).catch(function() {
 saveStreakBtn.disabled = false;
-saveStreakBtn.innerText = 'Реклама не загрузилась (повторить)';
+saveStreakBtn.innerText = 'Нет доступных роликов (повторить)';
 });
+}
+if (!window.Adsgram) {
+var s = document.createElement('script');
+s.src = 'adsgram.ai';
+s.onload = launchAd;
+s.onerror = function() {
+saveStreakBtn.disabled = false;
+saveStreakBtn.innerText = 'Ошибка сети / блокировщик рекламы';
+};
+document.head.appendChild(s);
+} else {
+launchAd();
+}
 });
-    </script>
+</script>
 </body>
 </html>
