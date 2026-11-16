@@ -16,17 +16,15 @@ body{background:#0d0f17;color:#fff;display:flex;flex-direction:column;align-item
 .badges{display:flex;gap:6px;align-items:center}
 .coins{background:rgba(253,203,110,.15);color:#ffeaa7;border:1px solid rgba(253,203,110,.3);padding:5px 10px;border-radius:16px;font-weight:800;font-size:12px}
 .lvl{background:linear-gradient(135deg,#6c5ce7,#a29bfe);padding:5px 12px;border-radius:16px;font-weight:800;font-size:12px}
-.room{height:265px;background:linear-gradient(180deg,#3b4371 0%,#242947 68%,#4a3525 68%,#2e1f14 100%);border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 30px rgba(0,0,0,.5)}
-.room.night{background:linear-gradient(180deg,#111526 0%,#0b0e1a 68%,#261a12 68%,#170f0a 100%)}
-.wall-light{position:absolute;top:0;left:50%;transform:translateX(-50%);width:260px;height:180px;background:radial-gradient(circle,rgba(255,234,167,.18) 0%,transparent 70%);pointer-events:none}
-.win{position:absolute;top:18px;right:18px;width:54px;height:58px;border-radius:12px;background:linear-gradient(180deg,#74b9ff,#a29bfe);border:3px solid #2d3436;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:inset 0 0 10px rgba(0,0,0,.3)}
+.room{height:270px;background:linear-gradient(180deg,#343d6b 0%,#212645 66%,#5c3d28 66%,#362214 100%);border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.room.night{background:linear-gradient(180deg,#111526 0%,#0b0e1a 66%,#261a12 66%,#170f0a 100%)}
+.wall-light{position:absolute;top:0;left:50%;transform:translateX(-50%);width:280px;height:190px;background:radial-gradient(circle,rgba(255,234,167,.16) 0%,transparent 70%);pointer-events:none}
+.win{position:absolute;top:16px;right:16px;width:54px;height:60px;border-radius:12px;background:linear-gradient(180deg,#74b9ff,#a29bfe);border:3px solid #2d3436;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:inset 0 0 10px rgba(0,0,0,.3)}
 .room.night .win{background:linear-gradient(180deg,#0c1021,#1e2749)}
-.shelf{position:absolute;top:52px;left:18px;width:64px;height:6px;background:#6d4c3d;border-radius:3px;box-shadow:0 3px 5px rgba(0,0,0,.4)}
-.shelf-items{position:absolute;top:30px;left:22px;font-size:18px;letter-spacing:2px}
-.rug{position:absolute;bottom:18px;width:190px;height:42px;background:radial-gradient(ellipse at center,#6c5ce7 0%,#4834d4 75%,#2d1f8c 100%);border-radius:50%;border:2px dashed rgba(255,255,255,.25);box-shadow:0 6px 15px rgba(0,0,0,.5)}
-.bubble{position:absolute;top:12px;left:12px;background:rgba(13,15,23,.82);backdrop-filter:blur(6px);padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;z-index:5;border:1px solid rgba(255,255,255,.08)}
-.last-act{position:absolute;bottom:6px;font-size:10px;color:#dfe6e9;background:rgba(0,0,0,.6);padding:3px 10px;border-radius:12px;z-index:5}
-.pet-box{width:175px;height:175px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:float 3s ease-in-out infinite;z-index:4;margin-top:12px}
+.rug{position:absolute;bottom:16px;width:200px;height:44px;background:radial-gradient(ellipse at center,#6c5ce7 0%,#4834d4 75%,#2d1f8c 100%);border-radius:50%;border:2px dashed rgba(255,255,255,.25);box-shadow:0 6px 15px rgba(0,0,0,.5);z-index:1}
+.bubble{position:absolute;top:12px;left:12px;background:rgba(13,15,23,.82);backdrop-filter:blur(6px);padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;z-index:6;border:1px solid rgba(255,255,255,.08)}
+.last-act{position:absolute;bottom:6px;font-size:10px;color:#dfe6e9;background:rgba(0,0,0,.6);padding:3px 10px;border-radius:12px;z-index:6}
+.pet-box{width:180px;height:180px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:float 3s ease-in-out infinite;z-index:4;margin-top:14px}
 .pet-box.jump{animation:jump .5s ease}
 .heart{position:absolute;font-size:20px;pointer-events:none;animation:fly 1s ease-out forwards;z-index:10}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -64,7 +62,6 @@ body{background:#0d0f17;color:#fff;display:flex;flex-direction:column;align-item
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-24px)}70%{transform:translateY(4px)}}
 @keyframes fly{0%{opacity:1;transform:translateY(0) scale(.8)}100%{opacity:0;transform:translateY(-55px) scale(1.3)}}
-@keyframes spinDisco{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -78,40 +75,64 @@ body{background:#0d0f17;color:#fff;display:flex;flex-direction:column;align-item
       <div class="wall-light"></div>
       <div class="bubble" id="moodText">😺 Погладь меня!</div>
       <div class="win" id="roomWindow">☀️</div>
-      <div class="shelf-items">📚🧸</div><div class="shelf"></div>
       <div class="rug"></div>
-      <!-- Купленные предметы интерьера (без квадратов!) -->
-      <div id="dec-plant" style="position:absolute;bottom:34px;left:16px;font-size:38px;z-index:3;display:none">🌿</div>
-      <div id="dec-lamp" style="position:absolute;bottom:32px;right:14px;font-size:38px;z-index:3;display:none">🛋️</div>
-      <div id="dec-sofa" style="position:absolute;top:0;left:50%;margin-left:-16px;font-size:28px;z-index:3;display:none;animation:spinDisco 6s linear infinite">✨🔮✨</div>
+      <!-- SVG-мебель для комнаты (вместо смайликов!) -->
+      <svg id="dec-plant" width="64" height="76" viewBox="0 0 64 76" style="position:absolute;bottom:28px;left:12px;z-index:3;display:none">
+        <path d="M32 45 C14 35, 10 15, 28 24 C24 8, 40 8, 36 24 C54 15, 50 35, 32 45 Z" fill="#00b894"/>
+        <path d="M32 45 C18 44, 14 30, 26 32 M32 45 C46 44, 50 30, 38 32" stroke="#55efc4" stroke-width="2" fill="none"/>
+        <polygon points="18,44 46,44 41,70 23,70" fill="#e17055"/>
+        <rect x="15" y="40" width="34" height="6" rx="3" fill="#fab1a0"/>
+      </svg>
+      <svg id="dec-lamp" width="84" height="62" viewBox="0 0 84 62" style="position:absolute;bottom:26px;right:10px;z-index:3;display:none">
+        <rect x="8" y="32" width="68" height="20" rx="8" fill="#6c5ce7"/>
+        <rect x="4" y="24" width="12" height="28" rx="5" fill="#5f27cd"/>
+        <rect x="68" y="24" width="12" height="28" rx="5" fill="#5f27cd"/>
+        <rect x="14" y="16" width="56" height="18" rx="7" fill="#a29bfe"/>
+        <rect x="14" y="52" width="6" height="6" rx="2" fill="#2d3436"/>
+        <rect x="64" y="52" width="6" height="6" rx="2" fill="#2d3436"/>
+      </svg>
+      <svg id="dec-sofa" width="54" height="125" viewBox="0 0 54 125" style="position:absolute;bottom:34px;left:56px;z-index:2;display:none">
+        <line x1="27" y1="30" x2="27" y2="118" stroke="#636e72" stroke-width="4"/>
+        <ellipse cx="27" cy="118" rx="14" ry="4" fill="#2d3436"/>
+        <polygon points="12,32 42,32 48,10 6,10" fill="#ffeaa7"/>
+        <ellipse cx="27" cy="52" rx="22" ry="26" fill="#ffeaa7" opacity="0.22"/>
+      </svg>
       <div class="pet-box" id="petWrapper" onclick="petTouch(event)">
-        <svg width="175" height="175" viewBox="0 0 220 220">
-          <defs><radialGradient id="bGrad" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#ffb8f6" id="g1"/><stop offset="100%" stop-color="#d630a8" id="g2"/></radialGradient></defs>
-          <!-- 8+ УР: Огненно-звёздная мантия -->
+        <svg width="180" height="180" viewBox="0 0 220 220">
+          <defs>
+            <radialGradient id="bGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#ffb8f6" id="g1"/>
+              <stop offset="100%" stop-color="#d630a8" id="g2"/>
+            </radialGradient>
+          </defs>
+          <!-- 8+ УР: Королевский плащ с золотой каймой (вместо круга!) -->
           <g id="evo-legend" style="display:none">
-            <path d="M40 165 Q25 110 55 85 L165 85 Q195 110 180 165 Z" fill="#6c5ce7" opacity="0.7"/>
-            <circle cx="110" cy="115" r="88" fill="none" stroke="#ffd32a" stroke-width="2.5" stroke-dasharray="10 5"/>
+            <path d="M44 170 L28 95 L192 95 L176 170 Z" fill="#4834d4"/>
+            <path d="M44 170 L28 95 L38 95 L52 170 Z" fill="#ffd32a"/>
+            <path d="M176 170 L192 95 L182 95 L168 170 Z" fill="#ffd32a"/>
           </g>
-          <!-- 5+ УР: Ангельские крылья -->
+          <!-- 5+ УР: Большие пернатые крылья -->
           <g id="evo-wings" style="display:none">
-            <path d="M55 110 C10 65, 10 140, 58 135 Z" fill="#fff" opacity="0.9"/>
-            <path d="M165 110 C210 65, 210 140, 162 135 Z" fill="#fff" opacity="0.9"/>
+            <path d="M56 105 C5 55, 5 125, 56 125 Z" fill="#fff"/>
+            <path d="M56 120 C18 105, 18 148, 58 140 Z" fill="#dfe6e9"/>
+            <path d="M164 105 C215 55, 215 125, 164 125 Z" fill="#fff"/>
+            <path d="M164 120 C202 105, 202 148, 162 140 Z" fill="#dfe6e9"/>
           </g>
-          <!-- Ушки -->
+          <!-- Базовые ушки -->
           <path d="M62 82 C46 28, 82 22, 88 70 Z" fill="url(#bGrad)"/>
           <path d="M158 82 C174 28, 138 22, 132 70 Z" fill="url(#bGrad)"/>
-          <!-- 3+ УР: Хохолок и пушистый хвост -->
+          <!-- 3+ УР: Пушистый хвост и хохолок -->
           <g id="evo-teen" style="display:none">
-            <path d="M94 60 Q110 26 126 60 Q110 48 94 60 Z" fill="url(#bGrad)"/>
-            <circle cx="168" cy="146" r="16" fill="url(#bGrad)"/>
+            <path d="M94 60 Q110 24 126 60 Q110 48 94 60 Z" fill="url(#bGrad)"/>
+            <circle cx="170" cy="148" r="18" fill="url(#bGrad)"/>
           </g>
           <ellipse cx="78" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
           <ellipse cx="142" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
           <rect x="54" y="60" width="112" height="114" rx="52" fill="url(#bGrad)"/>
           <ellipse cx="110" cy="142" rx="34" ry="24" fill="#fff" opacity="0.28"/>
           <ellipse cx="82" cy="76" rx="14" ry="6" transform="rotate(-20 82 76)" fill="#fff" opacity="0.35"/>
-          <!-- 5+ УР: Золотая руна на лбу -->
-          <polygon id="evo-rune" points="110,68 115,76 110,84 105,76" fill="#ffd32a" style="display:none"/>
+          <!-- 5+ УР: Кристалл на лбу -->
+          <polygon id="evo-rune" points="110,68 116,77 110,86 104,77" fill="#ffd32a" style="display:none"/>
           <ellipse cx="70" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
           <ellipse cx="150" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
           <g id="eyesOpen"><circle cx="84" cy="104" r="12" fill="#1e272e"/><circle cx="80" cy="99" r="4.5" fill="#fff"/><circle cx="136" cy="104" r="12" fill="#1e272e"/><circle cx="132" cy="99" r="4.5" fill="#fff"/></g>
@@ -119,7 +140,7 @@ body{background:#0d0f17;color:#fff;display:flex;flex-direction:column;align-item
           <polygon points="104,114 116,114 110,121" fill="#ff6b81"/>
           <path d="M96 126 Q110 138 124 126" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
           <g id="acc-crown" style="display:none"><polygon points="84,58 92,34 110,48 128,34 136,58" fill="#ffd32a"/></g>
-          <g id="acc-halo" style="display:none"><ellipse cx="110" cy="30" rx="28" ry="7" fill="none" stroke="#ffeaa7" stroke-width="4"/></g>
+          <g id="acc-halo" style="display:none"><ellipse cx="110" cy="28" rx="28" ry="7" fill="none" stroke="#ffeaa7" stroke-width="4"/></g>
           <g id="acc-glasses" style="display:none"><rect x="65" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/><rect x="117" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/><line x1="103" y1="101" x2="117" y2="101" stroke="#fff" stroke-width="3"/></g>
           <g id="acc-bow" style="display:none"><polygon points="110,152 90,141 90,163" fill="#ff4757"/><polygon points="110,152 130,141 130,163" fill="#ff4757"/></g>
           <g id="acc-scarf" style="display:none"><rect x="68" y="146" width="84" height="14" rx="7" fill="#00b894"/><rect x="122" y="154" width="14" height="24" rx="5" fill="#00b894"/></g>
@@ -142,11 +163,11 @@ body{background:#0d0f17;color:#fff;display:flex;flex-direction:column;align-item
   </div>
   <div id="tab-shop" class="tab">
     <div class="box">
-      <div class="ttl">🛍️ Магазин для комнаты и питомца</div>
+      <div class="ttl">🛍️ Мебель и стиль для комнаты</div>
       <div class="shop-grid">
-        <div class="s-item"><span style="font-size:28px">🌿</span><b>Монстера</b><button class="s-btn" id="shop-plant" onclick="buyItem('plant')">50 🐾</button></div>
-        <div class="s-item"><span style="font-size:28px">🛋️</span><b>Уютный пуфик</b><button class="s-btn" id="shop-lamp" onclick="buyItem('lamp')">80 🐾</button></div>
-        <div class="s-item"><span style="font-size:28px">🔮</span><b>Маг-сфера</b><button class="s-btn" id="shop-sofa" onclick="buyItem('sofa')">150 🐾</button></div>
+        <div class="s-item"><span style="font-size:28px">🌿</span><b>Монстера в горшке</b><button class="s-btn" id="shop-plant" onclick="buyItem('plant')">50 🐾</button></div>
+        <div class="s-item"><span style="font-size:28px">🛋️</span><b>Мягкий диван</b><button class="s-btn" id="shop-lamp" onclick="buyItem('lamp')">80 🐾</button></div>
+        <div class="s-item"><span style="font-size:28px">💡</span><b>Тёплый торшер</b><button class="s-btn" id="shop-sofa" onclick="buyItem('sofa')">150 🐾</button></div>
         <div class="s-item"><span style="font-size:28px">🧣</span><b>Тёплый шарфик</b><button class="s-btn" id="shop-scarf" onclick="buyItem('scarf')">120 🐾</button></div>
         <div class="s-item"><span style="font-size:28px">😇</span><b>Волшебный нимб</b><button class="s-btn" id="shop-halo" onclick="buyItem('halo')">200 🐾</button></div>
       </div>
@@ -194,7 +215,7 @@ const qp=new URLSearchParams(window.location.search);
 function getTgUser(){if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)return tg.initDataUnsafe.user;if(tg&&tg.initData){try{const s=new URLSearchParams(tg.initData).get("user");if(s)return JSON.parse(s);}catch(e){}}return{id:"guest_"+Math.floor(Math.random()*9000+1000),first_name:"Игрок"};}
 const u=getTgUser(),displayName=u.first_name+(u.last_name?" "+u.last_name:""),sp=tg&&tg.initDataUnsafe?tg.initDataUnsafe.start_param:null;
 const chatId=qp.get("chat_id")||(sp?sp.replace("chat_",""):null)||u.id||"demo";
-const COLS={pink:["#ffb8f6","#d630a8"],mint:["#55efc4","#009473"],sky:["#74b9ff","#0652dd"],gold:["#ffeaa7","#e17055"],cyber:["#a29bfe","#4834d4"]};
+const COLS={pink:{a:"#ffb8f6",b:"#d630a8"},mint:{a:"#55efc4",b:"#009473"},sky:{a:"#74b9ff",b:"#0652dd"},gold:{a:"#ffeaa7",b:"#e17055"},cyber:{a:"#a29bfe",b:"#4834d4"}};
 const CD_MS={feed:1800000,play:900000,wash:1200000},DEF_LBL={feed:"Покормить",play:"Поиграть",wash:"Помыть"};
 let petData=null,userCd={};
 function switchTab(t,b){document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".n-btn").forEach(e=>e.classList.remove("active"));document.getElementById("tab-"+t).classList.add("active");b.classList.add("active");}
@@ -213,7 +234,7 @@ function render(p){
   document.getElementById("lastAction").innerText=p.lastActionBy;document.getElementById("hungerVal").innerText=p.hunger+"%";document.getElementById("hungerBar").style.width=p.hunger+"%";
   document.getElementById("happyVal").innerText=p.happiness+"%";document.getElementById("happyBar").style.width=p.happiness+"%";
   const en=p.energy!==undefined?p.energy:90;document.getElementById("energyVal").innerText=en+"%";document.getElementById("energyBar").style.width=en+"%";
-  const c=COLS[p.color]||COLS.pink;document.getElementById("g1").setAttribute("stop-color",c);document.getElementById("g2").setAttribute("stop-color",c);
+  const c=COLS[p.color]||COLS.pink;document.getElementById("g1").setAttribute("stop-color",c.a);document.getElementById("g2").setAttribute("stop-color",c.b);
   document.getElementById("evo-teen").style.display=p.level>=3?"block":"none";
   document.getElementById("evo-wings").style.display=p.level>=5?"block":"none";
   document.getElementById("evo-rune").style.display=p.level>=5?"block":"none";
