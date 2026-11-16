@@ -9,64 +9,60 @@
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
 </script>
 <style>
-/* ... (оставляем твои стили, добавляем пару новых для еды и пены) ... */
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:#090a10;color:#fff;user-select:none;padding-bottom:80px;overflow:hidden}
-.stage{position:relative;width:100%;height:52vh;min-height:340px;background:radial-gradient(circle at 50% 35%,#2b325c,#0d0f1a 85%);border-radius:0 0 32px 32px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.6);transition:background .6s}
-.stage.night{background:radial-gradient(circle at 50% 35%,#101426,#05060a 85%)}
+body{background:#0b0d17;color:#fff;user-select:none;padding-bottom:80px;overflow:hidden}
+.stage{position:relative;width:100%;height:50vh;min-height:320px;background:linear-gradient(180deg, #1a1e36 0%, #0d0f1a 100%);border-radius:0 0 32px 32px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.8);transition:background 0.8s}
+.stage.night{background:linear-gradient(180deg, #0a0c14 0%, #05060a 100%)}
 canvas{width:100%;height:100%;display:block;touch-action:none}
 .hud{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:2}
-.glass{background:rgba(20,24,38,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:7px 12px}
-.xp-b{width:105px;height:5px;background:rgba(255,255,255,.12);border-radius:5px;margin-top:4px;overflow:hidden}
-.xp-f{height:100%;background:linear-gradient(90deg,#00cec9,#6c5ce7);width:0%;transition:width .4s}
-.mood{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(15,18,30,.78);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;z-index:2;pointer-events:none}
-.log{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.6);white-space:nowrap;z-index:2;pointer-events:none}
-.wrap{max-width:440px;margin:0 auto;padding:12px 14px;height:calc(48vh - 80px);overflow-y:auto}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.stat{background:#151828;padding:9px;border-radius:14px;border:1px solid rgba(255,255,255,.06)}
-.st-t{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:5px}
-.bar{height:6px;background:#090a10;border-radius:6px;overflow:hidden}
-.fill{height:100%;border-radius:6px;transition:width .4s}
-/* Кнопки действий */
-.btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-.btn{background:linear-gradient(180deg,#232842,#16192b);border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:10px 4px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:transform .1s}
-.btn:active{transform:scale(.92)}.btn.on-cd{opacity:.45;pointer-events:none}
-.btn span:first-child{font-size:22px}.btn span:last-child{font-size:11px;font-weight:700}
-.gold{width:100%;border:none;padding:13px;border-radius:15px;font-size:13px;font-weight:800;background:linear-gradient(135deg,#ffeaa7,#fdcb6e,#e17055);color:#1e272e;cursor:pointer}
-.tab{display:none}.tab.active{display:block}
-.box{background:#151828;padding:14px;border-radius:18px;margin-bottom:10px}
-.ttl{font-size:11px;color:#8f9bb3;margin-bottom:8px;font-weight:800;text-transform:uppercase}
-.row{display:flex;gap:8px;margin-bottom:12px}
-.inp{flex:1;background:#0b0d17;border:1px solid rgba(255,255,255,.12);padding:9px 12px;border-radius:12px;color:#fff;font-size:14px;outline:none}
-.ok{background:#6c5ce7;border:none;color:#fff;padding:0 16px;border-radius:12px;font-weight:800}
-.cols{display:flex;gap:12px;margin-bottom:14px}
-.col{width:36px;height:36px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.3)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.card{background:#0b0d17;padding:10px 6px;border-radius:14px;text-align:center;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;gap:5px}
-.card.eq{border-color:#6c5ce7;background:#202540}
-.s-btn{background:#6c5ce7;border:none;color:#fff;padding:6px;border-radius:8px;font-size:11px;font-weight:800;width:100%}
-.s-btn.own{background:#00b894;pointer-events:none}
-.l-row{display:flex;justify-content:space-between;background:#151828;padding:11px 14px;border-radius:14px;margin-bottom:8px;font-size:13px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,18,30,.95);display:flex;justify-content:space-around;padding:9px 0 14px;border-top:1px solid rgba(255,255,255,.08);z-index:5}
-.n-btn{background:none;border:none;color:#7f8fa6;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700}
-.n-btn.active{color:#a29bfe}.n-btn span:first-child{font-size:19px}
+.glass{background:rgba(20,24,38,.65);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:8px 12px;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.xp-b{width:110px;height:6px;background:rgba(0,0,0,.5);border-radius:5px;margin-top:5px;overflow:hidden}
+.xp-f{height:100%;background:linear-gradient(90deg,#00cec9,#6c5ce7);width:0%;transition:width .4s;box-shadow:0 0 10px #6c5ce7}
+.mood{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(15,18,30,.85);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;z-index:2;pointer-events:none}
+.log{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;z-index:2;pointer-events:none}
+.wrap{max-width:440px;margin:0 auto;padding:12px 14px;height:calc(50vh - 80px);overflow-y:auto}
 
-/* Оверлей для интерактива */
-#drag-item {
-  position: fixed; pointer-events: none; font-size: 40px; z-index: 9999; display: none;
-  transform: translate(-50%, -50%); filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
-}
-#bubbles {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden;
-}
-.bubble {
-  position: absolute; background: rgba(255,255,255,0.7); border-radius: 50%;
-  animation: bubbleUp 1s ease-out forwards;
-}
-@keyframes bubbleUp {
-  0% { transform: scale(0) translateY(0); opacity: 1; }
-  100% { transform: scale(1.5) translateY(-60px); opacity: 0; }
-}
+/* Приятный интерфейс */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:linear-gradient(180deg, #1c2138, #131728);padding:10px;border-radius:16px;border:1px solid rgba(255,255,255,.05);box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.st-t{display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:6px;color:#e0e6ed}
+.bar{height:8px;background:#090a10;border-radius:8px;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,0.5)}
+.fill{height:100%;border-radius:8px;transition:width .4s;box-shadow:0 0 8px currentColor}
+.btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.btn{background:linear-gradient(180deg, #252b48, #171a2b);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:12px 4px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .1s;box-shadow:0 5px 15px rgba(0,0,0,.4)}
+.btn:active{transform:scale(.92);box-shadow:0 2px 5px rgba(0,0,0,.4)}
+.btn.on-cd{opacity:.4;pointer-events:none;filter:grayscale(1)}
+.btn span:first-child{font-size:24px;filter:drop-shadow(0 4px 4px rgba(0,0,0,0.4))}
+.btn span:last-child{font-size:11px;font-weight:800;color:#e0e6ed}
+.gold{width:100%;border:none;padding:14px;border-radius:16px;font-size:14px;font-weight:800;background:linear-gradient(135deg,#feca57,#ff9f43);color:#1e272e;cursor:pointer;box-shadow:0 6px 20px rgba(255,159,67,0.3);transition:transform .1s}
+.gold:active{transform:scale(.96)}
+
+.tab{display:none}.tab.active{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.box{background:linear-gradient(180deg, #1c2138, #131728);padding:16px;border-radius:20px;margin-bottom:12px;border:1px solid rgba(255,255,255,.05);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.ttl{font-size:12px;color:#8f9bb3;margin-bottom:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.row{display:flex;gap:8px;margin-bottom:12px}
+.inp{flex:1;background:#0b0d17;border:1px solid rgba(255,255,255,.1);padding:10px 14px;border-radius:12px;color:#fff;font-size:14px;outline:none;transition:border .2s}
+.inp:focus{border-color:#6c5ce7}
+.ok{background:#6c5ce7;border:none;color:#fff;padding:0 18px;border-radius:12px;font-weight:800;transition:background .2s}
+.ok:active{background:#5a4bcf}
+.cols{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.col{width:40px;height:40px;border-radius:50%;cursor:pointer;border:3px solid rgba(255,255,255,.2);transition:transform .1s;box-shadow:0 4px 10px rgba(0,0,0,0.4)}
+.col:active{transform:scale(.9)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{background:#0b0d17;padding:12px 8px;border-radius:16px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s}
+.card.eq{border-color:#6c5ce7;background:#252b48;box-shadow:0 0 15px rgba(108,92,231,0.3)}
+.s-btn{background:#6c5ce7;border:none;color:#fff;padding:8px;border-radius:10px;font-size:12px;font-weight:800;width:100%;transition:background .2s}
+.s-btn.own{background:#00b894;box-shadow:0 4px 10px rgba(0,184,148,0.3)}
+.l-row{display:flex;justify-content:space-between;background:#0b0d17;padding:12px 16px;border-radius:14px;margin-bottom:8px;font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.03)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,13,23,.95);backdrop-filter:blur(10px);display:flex;justify-content:space-around;padding:10px 0 16px;border-top:1px solid rgba(255,255,255,.05);z-index:5}
+.n-btn{background:none;border:none;color:#7f8fa6;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:800;transition:color .2s}
+.n-btn.active{color:#a29bfe}.n-btn span:first-child{font-size:22px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
+
+#drag-item { position: fixed; pointer-events: none; font-size: 44px; z-index: 9999; display: none; transform: translate(-50%, -50%); filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6)); transition: transform .1s; }
+#bubbles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
+.bubble { position: absolute; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.2); animation: bubbleUp 1s ease-out forwards; }
+@keyframes bubbleUp { 0% { transform: scale(0) translateY(0); opacity: 1; } 100% { transform: scale(1.5) translateY(-60px); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -75,53 +71,51 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
   <div id="bubbles"></div>
   <div class="hud">
     <div class="glass">
-      <div style="font-weight:800;font-size:15px" id="petName">Пушистик</div>
-      <div style="font-size:10px;color:#a29bfe;font-weight:700" id="stageText">Малыш • 0 / 100 XP</div>
+      <div style="font-weight:800;font-size:16px" id="petName">Пушистик</div>
+      <div style="font-size:10px;color:#a29bfe;font-weight:800;margin-top:2px" id="stageText">Малыш • 0 / 100 XP</div>
       <div class="xp-b"><div class="xp-f" id="xpBar"></div></div>
     </div>
-    <div style="display:flex;gap:6px">
-      <div class="glass" style="font-weight:800;font-size:12px;color:#ffeaa7" id="coinsBadge">50 🐾</div>
-      <div class="glass" style="font-weight:800;font-size:12px;background:linear-gradient(135deg,#6c5ce7,#a29bfe)" id="levelBadge">Ур. 1</div>
+    <div style="display:flex;gap:8px">
+      <div class="glass" style="font-weight:800;font-size:13px;color:#ffeaa7" id="coinsBadge">50 🐾</div>
+      <div class="glass" style="font-weight:800;font-size:13px;background:linear-gradient(135deg,#6c5ce7,#a29bfe)" id="levelBadge">Ур. 1</div>
     </div>
   </div>
   <div class="mood" id="moodText">✨ Погладь меня!</div>
   <div class="log" id="lastAction">Готов к игре!</div>
 </div>
 
-<!-- Предмет для перетаскивания -->
 <div id="drag-item">🍖</div>
 
 <div class="wrap">
   <div id="tab-room" class="tab active">
     <div class="stats">
-      <div class="stat"><div class="st-t"><span>🍖 Сытость</span><span id="hungerVal">80%</span></div><div class="bar"><div class="fill" id="hungerBar" style="width:80%;background:#00b894"></div></div></div>
-      <div class="stat"><div class="st-t"><span>❤️ Радость</span><span id="happyVal">80%</span></div><div class="bar"><div class="fill" id="happyBar" style="width:80%;background:#ff7675"></div></div></div>
-      <div class="stat"><div class="st-t"><span>⚡ Энергия</span><span id="energyVal">90%</span></div><div class="bar"><div class="fill" id="energyBar" style="width:90%;background:#fdcb6e"></div></div></div>
+      <div class="stat"><div class="st-t"><span>🍖 Сытость</span><span id="hungerVal">80%</span></div><div class="bar"><div class="fill" id="hungerBar" style="width:80%;background:#00b894;color:#00b894"></div></div></div>
+      <div class="stat"><div class="st-t"><span>❤️ Радость</span><span id="happyVal">80%</span></div><div class="bar"><div class="fill" id="happyBar" style="width:80%;background:#ff7675;color:#ff7675"></div></div></div>
+      <div class="stat"><div class="st-t"><span>⚡ Энергия</span><span id="energyVal">90%</span></div><div class="bar"><div class="fill" id="energyBar" style="width:90%;background:#fdcb6e;color:#fdcb6e"></div></div></div>
     </div>
     
-    <!-- Интерактивные кнопки -->
     <div class="btns">
       <button class="btn" id="btn-feed" ontouchstart="startDrag('feed', '🍖')" onmousedown="startDrag('feed', '🍖')"><span>🍖</span><span id="lbl-feed">Еда</span></button>
       <button class="btn" id="btn-play" onclick="playGame()"><span>🎾</span><span id="lbl-play">Играть</span></button>
       <button class="btn" id="btn-wash" onclick="toggleWash()"><span>🧽</span><span id="lbl-wash">Мыть</span></button>
       <button class="btn" id="btn-sleep" onclick="act('sleep')"><span id="sleepIcon">💤</span><span id="sleepLabel">Спать</span></button>
     </div>
-    <button class="gold" onclick="watchAd()">✨ Золотой корм +100% и +50 🐾</button>
+    <button class="gold" onclick="watchAd()">✨ Золотой корм (+100% статов и +50 🐾)</button>
   </div>
   
   <div id="tab-shop" class="tab">
     <div class="box"><div class="ttl">🛋️ Мебель в комнату</div><div class="grid">
-      <div class="card"><span>🌿</span><b>Монстера</b><button class="s-btn" id="shop-plant" data-price="50" onclick="act('buy',{itemId:'plant'})">50 🐾</button></div>
-      <div class="card"><span>💡</span><b>Ночник</b><button class="s-btn" id="shop-lamp" data-price="80" onclick="act('buy',{itemId:'lamp'})">80 🐾</button></div>
-      <div class="card"><span>🛏️</span><b>Кроватка</b><button class="s-btn" id="shop-bed" data-price="150" onclick="act('buy',{itemId:'bed'})">150 🐾</button></div>
-      <div class="card"><span>🪟</span><b>Окно</b><button class="s-btn" id="shop-window" data-price="200" onclick="act('buy',{itemId:'window'})">200 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🌿</span><b>Монстера</b><button class="s-btn" id="shop-plant" data-price="50" onclick="act('buy',{itemId:'plant'})">50 🐾</button></div>
+      <div class="card"><span style="font-size:24px">💡</span><b>Ночник</b><button class="s-btn" id="shop-lamp" data-price="80" onclick="act('buy',{itemId:'lamp'})">80 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🛏️</span><b>Кроватка</b><button class="s-btn" id="shop-bed" data-price="150" onclick="act('buy',{itemId:'bed'})">150 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🪟</span><b>Окно</b><button class="s-btn" id="shop-window" data-price="200" onclick="act('buy',{itemId:'window'})">200 🐾</button></div>
     </div></div>
     <div class="box"><div class="ttl">🎩 Аксессуары</div><div class="grid">
-      <div class="card"><span>🧣</span><b>Шарф</b><button class="s-btn" id="shop-scarf" data-price="120" onclick="act('buy',{itemId:'scarf'})">120 🐾</button></div>
-      <div class="card"><span>😇</span><b>Нимб</b><button class="s-btn" id="shop-halo" data-price="200" onclick="act('buy',{itemId:'halo'})">200 🐾</button></div>
-      <div class="card"><span>🎩</span><b>Цилиндр</b><button class="s-btn" id="shop-tophat" data-price="250" onclick="act('buy',{itemId:'tophat'})">250 🐾</button></div>
-      <div class="card"><span>🦋</span><b>Крылья</b><button class="s-btn" id="shop-wings" data-price="300" onclick="act('buy',{itemId:'wings'})">300 🐾</button></div>
-      <div class="card"><span>🥸</span><b>Усы</b><button class="s-btn" id="shop-stache" data-price="100" onclick="act('buy',{itemId:'stache'})">100 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🧣</span><b>Шарф</b><button class="s-btn" id="shop-scarf" data-price="120" onclick="act('buy',{itemId:'scarf'})">120 🐾</button></div>
+      <div class="card"><span style="font-size:24px">😇</span><b>Нимб</b><button class="s-btn" id="shop-halo" data-price="200" onclick="act('buy',{itemId:'halo'})">200 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🎩</span><b>Цилиндр</b><button class="s-btn" id="shop-tophat" data-price="250" onclick="act('buy',{itemId:'tophat'})">250 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🦋</span><b>Крылья</b><button class="s-btn" id="shop-wings" data-price="300" onclick="act('buy',{itemId:'wings'})">300 🐾</button></div>
+      <div class="card"><span style="font-size:24px">🥸</span><b>Усы</b><button class="s-btn" id="shop-stache" data-price="100" onclick="act('buy',{itemId:'stache'})">100 🐾</button></div>
     </div></div>
   </div>
 
@@ -138,19 +132,15 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
         <div class="col" style="background:#6c5ce7" onclick="act('customize',{color:'cyber'})"></div>
       </div>
       <div class="ttl">👑 Аксессуары</div>
-      <div class="grid" id="wardrobe-grid">
-        <div class="card" id="card-crown" onclick="act('customize',{toggleAcc:'crown'})">👑<br>Корона</div>
-        <div class="card" id="card-glasses" onclick="act('customize',{toggleAcc:'glasses'})">🕶️<br>Очки</div>
-        <div class="card" id="card-bow" onclick="act('customize',{toggleAcc:'bow'})">🎀<br>Бантик</div>
-        <!-- Остальные будут добавляться динамически -->
-      </div>
+      <div class="grid" id="wardrobe-grid"></div>
     </div>
+    <!-- СЕКРЕТНАЯ КНОПКА ДЛЯ ТЕСТА -->
+    <button class="gold" style="background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;margin-top:10px;font-size:12px" onclick="act('dev_coins')">🧪 [DEV] +1000 Монет</button>
   </div>
   
   <div id="tab-top" class="tab">
     <div class="box"><div class="ttl">👤 Ваш ник</div><div class="row" style="margin:0"><input id="nickInput" class="inp" placeholder="Ваш ник..." maxlength="18"><button class="ok" onclick="saveNick()">ОК</button></div></div>
-    <div class="ttl">🏆 Топ</div>
-    <div id="leaderboardList"><div class="l-row"><span>Пока пусто</span><span>0 XP</span></div></div>
+    <div class="box"><div class="ttl">🏆 Топ игроков</div><div id="leaderboardList"><div class="l-row"><span>Пока пусто</span><span>0 XP</span></div></div></div>
   </div>
 </div>
 <div class="nav">
@@ -163,13 +153,11 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 <script type="module">
 import * as THREE from 'three';
 
-// --- БАЗА ---
 const API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/pet";
 const tg = window.Telegram?.WebApp || null;
 if (tg) { tg.ready(); tg.expand(); }
 const qp = new URLSearchParams(location.search);
 
-// Хэптика
 const haptic = (type = 'light') => { if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred(type); };
 const notify = (type = 'success') => { if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(type); };
 
@@ -194,10 +182,10 @@ const PALETTES = {
   sky:   { a: 0x74b9ff, b: 0x0652DD }, gold:  { a: 0xffeaa7, b: 0xe17055 },
   cyber: { a: 0xa29bfe, b: 0x4834d4 }
 };
-const CD = { feed: 1800000, play: 900000, wash: 1200000 };
+const CD = { feed: 60000, play: 120000, wash: 180000 };
 const LBL = { feed: "Еда", play: "Играть", wash: "Мыть" };
 
-let pet = { name:"Пушистик", level:1, xp:0, coins:50, hunger:80, happiness:80, energy:90, color:"pink", accessories:[], inventory:[], isSleeping:false, lastActionBy:"Готов к игре!" };
+let pet = { name:"Пушистик", level:1, xp:0, coins:1000, hunger:80, happiness:80, energy:90, color:"pink", accessories:[], inventory:[], isSleeping:false, lastActionBy:"Готов к игре!" };
 let userCd = {};
 const OWNED_KEY = "tama_owned_" + chatId + "_" + me.id;
 
@@ -206,78 +194,70 @@ function setOwnedFallback(arr) { localStorage.setItem(OWNED_KEY, JSON.stringify(
 function markOwned(id) { const arr = getOwnedFallback(); if (!arr.includes(id)) { arr.push(id); setOwnedFallback(arr); } }
 function getMergedOwned(p) { const merged = Array.from(new Set([...(p?.inventory||[]), ...getOwnedFallback()])); setOwnedFallback(merged); return merged; }
 
-// --- 3D СЦЕНА ---
+// ================= 3D СЦЕНА =================
 const canvas = document.getElementById("cv");
 const stageEl = document.getElementById("stage");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-camera.position.set(0, 1.5, 5.4);
-camera.lookAt(0, 0.15, 0);
+camera.position.set(0, 1.5, 5.4); camera.lookAt(0, 0.15, 0);
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0x333344, 0.75));
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.7);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x333344, 0.6));
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
 keyLight.position.set(3, 6, 4); keyLight.castShadow = true;
 keyLight.shadow.mapSize.set(1024, 1024); keyLight.shadow.bias = -0.001;
 scene.add(keyLight);
-const rimLight = new THREE.DirectionalLight(0x6c5ce7, 1.4); rimLight.position.set(-4, 3, -3); scene.add(rimLight);
+const rimLight = new THREE.DirectionalLight(0x6c5ce7, 1.5); rimLight.position.set(-4, 3, -3); scene.add(rimLight);
 
-// --- КОМНАТА ---
-const roomGroup = new THREE.Group();
-scene.add(roomGroup);
+// --- БАЗОВАЯ КОМНАТА (Всегда на месте) ---
+const roomGroup = new THREE.Group(); scene.add(roomGroup);
+
+// Стены
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a1e36, roughness: 0.9, side: THREE.DoubleSide });
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(15, 10), wallMat);
+backWall.position.set(0, 2, -3); roomGroup.add(backWall);
+const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), wallMat);
+leftWall.rotation.y = Math.PI / 2; leftWall.position.set(-5, 2, 2); roomGroup.add(leftWall);
+const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), wallMat);
+rightWall.rotation.y = -Math.PI / 2; rightWall.position.set(5, 2, 2); roomGroup.add(rightWall);
 
 // Пол
-const floor = new THREE.Mesh(new THREE.CircleGeometry(8, 64), new THREE.MeshStandardMaterial({ color: 0x0a0c14, roughness: 1 }));
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshStandardMaterial({ color: 0x0d0f1a, roughness: 0.8 }));
 floor.rotation.x = -Math.PI / 2; floor.position.y = -1.2; floor.receiveShadow = true; roomGroup.add(floor);
+
 // Ковер
-const rug = new THREE.Mesh(new THREE.CircleGeometry(2.15, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350, roughness: 0.85 }));
+const rug = new THREE.Mesh(new THREE.CircleGeometry(2.5, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350, roughness: 1 }));
 rug.rotation.x = -Math.PI / 2; rug.position.y = -1.19; rug.receiveShadow = true; roomGroup.add(rug);
+const rugRing = new THREE.Mesh(new THREE.RingGeometry(2.0, 2.2, 64), new THREE.MeshBasicMaterial({ color: 0x6c5ce7, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
+rugRing.rotation.x = -Math.PI / 2; rugRing.position.y = -1.185; roomGroup.add(rugRing);
 
-// --- ДЕКОР (Скрыт по умолчанию) ---
-// 1. Окно
-const windowGroup = new THREE.Group();
-const winFrameMat = new THREE.MeshStandardMaterial({ color: 0x2a2f4a, metalness: 0.2 });
-const fW = 2.6, fH = 1.7, thick = 0.12, depth = 0.12;
-const topBar = new THREE.Mesh(new THREE.BoxGeometry(fW, thick, depth), winFrameMat); topBar.position.y = fH/2;
-const botBar = topBar.clone(); botBar.position.y = -fH/2;
-const leftBar = new THREE.Mesh(new THREE.BoxGeometry(thick, fH, depth), winFrameMat); leftBar.position.x = -fW/2;
-const rightBar = leftBar.clone(); rightBar.position.x = fW/2;
-windowGroup.add(topBar, botBar, leftBar, rightBar);
-const winSky = new THREE.Mesh(new THREE.PlaneGeometry(fW - thick, fH - thick), new THREE.MeshBasicMaterial({ color: 0x0f1428 }));
-winSky.position.z = -0.055; windowGroup.add(winSky);
-// Звезды и луна
-const starGeo = new THREE.BufferGeometry(); const spArray = new Float32Array(40*3);
-for(let i=0; i<40; i++){ spArray[i*3]=(Math.random()-0.5)*(fW-0.3); spArray[i*3+1]=(Math.random()-0.5)*(fH-0.3); spArray[i*3+2]=-0.045; }
-starGeo.setAttribute("position", new THREE.BufferAttribute(spArray, 3));
-windowGroup.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.035 })));
-const moon = new THREE.Mesh(new THREE.CircleGeometry(0.14, 32), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
-moon.position.set(0.65, 0.35, -0.04); windowGroup.add(moon);
-windowGroup.position.set(0, 1.4, -2.9); windowGroup.visible = false;
-roomGroup.add(windowGroup);
+// Окно (Базовое, если не куплено)
+const baseWindow = new THREE.Group();
+const frameMat = new THREE.MeshStandardMaterial({ color: 0x2a2f4a, metalness: 0.2 });
+const bTop = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.15, 0.15), frameMat); bTop.position.y = 0.85;
+const bBot = bTop.clone(); bBot.position.y = -0.85;
+const bL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.7, 0.15), frameMat); bL.position.x = -1.3;
+const bR = bL.clone(); bR.position.x = 1.3;
+baseWindow.add(bTop, bBot, bL, bR);
+const winSky = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.6), new THREE.MeshBasicMaterial({ color: 0x0f1428 }));
+winSky.position.z = -0.05; baseWindow.add(winSky);
+baseWindow.position.set(0, 1.6, -2.95); roomGroup.add(baseWindow);
 
-// 2. Кровать
-const bedGroup = new THREE.Group();
-const bedBase = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.3, 0.9), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 }));
-bedBase.position.set(0, -0.9, -1.2); bedBase.castShadow = true; bedGroup.add(bedBase);
-const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-pillow.position.set(-0.55, -0.7, -1.2); bedGroup.add(pillow);
-bedGroup.visible = false; roomGroup.add(bedGroup);
+// Луна
+const moon = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
+moon.position.set(0.6, 1.9, -2.9); roomGroup.add(moon);
 
-// 3. Ночник
-const lampGroup = new THREE.Group();
-const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x333 }));
-lampBase.position.set(0, -1.0, 0);
-const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0xffeaa7, emissive: 0xffeaa7, emissiveIntensity: 0.5 }));
-lampShade.position.set(0, -0.8, 0);
-const lampLight = new THREE.PointLight(0xffeaa7, 1, 3); lampLight.position.set(0, -0.8, 0);
-lampGroup.add(lampBase, lampShade, lampLight);
-lampGroup.position.set(1.8, 0, -1.2); lampGroup.visible = false; roomGroup.add(lampGroup);
+// Звезды
+const starsGeo = new THREE.BufferGeometry(); const spArr = new Float32Array(30*3);
+for(let i=0; i<30; i++){ spArr[i*3]=(Math.random()-0.5)*2.4; spArr[i*3+1]=1.6+(Math.random()-0.5)*1.4; spArr[i*3+2]=-2.9; }
+starsGeo.setAttribute("position", new THREE.BufferAttribute(spArr, 3));
+roomGroup.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.04 })));
 
-// 4. Дерево (Монстера)
+// --- ПОКУПКИ (Скрыты по умолчанию) ---
+// 1. Монстера
 const plantGroup = new THREE.Group();
 const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
 pot.position.y = -1.05; plantGroup.add(pot);
@@ -289,11 +269,38 @@ for (let i = 0; i < 6; i++) {
 }
 plantGroup.position.set(-1.95, 0, -0.6); plantGroup.visible = false; roomGroup.add(plantGroup);
 
-// --- ПИТОМЕЦ ---
-const petScaleGroup = new THREE.Group();
-const petGroup = new THREE.Group();
-petScaleGroup.add(petGroup);
-scene.add(petScaleGroup);
+// 2. Ночник
+const lampGroup = new THREE.Group();
+const lBase = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x333 }));
+lBase.position.y = -1.0;
+const lShade = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0xffeaa7, emissive: 0xffeaa7, emissiveIntensity: 0.6 }));
+lShade.position.y = -0.8;
+const lLight = new THREE.PointLight(0xffeaa7, 1.5, 4); lLight.position.y = -0.8;
+lampGroup.add(lBase, lShade, lLight);
+lampGroup.position.set(1.8, 0, -1.2); lampGroup.visible = false; roomGroup.add(lampGroup);
+
+// 3. Кровать
+const bedGroup = new THREE.Group();
+const bedBase = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.3, 0.9), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 }));
+bedBase.position.set(0, -0.9, -1.2); bedBase.castShadow = true; bedGroup.add(bedBase);
+const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+pillow.position.set(-0.55, -0.7, -1.2); bedGroup.add(pillow);
+bedGroup.visible = false; roomGroup.add(bedGroup);
+
+// 4. Кастомное окно (более красивое, если куплено)
+const fancyWindow = new THREE.Group();
+const fTop = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.8 }));
+fTop.position.y = 1.0;
+const fBot = fTop.clone(); fBot.position.y = -1.0;
+const fL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.0, 0.2), new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.8 })); fL.position.x = -1.5;
+const fR = fL.clone(); fR.position.x = 1.5;
+fancyWindow.add(fTop, fBot, fL, fR);
+fancyWindow.position.set(0, 1.6, -2.95); fancyWindow.visible = false; roomGroup.add(fancyWindow);
+
+
+// ================= ПИТОМЕЦ =================
+const petScaleGroup = new THREE.Group(); const petGroup = new THREE.Group();
+petScaleGroup.add(petGroup); scene.add(petScaleGroup);
 
 const bodyMat = new THREE.MeshPhysicalMaterial({ color: PALETTES.pink.a, roughness: 0.35, clearcoat: 0.9 });
 const body = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), bodyMat);
@@ -312,7 +319,6 @@ const blushMat = new THREE.MeshBasicMaterial({ color: 0xff6b81, transparent: tru
 const blushL = new THREE.Mesh(new THREE.CircleGeometry(0.13, 32), blushMat); blushL.position.set(-0.5, -0.06, 0.85); blushL.rotation.y = -0.4; petGroup.add(blushL);
 const blushR = blushL.clone(); blushR.position.x = 0.5; blushR.rotation.y = 0.4; petGroup.add(blushR);
 
-// --- АКСЕССУАРЫ ---
 const accGroup = new THREE.Group(); petGroup.add(accGroup);
 
 // Корона
@@ -322,15 +328,15 @@ const cb = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.1, 16), crown
 for(let i=0; i<5; i++){ const sp = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.2, 8), crownMat); sp.position.set(Math.cos(i)*0.22, 1.31, Math.sin(i)*0.22); crown.add(sp); }
 crown.visible = false; accGroup.add(crown);
 
-// Очки (голубые)
+// Очки
 const glasses = new THREE.Group();
-const frameMat = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.9 });
+const glassFrame = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.9 });
 const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x74b9ff, transparent: true, opacity: 0.4 });
-const fL = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.03, 12, 32), frameMat); fL.position.set(-0.32, 0.2, 0.98);
-const fR = fL.clone(); fR.position.x = 0.32;
-const gL = new THREE.Mesh(new THREE.CircleGeometry(0.16, 32), glassMat); gL.position.set(-0.32, 0.2, 0.985);
-const gR = gL.clone(); gR.position.x = 0.32;
-glasses.add(fL, fR, gL, gR); glasses.visible = false; accGroup.add(glasses);
+const fLens = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.03, 12, 32), glassFrame); fLens.position.set(-0.32, 0.2, 0.98);
+const fR = fLens.clone(); fR.position.x = 0.32;
+const gLens = new THREE.Mesh(new THREE.CircleGeometry(0.16, 32), glassMat); gLens.position.set(-0.32, 0.2, 0.985);
+const gR = gLens.clone(); gR.position.x = 0.32;
+glasses.add(fLens, fR, gLens, gR); glasses.visible = false; accGroup.add(glasses);
 
 // Шарф
 const scarf = new THREE.Group();
@@ -362,47 +368,34 @@ const sL = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 8, 16, Math.PI), st
 const sR = sL.clone(); sR.position.x = 0.08;
 stache.add(sL, sR); stache.visible = false; accGroup.add(stache);
 
-
-// --- АНИМАЦИЯ ---
+// ================= АНИМАЦИЯ =================
 const clock = new THREE.Clock();
 let targetRotY = 0, currentRotY = 0, isDragging = false, lastPointerX = 0, jumpVel = 0, jumpY = 0;
 let isWashMode = false;
 
 function animate() {
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  const t = clock.getElapsedTime();
+  const dt = Math.min(clock.getDelta(), 0.05); const t = clock.getElapsedTime();
 
-  // Рост
   const targetSize = Math.min(1.4, 0.75 + (pet.level || 1) * 0.07);
   petScaleGroup.scale.lerp(new THREE.Vector3(targetSize, targetSize, targetSize), 0.1);
   petScaleGroup.position.y = targetSize - 1.2;
 
-  // Дыхание
   const breathe = 1 + Math.sin(t * 1.6) * 0.015;
   petGroup.scale.set(breathe, 1 / breathe, breathe);
 
-  // Прыжок
   jumpY += jumpVel; jumpVel -= 0.006;
   if (jumpY <= 0) { jumpY = 0; jumpVel = 0; }
   petGroup.position.y = Math.sin(t * 1.6) * 0.035 + jumpY;
 
-  // Поворот
   currentRotY += (targetRotY - currentRotY) * 0.15;
   petGroup.rotation.y = currentRotY;
 
-  // Глаза
   if (pet.isSleeping) { eyeL.scale.y = 0.1; eyeR.scale.y = 0.1; } 
   else { eyeL.scale.y = 1; eyeR.scale.y = 1; }
 
-  // Крылья машут
-  if(wings.visible) {
-    wL.rotation.y = 0.5 + Math.sin(t*10)*0.2;
-    wR.rotation.y = -0.5 - Math.sin(t*10)*0.2;
-  }
-
-  // Ночник мерцает
-  if(lampGroup.visible) lampLight.intensity = 0.8 + Math.sin(t*5)*0.2;
+  if(wings.visible) { wL.rotation.y = 0.5 + Math.sin(t*10)*0.2; wR.rotation.y = -0.5 - Math.sin(t*10)*0.2; }
+  if(lampGroup.visible) lLight.intensity = 1.2 + Math.sin(t*5)*0.3;
 
   renderer.render(scene, camera);
 }
@@ -415,7 +408,7 @@ function resize3D() {
 }
 window.addEventListener("resize", resize3D); resize3D();
 
-// --- ИНТЕРАКТИВ ---
+// ================= ИНТЕРАКТИВ =================
 const dragItem = document.getElementById('drag-item');
 let currentDragAction = null;
 
@@ -435,7 +428,6 @@ window.addEventListener('pointermove', (e) => {
     const dx = e.clientX - lastPointerX; lastPointerX = e.clientX;
     targetRotY += dx * 0.008;
   } else if (isWashMode) {
-    // Свайп-мытье
     if (Math.random() > 0.5) createBubble(e.clientX, e.clientY);
   }
 });
@@ -443,7 +435,6 @@ window.addEventListener('pointermove', (e) => {
 window.addEventListener('pointerup', (e) => {
   if (currentDragAction) {
     dragItem.style.display = 'none';
-    // Проверяем, попал ли по питомцу (верхняя половина экрана)
     const rect = stageEl.getBoundingClientRect();
     if (e.clientY < rect.bottom && e.clientX > rect.left && e.clientX < rect.right) {
       act(currentDragAction);
@@ -463,17 +454,15 @@ canvas.addEventListener("pointerdown", (e) => {
 
 window.playGame = function() {
   if (isWashMode) toggleWash();
-  haptic('medium');
-  jumpVel = 0.15; // Прыжок от мячика
-  act('play');
+  haptic('medium'); jumpVel = 0.15; act('play');
 };
 
 window.toggleWash = function() {
   isWashMode = !isWashMode;
   const btn = document.getElementById('btn-wash');
   if (isWashMode) {
-    btn.style.background = '#00b894';
-    document.getElementById('moodText').innerText = "🧽 Води пальцем по экрану!";
+    btn.style.background = 'linear-gradient(180deg, #00b894, #009432)';
+    document.getElementById('moodText').innerText = "🧽 Води пальцем!";
   } else {
     btn.style.background = '';
     document.getElementById('moodText').innerText = "✨ Погладь меня!";
@@ -482,13 +471,11 @@ window.toggleWash = function() {
 };
 
 function createBubble(x, y) {
-  const b = document.createElement('div');
-  b.className = 'bubble';
+  const b = document.createElement('div'); b.className = 'bubble';
   const size = Math.random() * 20 + 10;
   b.style.width = size + 'px'; b.style.height = size + 'px';
   const rect = stageEl.getBoundingClientRect();
-  b.style.left = (x - rect.left) + 'px';
-  b.style.top = (y - rect.top) + 'px';
+  b.style.left = (x - rect.left) + 'px'; b.style.top = (y - rect.top) + 'px';
   document.getElementById('bubbles').appendChild(b);
   setTimeout(() => b.remove(), 1000);
 }
@@ -506,12 +493,11 @@ function spawnHearts() {
   }
 }
 
-// --- СИНХРОНИЗАЦИЯ И UI ---
+// ================= СИНХРОНИЗАЦИЯ =================
 function updatePet3D(p) {
   const pal = PALETTES[p.color] || PALETTES.pink;
   bodyMat.color.setHex(pal.a); earMat.color.setHex(pal.b);
 
-  // Аксессуары на питомце
   crown.visible = p.accessories.includes("crown");
   glasses.visible = p.accessories.includes("glasses");
   scarf.visible = p.accessories.includes("scarf");
@@ -519,16 +505,15 @@ function updatePet3D(p) {
   wings.visible = p.accessories.includes("wings");
   stache.visible = p.accessories.includes("stache");
 
-  // Декор
   const owned = getMergedOwned(p);
   plantGroup.visible = owned.includes("plant");
   lampGroup.visible = owned.includes("lamp");
   bedGroup.visible = owned.includes("bed");
-  windowGroup.visible = owned.includes("window");
+  fancyWindow.visible = owned.includes("window");
+  if(fancyWindow.visible) baseWindow.visible = false; else baseWindow.visible = true;
 
-  // Свет
-  keyLight.intensity = p.isSleeping ? 0.4 : 1.7;
-  rimLight.intensity = p.isSleeping ? 0.5 : 1.4;
+  keyLight.intensity = p.isSleeping ? 0.4 : 1.8;
+  rimLight.intensity = p.isSleeping ? 0.5 : 1.5;
 }
 
 window.tab = function (t, b) {
@@ -560,6 +545,7 @@ window.act = async function (a, ex) {
     if (d.userCd) userCd = d.userCd;
     if (!d.ok && d.message) tg?.showAlert?.(d.message);
     if (d.ok && a === "buy" && ex?.itemId) { markOwned(ex.itemId); notify('success'); }
+    if (d.ok && a === "dev_coins") notify('warning');
     if (d.pet) sync(d.pet);
   } catch (e) {}
 };
@@ -579,7 +565,6 @@ function sync(p) {
 
   const owned = getMergedOwned(p);
 
-  // Магазин
   ["plant","lamp","bed","window","scarf","halo","tophat","wings","stache"].forEach(id => {
     const btn = document.getElementById("shop-" + id);
     if (btn) {
@@ -588,25 +573,22 @@ function sync(p) {
     }
   });
 
-  // Гардероб (динамическое добавление)
   const wGrid = document.getElementById("wardrobe-grid");
   const accs = [
     { id:'crown', icon:'👑', name:'Корона' }, { id:'glasses', icon:'🕶️', name:'Очки' }, { id:'bow', icon:'🎀', name:'Бантик' },
     { id:'scarf', icon:'🧣', name:'Шарф' }, { id:'halo', icon:'😇', name:'Нимб' }, { id:'tophat', icon:'🎩', name:'Цилиндр' },
     { id:'wings', icon:'🦋', name:'Крылья' }, { id:'stache', icon:'🥸', name:'Усы' }
   ];
-  // Очищаем и пересобираем
   wGrid.innerHTML = "";
   accs.forEach(a => {
-    if (["scarf","halo","tophat","wings","stache"].includes(a.id) && !owned.includes(a.id)) return; // Скрываем некупленное
+    if (["scarf","halo","tophat","wings","stache"].includes(a.id) && !owned.includes(a.id)) return;
     const div = document.createElement("div");
     div.className = "card" + (p.accessories.includes(a.id) ? " eq" : "");
-    div.innerHTML = `${a.icon}<br>${a.name}`;
+    div.innerHTML = `<span style="font-size:24px">${a.icon}</span><b>${a.name}</b>`;
     div.onclick = () => act('customize', { toggleAcc: a.id });
     wGrid.appendChild(div);
   });
 
-  // Сон
   if (p.isSleeping) {
     stageEl.classList.add("night");
     document.getElementById("sleepIcon").innerText = "☀️";
@@ -619,7 +601,6 @@ function sync(p) {
     if (!isWashMode) document.getElementById("moodText").innerText = "✨ Погладь меня!";
   }
 
-  // Топ
   const lst = document.getElementById("leaderboardList");
   const arr = Object.values(p.leaderboard || {}).sort((a, b) => b.score - a.score);
   if (arr.length) {
@@ -643,7 +624,7 @@ setInterval(() => {
     if (lf > 0) {
       b.classList.add("on-cd");
       const m = Math.floor(lf / 60000), s = Math.floor((lf % 60000) / 1000);
-      l.innerText = m + ":" + (s < 10 ? "0" : "") + s;
+      l.innerText = m > 0 ? `${m}м ${s}с` : `${s}с`;
     } else { b.classList.remove("on-cd"); l.innerText = LBL[k]; }
   });
 }, 1000);
