@@ -1,575 +1,223 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Тамагочи 2.0</title>
-  <script src="https://telegram.org"></script>
-  <script src="https://adsgram.ai"></script>
-  <style>
-    :root {
-      --bg: #0f111a;
-      --card: #1a1d2d;
-      --card-light: #25293e;
-      --accent: #6c5ce7;
-      --text: #ffffff;
-      --sub: #8f9bb3;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 12px 14px 86px 14px;
-      user-select: none;
-    }
-    .container { width: 100%; max-width: 420px; }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      padding: 12px 16px;
-      border-radius: 18px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .xp-bar-wrap { width: 130px; height: 6px; background: #0f111a; border-radius: 6px; margin-top: 5px; overflow: hidden; }
-    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a29bfe, #6c5ce7); width: 0%; transition: width 0.4s; }
-    .level-badge {
-      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-weight: 800;
-      font-size: 13px;
-      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.35);
-    }
-
-    .room {
-      height: 250px;
-      background: radial-gradient(circle at 50% 40%, #2d3559 0%, #161926 100%);
-      border-radius: 26px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      margin-bottom: 12px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.07);
-      transition: background 0.6s ease;
-    }
-    .room.night {
-      background: radial-gradient(circle at 50% 30%, #141829 0%, #090b12 100%);
-    }
-    .floor {
-      position: absolute;
-      bottom: -30px;
-      width: 130%;
-      height: 90px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 50%;
-    }
-    .status-bubble {
-      position: absolute;
-      top: 12px;
-      background: rgba(15, 17, 26, 0.65);
-      backdrop-filter: blur(8px);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid rgba(255,255,255,0.08);
-      z-index: 5;
-    }
-    .last-action {
-      position: absolute;
-      bottom: 10px;
-      font-size: 11px;
-      color: var(--sub);
-      background: rgba(0,0,0,0.3);
-      padding: 4px 10px;
-      border-radius: 12px;
-      z-index: 5;
-    }
-
-    .pet-wrapper {
-      position: relative;
-      width: 165px;
-      height: 165px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 3;
-      animation: floatPet 3.2s ease-in-out infinite;
-    }
-    .pet-wrapper.jump { animation: jumpPet 0.5s ease; }
-    .pet-shadow {
-      width: 90px;
-      height: 16px;
-      background: rgba(0,0,0,0.45);
-      border-radius: 50%;
-      position: absolute;
-      bottom: 34px;
-      filter: blur(3px);
-    }
-    .particle {
-      position: absolute;
-      font-size: 20px;
-      pointer-events: none;
-      animation: flyUp 1s ease-out forwards;
-      z-index: 10;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .stat-card {
-      background: var(--card);
-      padding: 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.04);
-    }
-    .stat-top {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .bar-bg { width: 100%; height: 7px; background: #0f111a; border-radius: 6px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .act-btn {
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      padding: 12px 4px;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: transform 0.1s, background 0.2s;
-    }
-    .act-btn:active { transform: scale(0.93); background: var(--card-light); }
-    .act-icon { font-size: 22px; }
-    .act-label { font-size: 11px; font-weight: 600; color: #dfe6e9; }
-
-    .btn-gold {
-      width: 100%;
-      border: none;
-      padding: 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #e17055 100%);
-      color: #1e272e;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(253, 203, 110, 0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .btn-gold:active { transform: scale(0.97); }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .wardrobe-box {
-      background: var(--card);
-      padding: 16px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-    }
-    .wardrobe-title { font-size: 13px; color: var(--sub); margin-bottom: 10px; font-weight: 600; }
-    .name-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
-    .name-input {
-      flex: 1;
-      background: #0f111a;
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 10px 14px;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-    .save-btn {
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      padding: 0 16px;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .swatches { display: flex; gap: 10px; margin-bottom: 16px; }
-    .swatch {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 3px solid transparent;
-    }
-    .acc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .acc-item {
-      background: #0f111a;
-      padding: 10px 4px;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 12px;
-      cursor: pointer;
-      border: 1px solid transparent;
-    }
-    .acc-item:active { border-color: var(--accent); background: var(--card-light); }
-
-    .leader-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      padding: 12px 16px;
-      border-radius: 14px;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(26, 29, 45, 0.95);
-      backdrop-filter: blur(12px);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0 16px 0;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      z-index: 50;
-    }
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--sub);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .nav-btn.active { color: #a29bfe; }
-    .nav-btn span:first-child { font-size: 20px; }
-
-    @keyframes floatPet {
-      0%, 100% { transform: translateY(0) scaleY(1); }
-      50% { transform: translateY(-6px) scaleY(1.03); }
-    }
-    @keyframes jumpPet {
-      0%, 100% { transform: translateY(0) scale(1); }
-      40% { transform: translateY(-28px) scale(1.06, 0.94); }
-      70% { transform: translateY(4px) scale(0.95, 1.05); }
-    }
-    @keyframes flyUp {
-      0% { opacity: 1; transform: translateY(0) scale(0.8); }
-      100% { opacity: 0; transform: translateY(-65px) scale(1.3); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Тамагочи 2.0</title>
+<script src="https://telegram.org"></script>
+<script src="https://adsgram.ai"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:12px 14px 85px;user-select:none}
+.wrap{width:100%;max-width:420px}
+.header{display:flex;justify-content:space-between;align-items:center;background:#1a1d2d;padding:12px 16px;border-radius:18px;margin-bottom:12px}
+.xp-bg{width:130px;height:6px;background:#0f111a;border-radius:6px;margin-top:5px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#a29bfe,#6c5ce7);width:0%;transition:width .4s}
+.lvl{background:linear-gradient(135deg,#6c5ce7,#a29bfe);padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px}
+.room{height:240px;background:radial-gradient(circle at 50% 40%,#2d3559,#161926);border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:12px;overflow:hidden;transition:background .5s}
+.room.night{background:radial-gradient(circle at 50% 30%,#141829,#090b12)}
+.bubble{position:absolute;top:12px;background:rgba(15,17,26,.7);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;z-index:5}
+.last-act{position:absolute;bottom:10px;font-size:11px;color:#8f9bb3;background:rgba(0,0,0,.35);padding:4px 10px;border-radius:12px;z-index:5}
+.pet-box{width:155px;height:155px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:float 3s ease-in-out infinite;z-index:3}
+.pet-box.jump{animation:jump .5s ease}
+.shadow{width:85px;height:14px;background:rgba(0,0,0,.45);border-radius:50%;position:absolute;bottom:34px;filter:blur(3px)}
+.heart{position:absolute;font-size:20px;pointer-events:none;animation:fly 1s ease-out forwards;z-index:10}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#1a1d2d;padding:10px;border-radius:16px}
+.stat-t{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:6px}
+.bar{width:100%;height:7px;background:#0f111a;border-radius:6px;overflow:hidden}
+.fill{height:100%;border-radius:6px;transition:width .4s}
+.btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.btn{background:#1a1d2d;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px 4px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.btn:active{transform:scale(.93);background:#25293e}
+.btn span:first-child{font-size:22px}
+.btn span:last-child{font-size:11px;font-weight:600}
+.gold{width:100%;border:none;padding:14px;border-radius:16px;font-size:14px;font-weight:800;background:linear-gradient(135deg,#ffeaa7,#fdcb6e,#e17055);color:#1e272e;cursor:pointer}
+.tab{display:none}.tab.active{display:block}
+.box{background:#1a1d2d;padding:16px;border-radius:20px;margin-bottom:12px}
+.ttl{font-size:13px;color:#8f9bb3;margin-bottom:10px;font-weight:600}
+.row-in{display:flex;gap:8px;margin-bottom:16px}
+.inp{flex:1;background:#0f111a;border:1px solid rgba(255,255,255,.1);padding:10px 14px;border-radius:12px;color:#fff;font-size:14px;outline:none}
+.ok{background:#6c5ce7;border:none;color:#fff;padding:0 16px;border-radius:12px;font-weight:700;cursor:pointer}
+.cols{display:flex;gap:12px;margin-bottom:16px}
+.col{width:38px;height:38px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2)}
+.accs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.acc{background:#0f111a;padding:10px 4px;border-radius:12px;text-align:center;font-size:12px;cursor:pointer}
+.l-row{display:flex;justify-content:space-between;background:#1a1d2d;padding:12px 16px;border-radius:14px;margin-bottom:8px;font-size:14px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,29,45,.96);display:flex;justify-content:space-around;padding:10px 0 16px;border-top:1px solid rgba(255,255,255,.07);z-index:50}
+.n-btn{background:none;border:none;color:#8f9bb3;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;cursor:pointer}
+.n-btn.active{color:#a29bfe}
+.n-btn span:first-child{font-size:20px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-26px)}70%{transform:translateY(4px)}}
+@keyframes fly{0%{opacity:1;transform:translateY(0) scale(.8)}100%{opacity:0;transform:translateY(-60px) scale(1.3)}}
+</style>
 </head>
 <body>
-
-<div class="container">
+<div class="wrap">
   <div class="header">
     <div>
-      <div style="font-weight: 800; font-size: 17px;" id="petName">Пушистик</div>
-      <div style="font-size: 11px; color: var(--sub);" id="xpText">Опыт: 0 / 100 XP</div>
-      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpBar"></div></div>
+      <div style="font-weight:800;font-size:17px" id="petName">Пушистик</div>
+      <div style="font-size:11px;color:#8f9bb3" id="xpText">Опыт: 0 / 100 XP</div>
+      <div class="xp-bg"><div class="xp-fill" id="xpBar"></div></div>
     </div>
-    <div class="level-badge" id="levelBadge">Ур. 1</div>
+    <div class="lvl" id="levelBadge">Ур. 1</div>
   </div>
-
-  <div id="tab-room" class="tab-content active">
+  <div id="tab-room" class="tab active">
     <div class="room" id="petRoom">
-      <div class="status-bubble" id="moodText">😺 Привет! Погладь меня</div>
-      <div class="floor"></div>
-      <div class="pet-shadow"></div>
-
-      <div class="pet-wrapper" id="petWrapper" onclick="petTouch(event)">
-        <svg width="150" height="150" viewBox="0 0 200 200" id="petSvg">
+      <div class="bubble" id="moodText">😺 Привет! Погладь меня</div>
+      <div class="shadow"></div>
+      <div class="pet-box" id="petWrapper" onclick="petTouch(event)">
+        <svg width="150" height="150" viewBox="0 0 200 200">
           <defs>
-            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ff9ff3" id="gradStart"/>
-              <stop offset="100%" stop-color="#f368e0" id="gradEnd"/>
+            <linearGradient id="bGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff9ff3" id="g1"/>
+              <stop offset="100%" stop-color="#f368e0" id="g2"/>
             </linearGradient>
           </defs>
-          <path d="M52 75 C38 25, 72 20, 78 65 Z" fill="url(#bodyGrad)"/>
-          <path d="M148 75 C162 25, 128 20, 122 65 Z" fill="url(#bodyGrad)"/>
-          <path d="M56 70 C47 38, 68 35, 72 64 Z" fill="#ffb8d9" opacity="0.7"/>
-          <path d="M144 70 C153 38, 132 35, 128 64 Z" fill="#ffb8d9" opacity="0.7"/>
-
-          <rect x="48" y="58" width="104" height="106" rx="48" fill="url(#bodyGrad)"/>
-
-          <ellipse cx="68" cy="164" rx="16" ry="10" fill="url(#bodyGrad)"/>
-          <ellipse cx="132" cy="164" rx="16" ry="10" fill="url(#bodyGrad)"/>
-
-Готов к игре!
-🍖 Сытость80%
-
-
-
-❤️ Радость80%
-
-
-
-⚡ Энергия90%
-
-
-🍖
-Покормить
-
-
-🎾
-Поиграть
-
-
-🛁
-Помыть
-
-
-💤
-Спать
-
-✨
-Золотой корм +100% ко всему (Реклама)
-
-✏️ Имя питомца для всего чата
-
-
-ОК
-🎨 Окрас питомца
-
-
-
-
-
-
-👑 Аксессуар
-
-🚫
-Без
-👑
-Корона
-🕶️
-Очки
-🎀
-Бантик
-
-          
-🏆 Самые заботливые игроки чата
-
-Пока никто не кормил питомца0 XP
-
-
-🏠
-Комната
-
-
-🎨
-Стиль
-
-
-🏆
-Топ чата
-
-const API_URL = "workers.dev";
-const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-if (tg) {
-tg.ready();
-tg.expand();
+          <path d="M52 75 C38 25, 72 20, 78 65 Z" fill="url(#bGrad)"/>
+          <path d="M148 75 C162 25, 128 20, 122 65 Z" fill="url(#bGrad)"/>
+          <ellipse cx="68" cy="164" rx="16" ry="10" fill="url(#bGrad)"/>
+          <ellipse cx="132" cy="164" rx="16" ry="10" fill="url(#bGrad)"/>
+          <rect x="48" y="58" width="104" height="106" rx="48" fill="url(#bGrad)"/>
+          <ellipse cx="62" cy="114" rx="10" ry="6" fill="#ff4757" opacity="0.5"/>
+          <ellipse cx="138" cy="114" rx="10" ry="6" fill="#ff4757" opacity="0.5"/>
+          <g id="eyesOpen">
+            <circle cx="75" cy="98" r="11" fill="#1e272e"/>
+            <circle cx="71" cy="94" r="4" fill="#fff"/>
+            <circle cx="125" cy="98" r="11" fill="#1e272e"/>
+            <circle cx="121" cy="94" r="4" fill="#fff"/>
+          </g>
+          <g id="eyesClosed" style="display:none">
+            <path d="M64 100 Q75 108 86 100" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M114 100 Q125 108 136 100" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </g>
+          <polygon points="95,108 105,108 100,114" fill="#ff6b81"/>
+          <path id="mouthPath" d="M88 120 Q100 132 112 120" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <g id="acc-crown" style="display:none"><polygon points="75,54 83,32 100,46 117,32 125,54" fill="#ffd32a"/></g>
+          <g id="acc-glasses" style="display:none"><rect x="57" y="86" width="36" height="22" rx="6" fill="#1e272e" opacity=".88"/><rect x="107" y="86" width="36" height="22" rx="6" fill="#1e272e" opacity=".88"/><line x1="93" y1="95" x2="107" y2="95" stroke="#1e272e" stroke-width="4"/></g>
+          <g id="acc-bow" style="display:none"><polygon points="100,142 82,132 82,152" fill="#ff4757"/><polygon points="100,142 118,132 118,152" fill="#ff4757"/></g>
+        </svg>
+      </div>
+      <div class="last-act" id="lastAction">Готов к игре!</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-t"><span>🍖 Сытость</span><span id="hungerVal">80%</span></div><div class="bar"><div class="fill" id="hungerBar" style="width:80%;background:#00b894"></div></div></div>
+      <div class="stat"><div class="stat-t"><span>❤️ Радость</span><span id="happyVal">80%</span></div><div class="bar"><div class="fill" id="happyBar" style="width:80%;background:#ff7675"></div></div></div>
+      <div class="stat"><div class="stat-t"><span>⚡ Энергия</span><span id="energyVal">90%</span></div><div class="bar"><div class="fill" id="energyBar" style="width:90%;background:#fdcb6e"></div></div></div>
+    </div>
+    <div class="btns">
+      <button class="btn" onclick="sendAction('feed')"><span>🍖</span><span>Покормить</span></button>
+      <button class="btn" onclick="sendAction('play')"><span>🎾</span><span>Поиграть</span></button>
+      <button class="btn" onclick="sendAction('wash')"><span>🛁</span><span>Помыть</span></button>
+      <button class="btn" onclick="sendAction('sleep')"><span id="sleepIcon">💤</span><span id="sleepLabel">Спать</span></button>
+    </div>
+    <button class="gold" onclick="watchAd()">✨ Золотой корм +100% ко всему (Реклама)</button>
+  </div>
+  <div id="tab-wardrobe" class="tab">
+    <div class="box">
+      <div class="ttl">✏️ Имя питомца для всего чата</div>
+      <div class="row-in">
+        <input type="text" id="nameInput" class="inp" placeholder="Новое имя..." maxlength="18">
+        <button class="ok" onclick="saveName()">ОК</button>
+      </div>
+      <div class="ttl">🎨 Окрас питомца</div>
+      <div class="cols">
+        <div class="col" style="background:#f368e0" onclick="sendAction('customize',{color:'pink'})"></div>
+        <div class="col" style="background:#00b894" onclick="sendAction('customize',{color:'mint'})"></div>
+        <div class="col" style="background:#0984e3" onclick="sendAction('customize',{color:'sky'})"></div>
+        <div class="col" style="background:#fdcb6e" onclick="sendAction('customize',{color:'gold'})"></div>
+        <div class="col" style="background:#6c5ce7" onclick="sendAction('customize',{color:'cyber'})"></div>
+      </div>
+      <div class="ttl">👑 Аксессуар</div>
+      <div class="accs">
+        <div class="acc" onclick="sendAction('customize',{accessory:'none'})">🚫<br>Без</div>
+        <div class="acc" onclick="sendAction('customize',{accessory:'crown'})">👑<br>Корона</div>
+        <div class="acc" onclick="sendAction('customize',{accessory:'glasses'})">🕶️<br>Очки</div>
+        <div class="acc" onclick="sendAction('customize',{accessory:'bow'})">🎀<br>Бантик</div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-top" class="tab">
+    <div class="ttl">🏆 Самые заботливые игроки чата</div>
+    <div id="leaderboardList"><div class="l-row"><span>Пока пусто</span><span>0 XP</span></div></div>
+  </div>
+</div>
+<div class="nav">
+  <button class="n-btn active" onclick="switchTab('room',this)"><span>🏠</span><span>Комната</span></button>
+  <button class="n-btn" onclick="switchTab('wardrobe',this)"><span>🎨</span><span>Стиль</span></button>
+  <button class="n-btn" onclick="switchTab('top',this)"><span>🏆</span><span>Топ чата</span></button>
+</div>
+<script>
+const API=["https://tamagotchi-bot",".djogrinder22.workers.dev/api/pet"].join("");
+const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+if(tg){tg.ready();tg.expand();}
+const AdCtrl=window.Adsgram?window.Adsgram.init({blockId:"56776"}):null;
+const qp=new URLSearchParams(window.location.search);
+const sp=tg&&tg.initDataUnsafe?tg.initDataUnsafe.start_param:null;
+const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user?tg.initDataUnsafe.user:{id:"guest",first_name:"Игрок"};
+const chatId=qp.get("chat_id")||(sp?sp.replace("chat_",""):null)||u.id||"demo";
+const COLS={pink:["#ff9ff3","#f368e0"],mint:["#55efc4","#00b894"],sky:["#74b9ff","#0984e3"],gold:["#ffeaa7","#fdcb6e"],cyber:["#a29bfe","#6c5ce7"]};
+let petData=null;
+function switchTab(t,b){
+  document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
+  document.querySelectorAll(".n-btn").forEach(e=>e.classList.remove("active"));
+  document.getElementById("tab-"+t).classList.add("active");
+  b.classList.add("active");
 }
-const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "56776" }) : null;
-const urlParams = new URLSearchParams(window.location.search);
-const startParam = tg && tg.initDataUnsafe ? tg.initDataUnsafe.start_param : null;
-const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-const chatId = urlParams.get("chat_id") || (startParam ? startParam.replace("chat_", "") : null) || (tgUser ? tgUser.id : "demo_chat");
-const user = tgUser || { id: "guest_1", first_name: "Игрок" };
-const PALETTES = {
-pink: ["#ff9ff3", "#f368e0"],
-mint: ["#55efc4", "#00b894"],
-sky: ["#74b9ff", "#0984e3"],
-gold: ["#ffeaa7", "#fdcb6e"],
-cyber: ["#a29bfe", "#6c5ce7"]
-};
-let currentPet = null;
-function switchTab(tabName, btn) {
-document.querySelectorAll(".tab-content").forEach(function(el) { el.classList.remove("active"); });
-document.querySelectorAll(".nav-btn").forEach(function(el) { el.classList.remove("active"); });
-document.getElementById("tab-" + tabName).classList.add("active");
-btn.classList.add("active");
-if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+function petTouch(e){
+  const w=document.getElementById("petWrapper");
+  w.classList.remove("jump");void w.offsetWidth;w.classList.add("jump");
+  const r=document.getElementById("petRoom"),h=document.createElement("div");
+  h.className="heart";h.innerText=petData&&petData.isSleeping?"💤":"❤️";
+  h.style.left=((e.offsetX||70)+110)+"px";h.style.top=((e.offsetY||70)+40)+"px";
+  r.appendChild(h);setTimeout(()=>h.remove(),1000);
 }
-function petTouch(e) {
-const wrap = document.getElementById("petWrapper");
-wrap.classList.remove("jump");
-void wrap.offsetWidth;
-wrap.classList.add("jump");
-if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
-const room = document.getElementById("petRoom");
-const heart = document.createElement("div");
-heart.className = "particle";
-const icons = ["❤️", "✨", "💕", "🐾"];
-heart.innerText = currentPet && currentPet.isSleeping ? "💤" : icons[Math.floor(Math.random() * icons.length)];
-heart.style.left = ((e.offsetX || 80) + 110) + "px";
-heart.style.top = ((e.offsetY || 80) + 40) + "px";
-room.appendChild(heart);
-setTimeout(function() { heart.remove(); }, 1000);
+async function loadPet(){
+  try{const r=await fetch(API+"?chat_id="+chatId);const d=await r.json();if(d.pet)render(d.pet);}catch(e){}
 }
-async function loadPet() {
-try {
-const res = await fetch(API_URL + "?chat_id=" + chatId);
-const data = await res.json();
-if (data.pet) renderPet(data.pet);
-} catch (e) {
-document.getElementById("lastAction").innerText = "Автономный режим";
+async function sendAction(act,extra){
+  try{
+    const r=await fetch(API+"?chat_id="+chatId,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:act,userId:u.id,userName:u.first_name},extra||{}))});
+    const d=await r.json();
+    if(!d.ok&&d.message&&tg&&tg.showAlert)tg.showAlert(d.message);
+    if(d.pet)render(d.pet);
+  }catch(e){}
 }
+function saveName(){
+  const v=document.getElementById("nameInput").value.trim();
+  if(v){sendAction("customize",{name:v});document.getElementById("nameInput").value="";switchTab("room",document.querySelector(".n-btn"));}
 }
-async function sendAction(action, extraPayload) {
-if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
-try {
-const payload = Object.assign({
-action: action,
-userId: user.id,
-userName: user.first_name
-}, extraPayload || {});
-const res = await fetch(API_URL + "?chat_id=" + chatId, {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify(payload)
-});
-const data = await res.json();
-if (!data.ok && data.message) {
-if (tg && tg.showAlert) tg.showAlert(data.message);
-else alert(data.message);
+function watchAd(){
+  if(!AdCtrl){sendAction("golden_feed");return;}
+  AdCtrl.show().then(()=>sendAction("golden_feed")).catch(()=>{if(tg&&tg.showAlert)tg.showAlert("Реклама недоступна");});
 }
-if (data.pet) renderPet(data.pet);
-} catch (e) {
-console.error(e);
-}
-}
-function saveName() {
-const val = document.getElementById("nameInput").value.trim();
-if (!val) return;
-sendAction("customize", { name: val });
-document.getElementById("nameInput").value = "";
-switchTab("room", document.querySelector(".nav-btn"));
-}
-function setColor(colorKey) {
-sendAction("customize", { color: colorKey });
-}
-function setAccessory(accKey) {
-sendAction("customize", { accessory: accKey });
-}
-function watchAdForGold() {
-if (!AdController) {
-sendAction("golden_feed");
-return;
-}
-AdController.show().then(function() {
-sendAction("golden_feed");
-if (tg && tg.showAlert) tg.showAlert("✨ Питомец съел Золотой корм! Все показатели 100%!");
-}).catch(function() {
-if (tg && tg.showAlert) tg.showAlert("Реклама временно недоступна.");
-});
-}
-function renderPet(pet) {
-currentPet = pet;
-document.getElementById("petName").innerText = pet.name;
-document.getElementById("levelBadge").innerText = "Ур. " + pet.level;
-const xpNeeded = pet.level * 100;
-document.getElementById("xpText").innerText = "Опыт: " + pet.xp + " / " + xpNeeded + " XP";
-document.getElementById("xpBar").style.width = Math.min(100, (pet.xp / xpNeeded) * 100) + "%";
-document.getElementById("lastAction").innerText = pet.lastActionBy;
-document.getElementById("hungerVal").innerText = pet.hunger + "%";
-document.getElementById("hungerBar").style.width = pet.hunger + "%";
-document.getElementById("happyVal").innerText = pet.happiness + "%";
-document.getElementById("happyBar").style.width = pet.happiness + "%";
-const energy = pet.energy !== undefined ? pet.energy : 90;
-document.getElementById("energyVal").innerText = energy + "%";
-document.getElementById("energyBar").style.width = energy + "%";
-const colors = PALETTES[pet.color] || PALETTES.pink;
-document.getElementById("gradStart").setAttribute("stop-color", colors);
-document.getElementById("gradEnd").setAttribute("stop-color", colors);
-["crown", "glasses", "bow"].forEach(function(id) {
-document.getElementById("acc-" + id).style.display = (pet.accessory === id) ? "block" : "none";
-});
-const room = document.getElementById("petRoom");
-const eyesOpen = document.getElementById("eyesOpen");
-const eyesClosed = document.getElementById("eyesClosed");
-const mouth = document.getElementById("mouthPath");
-const mood = document.getElementById("moodText");
-if (pet.isSleeping) {
-room.classList.add("night");
-eyesOpen.style.display = "none";
-eyesClosed.style.display = "block";
-document.getElementById("sleepIcon").innerText = "☀️";
-document.getElementById("sleepLabel").innerText = "Разбудить";
-mood.innerText = "💤 Питомец сладко спит...";
-} else {
-room.classList.remove("night");
-eyesOpen.style.display = "block";
-eyesClosed.style.display = "none";
-document.getElementById("sleepIcon").innerText = "💤";
-document.getElementById("sleepLabel").innerText = "Спать";
-if (pet.hunger < 30) {
-mouth.setAttribute("d", "M88 126 Q100 116 112 126");
-mood.innerText = "😿 Очень голоден! Покорми меня";
-} else if (energy < 25) {
-mouth.setAttribute("d", "M92 123 Q100 123 108 123");
-mood.innerText = "🥱 Хочу спать...";
-} else {
-mouth.setAttribute("d", "M88 120 Q100 132 112 120");
-mood.innerText = "😺 Счастлив и готов играть!";
-}
-}
-const list = document.getElementById("leaderboardList");
-const entries = Object.values(pet.leaderboard || {}).sort(function(a, b) { return b.score - a.score; });
-if (entries.length > 0) {
-list.innerHTML = "";
-entries.forEach(function(item, idx) {
-const row = document.createElement("div");
-row.className = "leader-row";
-const left = document.createElement("span");
-const medal = idx === 0 ? "🥇 " : idx === 1 ? "🥈 " : idx === 2 ? "🥉 " : "🐾 ";
-left.innerText = medal + item.name;
-const right = document.createElement("span");
-right.style.color = "#a29bfe";
-right.style.fontWeight = "700";
-right.innerText = item.score + " XP";
-row.appendChild(left);
-row.appendChild(right);
-list.appendChild(row);
-});
-}
+function render(p){
+  petData=p;
+  document.getElementById("petName").innerText=p.name;
+  document.getElementById("levelBadge").innerText="Ур. "+p.level;
+  const need=p.level*100;
+  document.getElementById("xpText").innerText="Опыт: "+p.xp+" / "+need+" XP";
+  document.getElementById("xpBar").style.width=Math.min(100,(p.xp/need)*100)+"%";
+  document.getElementById("lastAction").innerText=p.lastActionBy;
+  document.getElementById("hungerVal").innerText=p.hunger+"%";
+  document.getElementById("hungerBar").style.width=p.hunger+"%";
+  document.getElementById("happyVal").innerText=p.happiness+"%";
+  document.getElementById("happyBar").style.width=p.happiness+"%";
+  const en=p.energy!==undefined?p.energy:90;
+  document.getElementById("energyVal").innerText=en+"%";
+  document.getElementById("energyBar").style.width=en+"%";
+  const c=COLS[p.color]||COLS.pink;
+  document.getElementById("g1").setAttribute("stop-color",c[0]);
+  document.getElementById("g2").setAttribute("stop-color",c[1]);
+  ["crown","glasses","bow"].forEach(id=>document.getElementById("acc-"+id).style.display=p.accessory===id?"block":"none");
+  const rm=document.getElementById("petRoom"),eo=document.getElementById("eyesOpen"),ec=document.getElementById("eyesClosed"),md=document.getElementById("moodText");
+  if(p.isSleeping){rm.classList.add("night");eo.style.display="none";ec.style.display="block";document.getElementById("sleepIcon").innerText="☀️";document.getElementById("sleepLabel").innerText="Разбудить";md.innerText="💤 Спит...";}
+  else{rm.classList.remove("night");eo.style.display="block";ec.style.display="none";document.getElementById("sleepIcon").innerText="💤";document.getElementById("sleepLabel").innerText="Спать";md.innerText=p.hunger<30?"😿 Хочу кушать!":"😺 Счастлив и бодр!";}
+  const lst=document.getElementById("leaderboardList"),arr=Object.values(p.leaderboard||{}).sort((a,b)=>b.score-a.score);
+  if(arr.length>0){lst.innerHTML="";arr.forEach((it,i)=>{const row=document.createElement("div");row.className="l-row";const l=document.createElement("span");l.innerText=(i===0?"🥇 ":i===1?"🥈 ":i===2?"🥉 ":"🐾 ")+it.name;const r=document.createElement("span");r.style.color="#a29bfe";r.innerText=it.score+" XP";row.appendChild(l);row.appendChild(r);lst.appendChild(row);});}
 }
 loadPet();
-  </script>
+</script>
 </body>
 </html>
