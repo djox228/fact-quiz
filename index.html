@@ -327,3 +327,19 @@
       if (pet.hunger < 30 || pet.happiness < 30) {
         mouth.classList.add("sad");
         mood.innerText = pet.hunger < 30 ? "😿 Очень хочу кушать!" : "😾 Мне скучно...";
+        } else {
+mouth.classList.remove("sad");
+mood.innerText = "😺 Отличное настроение!";
+}
+}
+function animateJump() {
+const el = document.getElementById("petAvatar");
+el.classList.remove("jump");
+void el.offsetWidth;
+el.classList.add("jump");
+}
+loadPet();
+      </script>
+</body>
+</html>
+
