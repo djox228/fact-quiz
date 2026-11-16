@@ -160,6 +160,7 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
       <div class="grid" id="wardrobe-grid"></div>
     </div>
     <button class="gold" style="background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;margin-top:10px;font-size:13px" onclick="act('dev_coins')">🧪 [DEV] Получить 1000 Монет</button>
+    <button class="gold" style="background:#1a1c29;color:#ff4757;margin-top:10px;font-size:13px;border:1px solid #ff4757" onclick="resetGame()">🗑️ [DEV] Сбросить прогресс</button>
   </div>
   
   <div id="tab-top" class="tab">
@@ -468,17 +469,13 @@ function init3D() {
     window.updatePet3D = function(p) {
       if (!bodyMat) return;
       
-      // Включаем признаки пола
       lashes.visible = (p.gender === "female");
       hairGroup.visible = (p.gender === "male");
 
-      // Меняем цвет в зависимости от пола, если пользователь не выбрал свой
       if (p.color === "pink" && p.gender === "male") {
-        bodyMat.color.setHex(0x74b9ff); // Голубой
-        earMat.color.setHex(0x0652DD);
+        bodyMat.color.setHex(0x74b9ff); earMat.color.setHex(0x0652DD);
       } else if (p.color === "pink" && p.gender === "female") {
-        bodyMat.color.setHex(0xff9ff3); // Розовый
-        earMat.color.setHex(0xc44569);
+        bodyMat.color.setHex(0xff9ff3); earMat.color.setHex(0xc44569);
       } else {
         var pal = PALETTES[p.color] || PALETTES.pink;
         bodyMat.color.setHex(pal.a); earMat.color.setHex(pal.b);
@@ -517,12 +514,25 @@ window.tab = function (t, b) {
   b.classList.add("active"); haptic('light');
 };
 
-// ВЫБОР ПОЛА
 window.selectGender = function(g) {
   document.getElementById("create-screen").style.display = "none";
   window.act("setup_gender", { gender: g });
   pet.gender = g;
   if (window.updatePet3D) window.updatePet3D(pet);
+};
+
+// СБРОС ПРОГРЕССА
+window.resetGame = function() {
+  if (confirm("Точно удалить прогресс? Питомец будет сброшен.")) {
+    fetch(API + "?chat_id=" + chatId, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reset_pet" })
+    }).then(function() {
+      localStorage.clear();
+      location.reload();
+    });
+  }
 };
 
 var dragItem = document.getElementById('drag-item');
@@ -658,7 +668,6 @@ window.act = function (a, ex) {
 function sync(p) {
   pet = p;
   
-  // Проверка на выбранный пол
   if (!p.gender) {
     document.getElementById("create-screen").style.display = "flex";
   } else {
