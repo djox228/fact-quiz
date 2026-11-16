@@ -8,17 +8,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:#0a0a14;color:#fff;user-select:none;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+body{background:#05050a;color:#fff;user-select:none;overflow:hidden;height:100vh;display:flex;flex-direction:column}
 canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch-action:none;z-index:1}
 
-/* HUD Сверху */
+/* HUD */
 .hud{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;z-index:10;pointer-events:none}
 .glass{background:rgba(20,25,45,0.7);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:10px 20px;box-shadow:0 5px 15px rgba(0,0,0,0.5)}
 .val{font-size:22px;font-weight:900;color:#ffeaa7;text-shadow:0 0 10px #ffeaa7}
 .btn-settings{pointer-events:auto;background:rgba(20,25,45,0.7);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:44px;height:44px;display:flex;justify-content:center;align-items:center;font-size:20px;cursor:pointer;backdrop-filter:blur(15px)}
 
 /* Экран выбора */
-#selection-screen{position:fixed;top:0;left:0;width:100%;height:100vh;background:rgba(10,10,20,0.95);backdrop-filter:blur(10px);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+#selection-screen{position:fixed;top:0;left:0;width:100%;height:100vh;background:rgba(5,5,10,0.95);backdrop-filter:blur(10px);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
 #selection-screen h2{font-size:26px;margin-bottom:10px;color:#fff}
 #selection-screen p{color:#8f9bb3;margin-bottom:30px;font-size:14px}
 .pet-options{display:flex;gap:15px}
@@ -27,13 +27,25 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
 .pet-card:hover{border-color:#6c5ce7}
 .pet-card .icon{font-size:40px;margin-bottom:10px}
 
-/* Кнопка взаимодействия */
-.actions{position:absolute;bottom:40px;width:100%;display:flex;justify-content:center;z-index:10}
-.btn-pet{background:linear-gradient(135deg,#ff9ff3,#f368e0);border:none;padding:16px 40px;border-radius:30px;font-size:16px;font-weight:900;color:#fff;box-shadow:0 10px 25px rgba(243,104,224,0.4);transition:transform 0.1s}
+/* Нижняя панель */
+.bottom-panel{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg, #05050a 60%, transparent 100%);padding:20px 15px 30px;z-index:10;display:flex;flex-direction:column;gap:15px}
+.tabs{display:flex;gap:5px;background:rgba(20,25,45,0.8);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.05)}
+.tab-btn{flex:1;background:transparent;border:none;padding:12px 5px;border-radius:12px;color:#8f9bb3;font-weight:900;font-size:14px;transition:all 0.3s}
+.tab-btn.active{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;box-shadow:0 0 15px rgba(108,92,231,0.5)}
+.content{display:none;animation:fadeIn 0.3s}
+.content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.btn-pet{width:100%;background:linear-gradient(135deg,#ff9ff3,#f368e0);border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:900;color:#fff;box-shadow:0 10px 25px rgba(243,104,224,0.4);transition:transform 0.1s}
 .btn-pet:active{transform:scale(0.95)}
 
-#ui-log{position:absolute;bottom:110px;width:100%;text-align:center;color:#8f9bb3;font-size:13px;z-index:10;pointer-events:none;text-shadow:0 2px 4px #000}
-@keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); } }
+/* Магазин */
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.shop-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:15px;text-align:center;font-size:12px;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:8px}
+.shop-item button{background:#6c5ce7;color:#fff;border:none;padding:8px;border-radius:10px;font-weight:900;width:100%;cursor:pointer}
+.shop-item button.owned{background:#00b894;pointer-events:none}
+
+#ui-log{position:absolute;bottom:130px;width:100%;text-align:center;color:#8f9bb3;font-size:13px;z-index:10;pointer-events:none;text-shadow:0 2px 4px #000}
 </style>
 </head>
 <body>
@@ -47,8 +59,21 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
 
 <div id="ui-log">Загрузка...</div>
 
-<div class="actions">
-  <button class="btn-pet" onclick="petAction()" id="btn-pet">✨ Погладить</button>
+<div class="bottom-panel">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('home', this)">🏠 Дом</button>
+    <button class="tab-btn" onclick="switchTab('shop', this)">🛍️ Магазин</button>
+  </div>
+  
+  <div id="content-home" class="content active">
+    <button class="btn-pet" onclick="petAction()">✨ Погладить</button>
+  </div>
+
+  <div id="content-shop" class="content">
+    <div class="shop-grid" id="shop-grid">
+      <!-- Заполняется через JS -->
+    </div>
+  </div>
 </div>
 
 <!-- Экран выбора -->
@@ -56,18 +81,9 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
   <h2>Кто будет жить здесь?</h2>
   <p>Выбери своего уникального компаньона</p>
   <div class="pet-options">
-    <div class="pet-card" onclick="selectPet('cat')">
-      <div class="icon">🐱</div>
-      <b>Кот</b>
-    </div>
-    <div class="pet-card" onclick="selectPet('fox')">
-      <div class="icon">🦊</div>
-      <b>Лис</b>
-    </div>
-    <div class="pet-card" onclick="selectPet('robot')">
-      <div class="icon">🤖</div>
-      <b>Робот</b>
-    </div>
+    <div class="pet-card" onclick="selectPet('cat')"><div class="icon">🐱</div><b>Кот</b></div>
+    <div class="pet-card" onclick="selectPet('fox')"><div class="icon">🦊</div><b>Лис</b></div>
+    <div class="pet-card" onclick="selectPet('robot')"><div class="icon">🤖</div><b>Робот</b></div>
   </div>
 </div>
 
@@ -81,177 +97,227 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) me.id = String(tg.initDat
 var qp = new URLSearchParams(location.search);
 var chatId = qp.get("chat_id") || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param ? tg.initDataUnsafe.start_param.replace("chat_", "") : null) || me.id;
 
-var state = { coins: 0, petType: null, lastAction: "" };
+var state = { coins: 0, petType: null, lastAction: "", inventory: [] };
 
 // ================= THREE.JS =================
 var scene, camera, renderer;
 var petGroup;
 var clock = new THREE.Clock();
+var particles = [];
 
 function init3D() {
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0a14, 0.03);
+  // Уютный туман
+  scene.fog = new THREE.FogExp2(0x0a0a14, 0.02);
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-  // Камера смотрит прямо на питомца
-  camera.position.set(0, 1.8, 5.5);
-  camera.lookAt(0, 0.5, 0.5);
+  camera.position.set(0, 1.5, 6);
+  camera.lookAt(0, 0.5, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true; // ВКЛЮЧАЕМ ТЕНИ ДЛЯ РЕАЛИЗМА
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   document.body.appendChild(renderer.domElement);
 
   // Свет
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6)); // Общий свет
+  scene.add(new THREE.AmbientLight(0xffffff, 0.3)); // Мягкий общий свет
 
-  var dLight = new THREE.DirectionalLight(0xffffff, 1.0);
-  dLight.position.set(2, 5, 4);
+  var dLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  dLight.position.set(5, 10, 5);
+  dLight.castShadow = true;
+  dLight.shadow.mapSize.width = 1024;
+  dLight.shadow.mapSize.height = 1024;
   scene.add(dLight);
 
-  // Уютный свет от лампы
-  var lampLight = new THREE.PointLight(0xff9ff3, 2, 10);
-  lampLight.position.set(-2, 1.5, -1);
-  scene.add(lampLight);
+  var pLight = new THREE.PointLight(0xff9ff3, 2, 10);
+  pLight.position.set(-2, 2, 2);
+  scene.add(pLight);
 
-  // ================= КОМНАТА =================
-  // Пол
-  var floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.8 }));
+  // ================= КОМНАТА (Богатая) =================
+  // Пол (Паркет)
+  var floorMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.2, metalness: 0.1 });
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), floorMat);
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.5;
+  floor.receiveShadow = true;
   scene.add(floor);
 
-  // Ковер
-  var rug = new THREE.Mesh(new THREE.CircleGeometry(2.2, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350 }));
-  rug.rotation.x = -Math.PI / 2;
-  rug.position.y = -0.49;
-  scene.add(rug);
+  // Плинтус
+  var plinth = new THREE.Mesh(new THREE.BoxGeometry(10, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0x252b48 }));
+  plinth.position.set(0, -0.4, -3);
+  scene.add(plinth);
 
   // Стены
-  var wallMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.9 });
-  var backWall = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), wallMat);
-  backWall.position.set(0, 2.5, -3);
+  var wallMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.8 });
+  var backWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 6), wallMat);
+  backWall.position.set(0, 2.5, -3.1);
+  backWall.receiveShadow = true;
   scene.add(backWall);
 
-  var leftWall = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), wallMat);
-  leftWall.rotation.y = Math.PI / 2;
-  leftWall.position.set(-4, 2.5, 0);
-  scene.add(leftWall);
-
-  // Окно со звездами
-  var windowFrame = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.8, 0.1), new THREE.MeshStandardMaterial({ color: 0x2a2f4a }));
-  windowFrame.position.set(0, 1.8, -2.95);
+  // Окно (с рамой и луной)
+  var windowFrame = new THREE.Mesh(new THREE.BoxGeometry(3, 2, 0.2), new THREE.MeshStandardMaterial({ color: 0x2a2f4a }));
+  windowFrame.position.set(0, 2, -3);
+  windowFrame.castShadow = true;
   scene.add(windowFrame);
   
-  var windowSky = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.5), new THREE.MeshBasicMaterial({ color: 0x0f1428 }));
-  windowSky.position.set(0, 1.8, -2.9);
+  var windowSky = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.6), new THREE.MeshBasicMaterial({ color: 0x0f1428 }));
+  windowSky.position.set(0, 2, -2.95);
   scene.add(windowSky);
 
-  var moon = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
-  moon.position.set(0.6, 2.1, -2.85);
+  var moon = new THREE.Mesh(new THREE.CircleGeometry(0.2, 32), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
+  moon.position.set(0.6, 2.2, -2.9);
   scene.add(moon);
 
-  // Кровать
-  var bedBase = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.3, 1.2), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 }));
-  bedBase.position.set(2, -0.35, -2);
+  // Красивая кровать
+  var bedBase = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 1.2), new THREE.MeshStandardMaterial({ color: 0x6c5ce7, roughness: 0.5 }));
+  bedBase.position.set(2.5, -0.3, -2);
+  bedBase.castShadow = true;
+  bedBase.receiveShadow = true;
   scene.add(bedBase);
   
-  var pillow = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 1.0), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-  pillow.position.set(1.2, -0.1, -2);
+  var blanket = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.2, 1.1), new THREE.MeshStandardMaterial({ color: 0xa29bfe }));
+  blanket.position.set(2.8, -0.1, -2);
+  blanket.castShadow = true;
+  scene.add(blanket);
+
+  var pillow = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 1.0), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+  pillow.position.set(1.5, 0, -2);
+  pillow.castShadow = true;
   scene.add(pillow);
 
-  // Растение
-  var pot = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.15, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
-  pot.position.set(-2.5, -0.3, -2);
-  scene.add(pot);
-  var leaves = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshStandardMaterial({ color: 0x27ae60 }));
-  leaves.position.set(-2.5, 0.1, -2);
-  scene.add(leaves);
-
-  // Платформа для питомца
-  var platform = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.3, 0.1, 32), new THREE.MeshStandardMaterial({ color: 0x252b48 }));
-  platform.position.set(0, -0.45, 0.5);
-  scene.add(platform);
+  // Платформа для питомца (ковер)
+  var rug = new THREE.Mesh(new THREE.CircleGeometry(2.0, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350, roughness: 1 }));
+  rug.rotation.x = -Math.PI / 2;
+  rug.position.set(0, -0.48, 0.5);
+  rug.receiveShadow = true;
+  scene.add(rug);
 
   petGroup = new THREE.Group();
-  petGroup.position.set(0, -0.4, 0.5); // Ставим ровно на платформу
+  petGroup.position.set(0, -0.4, 0.5); 
   scene.add(petGroup);
 
   animate();
 }
 
-// ================= ГЕНЕРАЦИЯ ПИТОМЦЕВ =================
+// ================= ГЕНЕРАЦИЯ КРАСИВЫХ ПИТОМЦЕВ =================
 function createPet(type) {
   while(petGroup.children.length > 0){ petGroup.remove(petGroup.children[0]); }
 
-  var bodyMat, eyeMat, accentMat;
-  var body, head, earL, earR, tail;
+  var bodyMat, accentMat, eyeMat;
 
   if (type === "cat") {
-    bodyMat = new THREE.MeshStandardMaterial({ color: 0xff9ff3, roughness: 0.4 });
+    // Реалистичный кот
+    bodyMat = new THREE.MeshPhysicalMaterial({ color: 0xff9ff3, roughness: 0.3, clearcoat: 0.8 }); // Глянцевый
     accentMat = new THREE.MeshStandardMaterial({ color: 0xc44569 });
     
-    body = new THREE.Mesh(new THREE.SphereGeometry(0.6, 32, 32), bodyMat);
-    body.position.y = 0.6; petGroup.add(body);
+    // Тело (пухлое)
+    var body = new THREE.Mesh(new THREE.SphereGeometry(0.6, 32, 32), bodyMat);
+    body.scale.set(1, 0.9, 1);
+    body.position.y = 0.5; body.castShadow = true; petGroup.add(body);
 
-    var earGeo = new THREE.ConeGeometry(0.18, 0.35, 4);
-    earL = new THREE.Mesh(earGeo, bodyMat); earL.position.set(-0.35, 1.15, 0); earL.rotation.z = 0.2;
-    earR = new THREE.Mesh(earGeo, bodyMat); earR.position.set(0.35, 1.15, 0); earR.rotation.z = -0.2;
+    // Голова
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 32), bodyMat);
+    head.position.set(0, 1.1, 0.1); head.castShadow = true; petGroup.add(head);
+
+    // Уши
+    var earGeo = new THREE.ConeGeometry(0.15, 0.3, 4);
+    var earL = new THREE.Mesh(earGeo, bodyMat); earL.position.set(-0.25, 1.4, 0.1); earL.rotation.z = 0.2; earL.castShadow = true;
+    var earR = new THREE.Mesh(earGeo, bodyMat); earR.position.set(0.25, 1.4, 0.1); earR.rotation.z = -0.2; earR.castShadow = true;
     petGroup.add(earL, earR);
 
-    tail = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.7, 16), accentMat);
-    tail.position.set(0, 0.5, -0.6); tail.rotation.x = -0.8; petGroup.add(tail);
+    // Лапки
+    var legGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.3, 16);
+    var legFL = new THREE.Mesh(legGeo, bodyMat); legFL.position.set(-0.3, 0.15, 0.3); legFL.castShadow = true;
+    var legFR = new THREE.Mesh(legGeo, bodyMat); legFR.position.set(0.3, 0.15, 0.3); legFR.castShadow = true;
+    petGroup.add(legFL, legFR);
+
+    // Хвост
+    var tail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 0.8, 16), bodyMat);
+    tail.position.set(0, 0.4, -0.6); tail.rotation.x = -0.8; tail.castShadow = true; petGroup.add(tail);
+
+    // Глаза
+    eyeMat = new THREE.MeshStandardMaterial({ color: 0x05050a });
+    var eL = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeMat); eL.position.set(-0.15, 1.15, 0.5); petGroup.add(eL);
+    var eR = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeMat); eR.position.set(0.15, 1.15, 0.5); petGroup.add(eR);
 
   } else if (type === "fox") {
-    bodyMat = new THREE.MeshStandardMaterial({ color: 0xe17055, roughness: 0.4 });
+    // Лис
+    bodyMat = new THREE.MeshPhysicalMaterial({ color: 0xe17055, roughness: 0.4, clearcoat: 0.5 });
     accentMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
     
-    body = new THREE.Mesh(new THREE.SphereGeometry(0.6, 32, 32), bodyMat);
-    body.position.y = 0.6; petGroup.add(body);
+    var body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 32, 32), bodyMat);
+    body.scale.set(1, 0.9, 1); body.position.y = 0.5; body.castShadow = true; petGroup.add(body);
 
-    var earGeo = new THREE.ConeGeometry(0.15, 0.5, 4);
-    earL = new THREE.Mesh(earGeo, bodyMat); earL.position.set(-0.3, 1.25, 0); earL.rotation.z = 0.1;
-    earR = new THREE.Mesh(earGeo, bodyMat); earR.position.set(0.3, 1.25, 0); earR.rotation.z = -0.1;
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), bodyMat);
+    head.position.set(0, 1.05, 0.1); head.castShadow = true; petGroup.add(head);
+
+    // Уши (острые)
+    var earGeo = new THREE.ConeGeometry(0.12, 0.5, 4);
+    var earL = new THREE.Mesh(earGeo, bodyMat); earL.position.set(-0.25, 1.4, 0.1); earL.rotation.z = 0.1; earL.castShadow = true;
+    var earR = new THREE.Mesh(earGeo, bodyMat); earR.position.set(0.25, 1.4, 0.1); earR.rotation.z = -0.1; earR.castShadow = true;
     petGroup.add(earL, earR);
 
-    var snout = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.3, 16), accentMat);
-    snout.position.set(0, 0.5, 0.6); snout.rotation.x = Math.PI/2; petGroup.add(snout);
+    // Мордочка
+    var snout = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.3, 16), accentMat);
+    snout.position.set(0, 0.95, 0.5); snout.rotation.x = Math.PI/2; snout.castShadow = true; petGroup.add(snout);
 
-    tail = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.9, 16), bodyMat);
-    tail.position.set(0, 0.4, -0.8); tail.rotation.x = -0.9; petGroup.add(tail);
+    // Пушистый хвост
+    var tail = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), bodyMat);
+    tail.scale.set(1, 1.5, 1);
+    tail.position.set(0, 0.4, -0.7); tail.rotation.x = -0.5; tail.castShadow = true; petGroup.add(tail);
+
+    // Глаза
+    eyeMat = new THREE.MeshStandardMaterial({ color: 0x05050a });
+    var eL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), eyeMat); eL.position.set(-0.15, 1.1, 0.45); petGroup.add(eL);
+    var eR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), eyeMat); eR.position.set(0.15, 1.1, 0.45); petGroup.add(eR);
 
   } else if (type === "robot") {
-    bodyMat = new THREE.MeshStandardMaterial({ color: 0x74b9ff, metalness: 0.8, roughness: 0.2 });
-    accentMat = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.8 });
+    // Робот (металлический)
+    bodyMat = new THREE.MeshPhysicalMaterial({ color: 0x74b9ff, metalness: 0.9, roughness: 0.1, clearcoat: 1 });
+    accentMat = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 1 });
     
-    body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), bodyMat);
-    body.position.y = 0.6; petGroup.add(body);
+    var body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.8, 16), bodyMat);
+    body.position.y = 0.5; body.castShadow = true; petGroup.add(body);
 
-    var head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.6), bodyMat);
-    head.position.y = 1.25; petGroup.add(head);
+    var head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), bodyMat);
+    head.position.y = 1.15; head.castShadow = true; petGroup.add(head);
 
-    var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 8), accentMat);
+    // Антенна
+    var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8), bodyMat);
     antenna.position.set(0, 1.55, 0); petGroup.add(antenna);
-    var bulb = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), accentMat);
+    var bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), accentMat);
     bulb.position.set(0, 1.75, 0); petGroup.add(bulb);
 
-    var armL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), bodyMat); armL.position.set(-0.6, 0.7, 0);
-    var armR = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), bodyMat); armR.position.set(0.6, 0.7, 0);
+    // Руки
+    var armGeo = new THREE.SphereGeometry(0.15, 16, 16);
+    var armL = new THREE.Mesh(armGeo, bodyMat); armL.position.set(-0.65, 0.7, 0); armL.castShadow = true;
+    var armR = new THREE.Mesh(armGeo, bodyMat); armR.position.set(0.65, 0.7, 0); armR.castShadow = true;
     petGroup.add(armL, armR);
-  }
 
-  // Глаза
-  eyeMat = new THREE.MeshStandardMaterial({ color: 0x05050a });
-  var eyeGeo = new THREE.SphereGeometry(0.07, 16, 16);
-  var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-  var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-  
-  if (type === "robot") {
-    eyeL.position.set(-0.15, 1.25, 0.31); eyeR.position.set(0.15, 1.25, 0.31);
-  } else {
-    eyeL.position.set(-0.18, 0.7, 0.5); eyeR.position.set(0.18, 0.7, 0.5);
+    // Визор (глаз)
+    var visor = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.1), accentMat);
+    visor.position.set(0, 1.15, 0.36); petGroup.add(visor);
   }
-  petGroup.add(eyeL, eyeR);
+}
+
+// ================= ЧАСТИЦЫ ПРИ КЛИКЕ =================
+function spawnParticles(x, y, z) {
+  for (var i = 0; i < 15; i++) {
+    var pGeo = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+    var pMat = new THREE.MeshBasicMaterial({ color: Math.random() > 0.5 ? 0xffd32a : 0xff9ff3, transparent: true });
+    var mesh = new THREE.Mesh(pGeo, pMat);
+    
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+
+    particles.push({
+      mesh: mesh,
+      vel: new THREE.Vector3((Math.random() - 0.5) * 0.2, Math.random() * 0.3 + 0.1, (Math.random() - 0.5) * 0.2),
+      life: 1.0
+    });
+  }
 }
 
 // ================= АНИМАЦИЯ =================
@@ -260,10 +326,27 @@ function animate() {
   var t = clock.getElapsedTime();
 
   if (petGroup) {
-    var scale = 1 + Math.sin(t * 2) * 0.03;
+    // Дыхание
+    var scale = 1 + Math.sin(t * 2) * 0.02;
     petGroup.scale.set(scale, scale, scale);
-    // Легкое парение над платформой
-    petGroup.position.y = -0.4 + Math.sin(t * 1.5) * 0.05 + 0.05;
+    // Парение
+    petGroup.position.y = -0.4 + Math.sin(t * 1.5) * 0.03;
+  }
+
+  // Обновление частиц
+  for (var i = particles.length - 1; i >= 0; i--) {
+    var p = particles[i];
+    p.mesh.position.add(p.vel);
+    p.vel.y -= 0.015; // Гравитация
+    p.life -= 0.02;
+    p.mesh.material.opacity = p.life;
+    p.mesh.rotation.x += 0.1;
+    p.mesh.rotation.y += 0.1;
+
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      particles.splice(i, 1);
+    }
   }
 
   renderer.render(scene, camera);
@@ -276,18 +359,48 @@ function updateUI() {
 
   if (!state.petType) {
     document.getElementById("selection-screen").style.display = "flex";
-    document.getElementById("btn-pet").style.display = "none";
   } else {
     document.getElementById("selection-screen").style.display = "none";
-    document.getElementById("btn-pet").style.display = "block";
-    if (petGroup.children.length === 0) {
-      createPet(state.petType);
-    }
+    if (petGroup.children.length === 0) createPet(state.petType);
   }
+
+  // Отрисовка магазина
+  var shopGrid = document.getElementById("shop-grid");
+  shopGrid.innerHTML = "";
+  
+  var items = [
+    { id: "plant", name: "Неон. растение", cost: 50, icon: "🪴" },
+    { id: "lamp", name: "Торшер", cost: 100, icon: "💡" },
+    { id: "garland", name: "Гирлянда", cost: 150, icon: "✨" },
+    { id: "rug", name: "Пушистый ковер", cost: 200, icon: "🧶" }
+  ];
+
+  items.forEach(function(item) {
+    var div = document.createElement("div");
+    div.className = "shop-item";
+    
+    var isOwned = state.inventory.indexOf(item.id) > -1;
+    var btnClass = isOwned ? "owned" : "";
+    var btnText = isOwned ? "Куплено ✅" : item.cost + " 🪙";
+
+    div.innerHTML = `
+      <div style="font-size:30px">${item.icon}</div>
+      <div>${item.name}</div>
+      <button class="${btnClass}" onclick="buyItem('${item.id}')">${btnText}</button>
+    `;
+    shopGrid.appendChild(div);
+  });
 }
 
 window.openSettings = function() {
   document.getElementById("selection-screen").style.display = "flex";
+};
+
+window.switchTab = function(tab, btn) {
+  document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
+  document.querySelectorAll(".content").forEach(function(c){ c.classList.remove("active"); });
+  btn.classList.add("active");
+  document.getElementById("content-" + tab).classList.add("active");
 };
 
 window.selectPet = function(type) {
@@ -298,19 +411,13 @@ window.selectPet = function(type) {
 
 window.petAction = function() {
   if (!state.petType) return;
-  var heart = document.createElement("div");
-  heart.innerText = "❤️";
-  heart.style.position = "absolute";
-  heart.style.left = "50%";
-  heart.style.top = "40%";
-  heart.style.fontSize = "30px";
-  heart.style.transform = "translate(-50%, -50%)";
-  heart.style.animation = "floatUp 1s forwards";
-  heart.style.zIndex = "100";
-  document.body.appendChild(heart);
-  setTimeout(function(){ heart.remove(); }, 1000);
-
+  // Взрыв частиц у питомца
+  spawnParticles(0, 0.5, 0.5);
   apiCall("pet", {});
+};
+
+window.buyItem = function(id) {
+  apiCall("buy", { itemId: id });
 };
 
 function apiCall(action, extra) {
@@ -323,6 +430,7 @@ function apiCall(action, extra) {
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
+    if(!d.ok && d.message && tg) tg.showAlert(d.message);
     if(d.state) { 
       state = d.state; 
       updateUI(); 
@@ -332,7 +440,7 @@ function apiCall(action, extra) {
 
 // Запуск
 init3D();
-// Принудительный сброс для теста (удаляет старый стейт, чтобы показать выбор)
+// Принудительный сброс для теста
 fetch(API + "?chat_id=" + chatId, {
   method: "POST", headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ action: "reset", userId: me.id })
