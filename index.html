@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Тамагочи 3D</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- Стабильная версия Three.js с надежного CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -18,7 +17,7 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 .xp-b{width:110px;height:6px;background:rgba(0,0,0,.5);border-radius:5px;margin-top:5px;overflow:hidden}
 .xp-f{height:100%;background:linear-gradient(90deg,#00cec9,#6c5ce7);width:0%;transition:width .4s;box-shadow:0 0 10px #6c5ce7}
 .mood{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(15,18,30,.85);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;z-index:2;pointer-events:none}
-.log{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;z-index:2;pointer-events:none;width:90%;text-align:center;overflow:hidden;text-overflow:ellipsis}
+.log{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;z-index:2;pointer-events:none;width:90%;text-align:center;overflow:hidden;text-overflow:ellipsis;font-weight:bold}
 .wrap{max-width:440px;margin:0 auto;padding:12px 14px;flex:1;overflow-y:auto;width:100%}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
@@ -78,7 +77,7 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
     </div>
   </div>
   <div class="mood" id="moodText">✨ Погладь меня!</div>
-  <div class="log" id="lastAction">Загрузка...</div>
+  <div class="log" id="lastAction" style="color:#ff9ff3">Инициализация скриптов...</div>
 </div>
 
 <div id="drag-item">🍖</div>
@@ -147,58 +146,87 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 </div>
 
 <script>
-const API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/pet";
-const tg = window.Telegram?.WebApp || null;
-if (tg) { tg.ready(); tg.expand(); }
-const qp = new URLSearchParams(location.search);
+// Ловим все ошибки скрипта и показываем их на экране
+window.onerror = function(msg, url, line) {
+  var log = document.getElementById("lastAction");
+  if (log) {
+    log.innerText = "ОШИБКА: " + msg;
+    log.style.color = "#ff4757";
+    log.style.fontSize = "12px";
+  }
+  return false;
+};
 
-const haptic = (type = 'light') => { if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred(type); };
-const notify = (type = 'success') => { if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred(type); };
+var API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/pet";
+var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+if (tg) { tg.ready(); tg.expand(); }
+
+var haptic = function(type) { 
+  if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type || 'light'); 
+};
 
 function getUser() {
-  if (tg?.initDataUnsafe?.user) {
-    const u = tg.initDataUnsafe.user;
-    const n = u.first_name + (u.last_name ? " " + u.last_name : "");
+  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+    var u = tg.initDataUnsafe.user;
+    var n = u.first_name + (u.last_name ? " " + u.last_name : "");
     localStorage.setItem("tama_uid", String(u.id));
     if (!localStorage.getItem("tama_nick")) localStorage.setItem("tama_nick", n);
     return { id: String(u.id), name: localStorage.getItem("tama_nick") || n };
   }
-  let id = localStorage.getItem("tama_uid");
+  var id = localStorage.getItem("tama_uid");
   if (!id) { id = "u_" + Math.floor(Math.random() * 90000 + 10000); localStorage.setItem("tama_uid", id); }
-  return { id, name: localStorage.getItem("tama_nick") || "Игрок" };
+  return { id: id, name: localStorage.getItem("tama_nick") || "Игрок" };
 }
-const me = getUser();
-const sp = tg?.initDataUnsafe?.start_param;
-const chatId = qp.get("chat_id") || (sp ? sp.replace("chat_", "") : null) || me.id || "demo";
 
-const PALETTES = {
+var me = getUser();
+var qp = new URLSearchParams(location.search);
+var sp = (tg && tg.initDataUnsafe) ? tg.initDataUnsafe.start_param : null;
+var chatId = qp.get("chat_id") || (sp ? sp.replace("chat_", "") : null) || me.id || "demo";
+
+var PALETTES = {
   pink:  { a: 0xff9ff3, b: 0xc44569 }, mint:  { a: 0x55efc4, b: 0x009432 },
   sky:   { a: 0x74b9ff, b: 0x0652DD }, gold:  { a: 0xffeaa7, b: 0xe17055 },
   cyber: { a: 0xa29bfe, b: 0x4834d4 }
 };
-const CD = { feed: 60000, play: 120000, wash: 180000 };
-const LBL = { feed: "Еда", play: "Играть", wash: "Мыть" };
+var CD = { feed: 60000, play: 120000, wash: 180000 };
+var LBL = { feed: "Еда", play: "Играть", wash: "Мыть" };
 
-let pet = { name:"Пушистик", level:1, xp:0, coins:50, hunger:80, happiness:80, energy:90, color:"pink", accessories:[], inventory:[], isSleeping:false, lastActionBy:"Готов к игре!" };
-let userCd = {};
-const OWNED_KEY = "tama_owned_" + chatId + "_" + me.id;
+var pet = { name:"Пушистик", level:1, xp:0, coins:50, hunger:80, happiness:80, energy:90, color:"pink", accessories:[], inventory:[], isSleeping:false, lastActionBy:"Готов к игре!" };
+var userCd = {};
+var OWNED_KEY = "tama_owned_" + chatId + "_" + me.id;
 
-function getOwnedFallback() { try { return JSON.parse(localStorage.getItem(OWNED_KEY) || "[]"); } catch { return []; } }
+function getOwnedFallback() { try { return JSON.parse(localStorage.getItem(OWNED_KEY) || "[]"); } catch (e) { return []; } }
 function setOwnedFallback(arr) { localStorage.setItem(OWNED_KEY, JSON.stringify(arr)); }
-function markOwned(id) { const arr = getOwnedFallback(); if (!arr.includes(id)) { arr.push(id); setOwnedFallback(arr); } }
-function getMergedOwned(p) { const merged = Array.from(new Set([...(p?.inventory||[]), ...getOwnedFallback()])); setOwnedFallback(merged); return merged; }
+function markOwned(id) { var arr = getOwnedFallback(); if (arr.indexOf(id) === -1) { arr.push(id); setOwnedFallback(arr); } }
+function getMergedOwned(p) { 
+  var inv = (p && p.inventory) ? p.inventory : [];
+  var fb = getOwnedFallback();
+  var merged = inv.slice();
+  for(var i=0; i<fb.length; i++) { if(merged.indexOf(fb[i]) === -1) merged.push(fb[i]); }
+  setOwnedFallback(merged); 
+  return merged; 
+}
 
-let scene, camera, renderer, petScaleGroup, petGroup, bodyMat, earMat, eyeL, eyeR;
-let crown, glasses, scarf, tophat, wings, stache, bowGroup;
-let plantGroup, lampGroup, bedGroup, fancyWindow, baseWindow, lLight;
-let isWashMode = false, jumpVel = 0, jumpY = 0, targetRotY = 0, currentRotY = 0;
+var scene, camera, renderer, petScaleGroup, petGroup, bodyMat, earMat, eyeL, eyeR;
+var crown, glasses, scarf, tophat, wings, stache, bowGroup;
+var plantGroup, lampGroup, bedGroup, fancyWindow, baseWindow, lLight;
+var isWashMode = false, jumpVel = 0, jumpY = 0, targetRotY = 0, currentRotY = 0;
+
+document.getElementById("lastAction").innerText = "Загрузка 3D движка...";
+
+if (typeof THREE === 'undefined') {
+  document.getElementById("lastAction").innerText = "ОШИБКА: Three.js не загрузился!";
+  document.getElementById("lastAction").style.color = "#ff4757";
+} else {
+  init3D();
+  load();
+}
 
 function init3D() {
-  if (typeof THREE === 'undefined') return;
   try {
-    const canvas = document.getElementById("cv");
-    const stageEl = document.getElementById("stage");
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    var canvas = document.getElementById("cv");
+    var stageEl = document.getElementById("stage");
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -207,68 +235,68 @@ function init3D() {
     camera.position.set(0, 1.5, 5.4); camera.lookAt(0, 0.15, 0);
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x333344, 0.6));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    var keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
     keyLight.position.set(3, 6, 4); keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024); keyLight.shadow.bias = -0.001;
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0x6c5ce7, 1.5); rimLight.position.set(-4, 3, -3); scene.add(rimLight);
+    var rimLight = new THREE.DirectionalLight(0x6c5ce7, 1.5); rimLight.position.set(-4, 3, -3); scene.add(rimLight);
 
-    const roomGroup = new THREE.Group(); scene.add(roomGroup);
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a1e36, roughness: 0.9, side: THREE.DoubleSide });
-    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(15, 10), wallMat); backWall.position.set(0, 2, -3); roomGroup.add(backWall);
-    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), wallMat); leftWall.rotation.y = Math.PI / 2; leftWall.position.set(-5, 2, 2); roomGroup.add(leftWall);
-    const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), wallMat); rightWall.rotation.y = -Math.PI / 2; rightWall.position.set(5, 2, 2); roomGroup.add(rightWall);
+    var roomGroup = new THREE.Group(); scene.add(roomGroup);
+    var wallMat = new THREE.MeshStandardMaterial({ color: 0x1a1e36, roughness: 0.9, side: THREE.DoubleSide });
+    var backWall = new THREE.Mesh(new THREE.PlaneGeometry(15, 10), wallMat); backWall.position.set(0, 2, -3); roomGroup.add(backWall);
+    var leftWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), wallMat); leftWall.rotation.y = Math.PI / 2; leftWall.position.set(-5, 2, 2); roomGroup.add(leftWall);
+    var rightWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), wallMat); rightWall.rotation.y = -Math.PI / 2; rightWall.position.set(5, 2, 2); roomGroup.add(rightWall);
 
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshStandardMaterial({ color: 0x0d0f1a, roughness: 0.8 }));
+    var floor = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshStandardMaterial({ color: 0x0d0f1a, roughness: 0.8 }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = -1.2; floor.receiveShadow = true; roomGroup.add(floor);
 
-    const rug = new THREE.Mesh(new THREE.CircleGeometry(2.5, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350, roughness: 1 }));
+    var rug = new THREE.Mesh(new THREE.CircleGeometry(2.5, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350, roughness: 1 }));
     rug.rotation.x = -Math.PI / 2; rug.position.y = -1.19; rug.receiveShadow = true; roomGroup.add(rug);
-    const rugRing = new THREE.Mesh(new THREE.RingGeometry(2.0, 2.2, 64), new THREE.MeshBasicMaterial({ color: 0x6c5ce7, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
+    var rugRing = new THREE.Mesh(new THREE.RingGeometry(2.0, 2.2, 64), new THREE.MeshBasicMaterial({ color: 0x6c5ce7, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
     rugRing.rotation.x = -Math.PI / 2; rugRing.position.y = -1.185; roomGroup.add(rugRing);
 
     baseWindow = new THREE.Group();
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x2a2f4a, metalness: 0.2 });
-    const bTop = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.15, 0.15), frameMat); bTop.position.y = 0.85;
-    const bBot = bTop.clone(); bBot.position.y = -0.85;
-    const bL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.7, 0.15), frameMat); bL.position.x = -1.3;
-    const bR = bL.clone(); bR.position.x = 1.3;
+    var frameMat = new THREE.MeshStandardMaterial({ color: 0x2a2f4a, metalness: 0.2 });
+    var bTop = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.15, 0.15), frameMat); bTop.position.y = 0.85;
+    var bBot = bTop.clone(); bBot.position.y = -0.85;
+    var bL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.7, 0.15), frameMat); bL.position.x = -1.3;
+    var bR = bL.clone(); bR.position.x = 1.3;
     baseWindow.add(bTop, bBot, bL, bR);
-    const winSky = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.6), new THREE.MeshBasicMaterial({ color: 0x0f1428 }));
+    var winSky = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.6), new THREE.MeshBasicMaterial({ color: 0x0f1428 }));
     winSky.position.z = -0.05; baseWindow.add(winSky);
     baseWindow.position.set(0, 1.6, -2.95); roomGroup.add(baseWindow);
 
-    const moon = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
+    var moon = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
     moon.position.set(0.6, 1.9, -2.9); roomGroup.add(moon);
 
     plantGroup = new THREE.Group();
-    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
+    var pot = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
     pot.position.y = -1.05; plantGroup.add(pot);
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 });
-    for (let i = 0; i < 6; i++) {
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), leafMat);
+    var leafMat = new THREE.MeshStandardMaterial({ color: 0x27ae60 });
+    for (var i = 0; i < 6; i++) {
+      var leaf = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), leafMat);
       leaf.position.set(Math.cos(i)*0.13, -0.5 + Math.random()*0.12, Math.sin(i)*0.13);
       leaf.scale.set(0.9, 1.35, 0.9); plantGroup.add(leaf);
     }
     plantGroup.position.set(-1.95, 0, -0.6); plantGroup.visible = false; roomGroup.add(plantGroup);
 
     lampGroup = new THREE.Group();
-    const lBase = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x333 })); lBase.position.y = -1.0;
-    const lShade = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0xffeaa7, emissive: 0xffeaa7, emissiveIntensity: 0.6 })); lShade.position.y = -0.8;
+    var lBase = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x333 })); lBase.position.y = -1.0;
+    var lShade = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0xffeaa7, emissive: 0xffeaa7, emissiveIntensity: 0.6 })); lShade.position.y = -0.8;
     lLight = new THREE.PointLight(0xffeaa7, 1.5, 4); lLight.position.y = -0.8;
     lampGroup.add(lBase, lShade, lLight);
     lampGroup.position.set(1.8, 0, -1.2); lampGroup.visible = false; roomGroup.add(lampGroup);
 
     bedGroup = new THREE.Group();
-    const bedBase = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.3, 0.9), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 })); bedBase.position.set(0, -0.9, -1.2); bedBase.castShadow = true; bedGroup.add(bedBase);
-    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff })); pillow.position.set(-0.55, -0.7, -1.2); bedGroup.add(pillow);
+    var bedBase = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.3, 0.9), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 })); bedBase.position.set(0, -0.9, -1.2); bedBase.castShadow = true; bedGroup.add(bedBase);
+    var pillow = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff })); pillow.position.set(-0.55, -0.7, -1.2); bedGroup.add(pillow);
     bedGroup.visible = false; roomGroup.add(bedGroup);
 
     fancyWindow = new THREE.Group();
-    const fTop = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.8 })); fTop.position.y = 1.0;
-    const fBot = fTop.clone(); fBot.position.y = -1.0;
-    const fL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.0, 0.2), new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.8 })); fL.position.x = -1.5;
-    const fR = fL.clone(); fR.position.x = 1.5;
+    var fTop = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.2, 0.2), new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.8 })); fTop.position.y = 1.0;
+    var fBot = fTop.clone(); fBot.position.y = -1.0;
+    var fL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.0, 0.2), new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.8 })); fL.position.x = -1.5;
+    var fR = fL.clone(); fR.position.x = 1.5;
     fancyWindow.add(fTop, fBot, fL, fR);
     fancyWindow.position.set(0, 1.6, -2.95); fancyWindow.visible = false; roomGroup.add(fancyWindow);
 
@@ -276,80 +304,80 @@ function init3D() {
     petScaleGroup.add(petGroup); scene.add(petScaleGroup);
 
     bodyMat = new THREE.MeshPhysicalMaterial({ color: PALETTES.pink.a, roughness: 0.35, clearcoat: 0.9 });
-    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), bodyMat); body.castShadow = true; petGroup.add(body);
+    var body = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), bodyMat); body.castShadow = true; petGroup.add(body);
 
     earMat = new THREE.MeshPhysicalMaterial({ color: PALETTES.pink.b, roughness: 0.4 });
-    const earL = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), earMat); earL.position.set(-0.55, 0.88, 0); earL.scale.set(1, 1.4, 0.65); earL.rotation.z = 0.15; petGroup.add(earL);
-    const earR = earL.clone(); earR.position.x = 0.55; earR.rotation.z = -0.15; petGroup.add(earR);
+    var earL = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), earMat); earL.position.set(-0.55, 0.88, 0); earL.scale.set(1, 1.4, 0.65); earL.rotation.z = 0.15; petGroup.add(earL);
+    var earR = earL.clone(); earR.position.x = 0.55; earR.rotation.z = -0.15; petGroup.add(earR);
 
-    const eyeMat = new THREE.MeshPhysicalMaterial({ color: 0x0f1118, roughness: 0.05 });
+    var eyeMat = new THREE.MeshPhysicalMaterial({ color: 0x0f1118, roughness: 0.05 });
     eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), eyeMat); eyeL.position.set(-0.32, 0.2, 0.92); petGroup.add(eyeL);
     eyeR = eyeL.clone(); eyeR.position.x = 0.32; petGroup.add(eyeR);
 
-    const blushMat = new THREE.MeshBasicMaterial({ color: 0xff6b81, transparent: true, opacity: 0.55 });
-    const blushL = new THREE.Mesh(new THREE.CircleGeometry(0.13, 32), blushMat); blushL.position.set(-0.5, -0.06, 0.85); blushL.rotation.y = -0.4; petGroup.add(blushL);
-    const blushR = blushL.clone(); blushR.position.x = 0.5; blushR.rotation.y = 0.4; petGroup.add(blushR);
+    var blushMat = new THREE.MeshBasicMaterial({ color: 0xff6b81, transparent: true, opacity: 0.55 });
+    var blushL = new THREE.Mesh(new THREE.CircleGeometry(0.13, 32), blushMat); blushL.position.set(-0.5, -0.06, 0.85); blushL.rotation.y = -0.4; petGroup.add(blushL);
+    var blushR = blushL.clone(); blushR.position.x = 0.5; blushR.rotation.y = 0.4; petGroup.add(blushR);
 
-    const accGroup = new THREE.Group(); petGroup.add(accGroup);
+    var accGroup = new THREE.Group(); petGroup.add(accGroup);
 
     crown = new THREE.Group();
-    const crownMat = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.75 });
-    const cb = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.1, 16), crownMat); cb.position.y = 1.18; crown.add(cb);
-    for(let i=0; i<5; i++){ const sp = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.2, 8), crownMat); sp.position.set(Math.cos(i)*0.22, 1.31, Math.sin(i)*0.22); crown.add(sp); }
+    var crownMat = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.75 });
+    var cb = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.1, 16), crownMat); cb.position.y = 1.18; crown.add(cb);
+    for(var i=0; i<5; i++){ var sp = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.2, 8), crownMat); sp.position.set(Math.cos(i)*0.22, 1.31, Math.sin(i)*0.22); crown.add(sp); }
     crown.visible = false; accGroup.add(crown);
 
     glasses = new THREE.Group();
-    const glassFrame = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.9 });
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x74b9ff, transparent: true, opacity: 0.4 });
-    const fLens = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.03, 12, 32), glassFrame); fLens.position.set(-0.32, 0.2, 0.98);
-    const fR = fLens.clone(); fR.position.x = 0.32;
-    const gLens = new THREE.Mesh(new THREE.CircleGeometry(0.16, 32), glassMat); gLens.position.set(-0.32, 0.2, 0.985);
-    const gR = gLens.clone(); gR.position.x = 0.32;
+    var glassFrame = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.9 });
+    var glassMat = new THREE.MeshPhysicalMaterial({ color: 0x74b9ff, transparent: true, opacity: 0.4 });
+    var fLens = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.03, 12, 32), glassFrame); fLens.position.set(-0.32, 0.2, 0.98);
+    var fR = fLens.clone(); fR.position.x = 0.32;
+    var gLens = new THREE.Mesh(new THREE.CircleGeometry(0.16, 32), glassMat); gLens.position.set(-0.32, 0.2, 0.985);
+    var gR = gLens.clone(); gR.position.x = 0.32;
     glasses.add(fLens, fR, gLens, gR); glasses.visible = false; accGroup.add(glasses);
 
     scarf = new THREE.Group();
-    const scarfMat = new THREE.MeshPhysicalMaterial({ color: 0x00b894, roughness: 0.6 });
-    const wrap = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.15, 16, 48), scarfMat); wrap.rotation.x = Math.PI/2; wrap.position.y = -0.5; wrap.scale.set(1,1,0.65);
-    const knot = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), scarfMat); knot.position.set(0, -0.5, 0.72);
-    const t1 = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.42, 0.06), scarfMat); t1.position.set(-0.09, -0.78, 0.72); t1.rotation.z = 0.12;
-    const t2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.06), scarfMat); t2.position.set(0.11, -0.75, 0.73); t2.rotation.z = -0.18;
+    var scarfMat = new THREE.MeshPhysicalMaterial({ color: 0x00b894, roughness: 0.6 });
+    var wrap = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.15, 16, 48), scarfMat); wrap.rotation.x = Math.PI/2; wrap.position.y = -0.5; wrap.scale.set(1,1,0.65);
+    var knot = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), scarfMat); knot.position.set(0, -0.5, 0.72);
+    var t1 = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.42, 0.06), scarfMat); t1.position.set(-0.09, -0.78, 0.72); t1.rotation.z = 0.12;
+    var t2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.06), scarfMat); t2.position.set(0.11, -0.75, 0.73); t2.rotation.z = -0.18;
     scarf.add(wrap, knot, t1, t2); scarf.visible = false; accGroup.add(scarf);
 
     tophat = new THREE.Group();
-    const hatMat = new THREE.MeshStandardMaterial({ color: 0x111, roughness: 0.4 });
-    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 32), hatMat); brim.position.y = 1.05;
-    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.6, 32), hatMat); top.position.y = 1.35;
+    var hatMat = new THREE.MeshStandardMaterial({ color: 0x111, roughness: 0.4 });
+    var brim = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 32), hatMat); brim.position.y = 1.05;
+    var top = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.6, 32), hatMat); top.position.y = 1.35;
     tophat.add(brim, top); tophat.visible = false; accGroup.add(tophat);
 
     wings = new THREE.Group();
-    const wingMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
-    const wL = new THREE.Mesh(new THREE.CircleGeometry(0.4, 32), wingMat); wL.position.set(-0.8, 0, -0.5); wL.rotation.y = 0.5;
-    const wR = wL.clone(); wR.position.x = 0.8; wR.rotation.y = -0.5;
+    var wingMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+    var wL = new THREE.Mesh(new THREE.CircleGeometry(0.4, 32), wingMat); wL.position.set(-0.8, 0, -0.5); wL.rotation.y = 0.5;
+    var wR = wL.clone(); wR.position.x = 0.8; wR.rotation.y = -0.5;
     wings.add(wL, wR); wings.visible = false; accGroup.add(wings);
 
     stache = new THREE.Group();
-    const stacheMat = new THREE.MeshStandardMaterial({ color: 0x111 });
-    const sL = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 8, 16, Math.PI), stacheMat); sL.position.set(-0.08, -0.1, 0.98); sL.rotation.z = Math.PI;
-    const sR = sL.clone(); sR.position.x = 0.08;
+    var stacheMat = new THREE.MeshStandardMaterial({ color: 0x111 });
+    var sL = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 8, 16, Math.PI), stacheMat); sL.position.set(-0.08, -0.1, 0.98); sL.rotation.z = Math.PI;
+    var sR = sL.clone(); sR.position.x = 0.08;
     stache.add(sL, sR); stache.visible = false; accGroup.add(stache);
 
     bowGroup = new THREE.Group();
-    const bowMat = new THREE.MeshPhysicalMaterial({ color: 0xff4757, roughness: 0.4 });
-    const bc = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), bowMat);
-    const bL = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), bowMat); bL.position.x = -0.12; bL.scale.set(1, 1.4, 0.6);
-    const bR = bL.clone(); bR.position.x = 0.12;
+    var bowMat = new THREE.MeshPhysicalMaterial({ color: 0xff4757, roughness: 0.4 });
+    var bc = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), bowMat);
+    var bL = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), bowMat); bL.position.x = -0.12; bL.scale.set(1, 1.4, 0.6);
+    var bR = bL.clone(); bR.position.x = 0.12;
     bowGroup.add(bc, bL, bR); bowGroup.position.set(0, 0.62, 0.55); bowGroup.visible = false; accGroup.add(bowGroup);
 
-    const clock = new THREE.Clock();
+    var clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05); const t = clock.getElapsedTime();
+      var dt = Math.min(clock.getDelta(), 0.05); var t = clock.getElapsedTime();
 
-      const targetSize = Math.min(1.4, 0.75 + (pet.level || 1) * 0.07);
+      var targetSize = Math.min(1.4, 0.75 + (pet.level || 1) * 0.07);
       petScaleGroup.scale.lerp(new THREE.Vector3(targetSize, targetSize, targetSize), 0.1);
       petScaleGroup.position.y = targetSize - 1.2;
 
-      const breathe = 1 + Math.sin(t * 1.6) * 0.015;
+      var breathe = 1 + Math.sin(t * 1.6) * 0.015;
       petGroup.scale.set(breathe, 1 / breathe, breathe);
 
       jumpY += jumpVel; jumpVel -= 0.006;
@@ -369,7 +397,7 @@ function init3D() {
     }
 
     function resize3D() {
-      const r = stageEl.getBoundingClientRect();
+      var r = stageEl.getBoundingClientRect();
       if (r.width > 0 && r.height > 0) {
         renderer.setSize(r.width, r.height, false);
         camera.aspect = r.width / r.height;
@@ -378,59 +406,60 @@ function init3D() {
     }
     window.addEventListener("resize", resize3D); setTimeout(resize3D, 100); resize3D();
     
-    const canvasEl = document.getElementById("cv");
-    let isDragging = false, lastPointerX = 0;
-    canvasEl.addEventListener("pointerdown", (e) => {
+    var canvasEl = document.getElementById("cv");
+    var isDragging = false, lastPointerX = 0;
+    canvasEl.addEventListener("pointerdown", function(e) {
       if (isWashMode) return;
       isDragging = true; lastPointerX = e.clientX;
       if (jumpY === 0) jumpVel = 0.08;
     });
-    // Исправлена ошибка с кавычкой
-    window.addEventListener("pointerup", () => { isDragging = false; });
-    window.addEventListener("pointermove", (e) => {
+    window.addEventListener("pointerup", function() { isDragging = false; });
+    window.addEventListener("pointermove", function(e) {
       if (!isDragging) return;
-      const dx = e.clientX - lastPointerX; lastPointerX = e.clientX;
+      var dx = e.clientX - lastPointerX; lastPointerX = e.clientX;
       targetRotY += dx * 0.008;
     });
 
     window.updatePet3D = function(p) {
       if (!bodyMat) return;
-      const pal = PALETTES[p.color] || PALETTES.pink;
+      var pal = PALETTES[p.color] || PALETTES.pink;
       bodyMat.color.setHex(pal.a); earMat.color.setHex(pal.b);
 
-      crown.visible = p.accessories.includes("crown");
-      glasses.visible = p.accessories.includes("glasses");
-      scarf.visible = p.accessories.includes("scarf");
-      tophat.visible = p.accessories.includes("tophat");
-      wings.visible = p.accessories.includes("wings");
-      stache.visible = p.accessories.includes("stache");
-      bowGroup.visible = p.accessories.includes("bow");
+      crown.visible = p.accessories.indexOf("crown") > -1;
+      glasses.visible = p.accessories.indexOf("glasses") > -1;
+      scarf.visible = p.accessories.indexOf("scarf") > -1;
+      tophat.visible = p.accessories.indexOf("tophat") > -1;
+      wings.visible = p.accessories.indexOf("wings") > -1;
+      stache.visible = p.accessories.indexOf("stache") > -1;
+      bowGroup.visible = p.accessories.indexOf("bow") > -1;
 
-      const owned = getMergedOwned(p);
-      plantGroup.visible = owned.includes("plant");
-      lampGroup.visible = owned.includes("lamp");
-      bedGroup.visible = owned.includes("bed");
-      fancyWindow.visible = owned.includes("window");
+      var owned = getMergedOwned(p);
+      plantGroup.visible = owned.indexOf("plant") > -1;
+      lampGroup.visible = owned.indexOf("lamp") > -1;
+      bedGroup.visible = owned.indexOf("bed") > -1;
+      fancyWindow.visible = owned.indexOf("window") > -1;
       if(fancyWindow.visible) baseWindow.visible = false; else baseWindow.visible = true;
     };
 
-    setTimeout(() => { animate(); window.updatePet3D(pet); }, 100);
+    setTimeout(function() { animate(); window.updatePet3D(pet); }, 100);
     
   } catch (e) {
-    console.error("Ошибка 3D:", e);
-    document.getElementById("lastAction").innerText = "Ошибка 3D: " + e.message;
+    document.getElementById("lastAction").innerText = "ОШИБКА 3D: " + e.message;
+    document.getElementById("lastAction").style.color = "#ff4757";
   }
 }
 
 window.tab = function (t, b) {
-  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-  document.querySelectorAll(".n-btn").forEach(x => x.classList.remove("active"));
+  var tabs = document.querySelectorAll(".tab");
+  for(var i=0; i<tabs.length; i++) tabs[i].classList.remove("active");
+  var btns = document.querySelectorAll(".n-btn");
+  for(var i=0; i<btns.length; i++) btns[i].classList.remove("active");
   document.getElementById("tab-" + t).classList.add("active");
   b.classList.add("active"); haptic('light');
 };
 
-const dragItem = document.getElementById('drag-item');
-let currentDragAction = null;
+var dragItem = document.getElementById('drag-item');
+var currentDragAction = null;
 
 window.startDrag = function(action, icon) {
   if (isWashMode) return window.toggleWash();
@@ -440,7 +469,7 @@ window.startDrag = function(action, icon) {
   dragItem.style.display = 'block';
 };
 
-window.addEventListener('pointermove', (e) => {
+window.addEventListener('pointermove', function(e) {
   if (currentDragAction) {
     dragItem.style.left = e.clientX + 'px';
     dragItem.style.top = e.clientY + 'px';
@@ -449,10 +478,10 @@ window.addEventListener('pointermove', (e) => {
   }
 });
 
-window.addEventListener('pointerup', (e) => {
+window.addEventListener('pointerup', function(e) {
   if (currentDragAction) {
     dragItem.style.display = 'none';
-    const rect = document.getElementById("stage").getBoundingClientRect();
+    var rect = document.getElementById("stage").getBoundingClientRect();
     if (e.clientY < rect.bottom && e.clientX > rect.left && e.clientX < rect.right) {
       window.act(currentDragAction);
       jumpVel = 0.1;
@@ -469,7 +498,7 @@ window.playGame = function() {
 
 window.toggleWash = function() {
   isWashMode = !isWashMode;
-  const btn = document.getElementById('btn-wash');
+  var btn = document.getElementById('btn-wash');
   if (isWashMode) {
     btn.style.background = 'linear-gradient(180deg, #00b894, #009432)';
     document.getElementById('moodText').innerText = "🧽 Води пальцем!";
@@ -481,74 +510,82 @@ window.toggleWash = function() {
 };
 
 window.createBubble = function(x, y) {
-  const b = document.createElement('div'); b.className = 'bubble';
-  const size = Math.random() * 20 + 10;
+  var b = document.createElement('div'); b.className = 'bubble';
+  var size = Math.random() * 20 + 10;
   b.style.width = size + 'px'; b.style.height = size + 'px';
-  const rect = document.getElementById("stage").getBoundingClientRect();
+  var rect = document.getElementById("stage").getBoundingClientRect();
   b.style.left = (x - rect.left) + 'px'; b.style.top = (y - rect.top) + 'px';
   document.getElementById('bubbles').appendChild(b);
-  setTimeout(() => b.remove(), 1000);
+  setTimeout(function() { b.remove(); }, 1000);
 };
 
 window.spawnHearts = function() {
   haptic('success');
-  const stage = document.getElementById("stage");
-  for(let i=0; i<5; i++){
-    const h = document.createElement('div');
+  var stage = document.getElementById("stage");
+  for(var i=0; i<5; i++){
+    var h = document.createElement('div');
     h.innerText = "❤️"; h.style.position = 'absolute'; h.style.fontSize = '24px';
     h.style.left = (50 + (Math.random()-0.5)*20) + '%'; h.style.top = '40%';
     h.style.transition = 'all 1s'; h.style.pointerEvents = 'none'; h.style.zIndex = 100;
     stage.appendChild(h);
-    setTimeout(() => { h.style.transform = `translateY(-50px) scale(1.5)`; h.style.opacity = 0; }, 10);
-    setTimeout(() => h.remove(), 1000);
+    setTimeout(function() { h.style.transform = "translateY(-50px) scale(1.5)"; h.style.opacity = 0; }, 10);
+    setTimeout(function() { h.remove(); }, 1000);
   }
 };
 
 window.watchAd = function() {
   if (window.Adsgram) {
-    window.Adsgram.init({ blockId: "56776" }).show().then(() => window.act("golden_feed")).catch(() => tg?.showAlert?.("Реклама недоступна"));
+    window.Adsgram.init({ blockId: "56776" }).show().then(function() { window.act("golden_feed"); }).catch(function() { if(tg) tg.showAlert("Реклама недоступна"); });
   } else {
     window.act("golden_feed");
   }
 };
 
-window.saveName = function () { const v = document.getElementById("nameInput").value.trim(); if (v) { window.act("customize", { name: v }); document.getElementById("nameInput").value = ""; window.tab('room', document.querySelector('.n-btn')); } };
-window.saveNick = function () { const v = document.getElementById("nickInput").value.trim(); if (v) { localStorage.setItem("tama_nick", v); me.name = v; document.getElementById("nickInput").value = ""; window.act("ping"); } };
+window.saveName = function () { var v = document.getElementById("nameInput").value.trim(); if (v) { window.act("customize", { name: v }); document.getElementById("nameInput").value = ""; window.tab('room', document.querySelector('.n-btn')); } };
+window.saveNick = function () { var v = document.getElementById("nickInput").value.trim(); if (v) { localStorage.setItem("tama_nick", v); me.name = v; document.getElementById("nickInput").value = ""; window.act("ping"); } };
 
-async function load() {
-  try {
-    document.getElementById("lastAction").innerText = "Синхронизация...";
-    const r = await fetch(API + "?chat_id=" + chatId + "&user_id=" + me.id);
-    const d = await r.json();
-    if (d.userCd) userCd = d.userCd;
-    if (d.pet) {
-      sync(d.pet);
-      document.getElementById("lastAction").innerText = d.pet.lastActionBy;
-    } else {
-      document.getElementById("lastAction").innerText = "Ошибка: сервер не вернул данные";
-    }
-  } catch (e) { 
-    console.warn("Load error:", e); 
-    document.getElementById("lastAction").innerText = "Ошибка API: проверь воркер";
-  }
+function load() {
+  document.getElementById("lastAction").innerText = "Синхронизация...";
+  document.getElementById("lastAction").style.color = "#ffeaa7";
+  
+  fetch(API + "?chat_id=" + chatId + "&user_id=" + me.id)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.userCd) userCd = d.userCd;
+      if (d.pet) {
+        sync(d.pet);
+        document.getElementById("lastAction").innerText = d.pet.lastActionBy;
+        document.getElementById("lastAction").style.color = "rgba(255,255,255,.5)";
+      } else {
+        document.getElementById("lastAction").innerText = "Сервер не вернул данные";
+        document.getElementById("lastAction").style.color = "#ff4757";
+      }
+    })
+    .catch(function(e) { 
+      document.getElementById("lastAction").innerText = "Ошибка API: " + e.message;
+      document.getElementById("lastAction").style.color = "#ff4757";
+    });
 }
 
-window.act = async function (a, ex) {
-  try {
-    const r = await fetch(API + "?chat_id=" + chatId, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({ action: a, userId: me.id, userName: me.name }, ex || {}))
-    });
-    const d = await r.json();
+window.act = function (a, ex) {
+  var bodyData = { action: a, userId: me.id, userName: me.name };
+  if (ex) for (var k in ex) bodyData[k] = ex[k];
+
+  fetch(API + "?chat_id=" + chatId, {
+    method: "POST", 
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(bodyData)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
     if (d.userCd) userCd = d.userCd;
-    if (!d.ok && d.message) tg?.showAlert?.(d.message);
-    if (d.ok && a === "buy" && ex?.itemId) { markOwned(ex.itemId); notify('success'); }
-    if (d.ok && a === "dev_coins") notify('warning');
+    if (!d.ok && d.message && tg) tg.showAlert(d.message);
+    if (d.ok && a === "buy" && ex && ex.itemId) { markOwned(ex.itemId); if(tg) tg.HapticFeedback.notificationOccurred('success'); }
     if (d.pet) sync(d.pet);
-  } catch (e) { 
-    console.warn("Act error:", e);
-    tg?.showAlert?.("Ошибка сети");
-  }
+  })
+  .catch(function(e) { 
+    if (tg) tg.showAlert("Ошибка сети");
+  });
 };
 
 function sync(p) {
@@ -556,7 +593,7 @@ function sync(p) {
   document.getElementById("petName").innerText = p.name;
   document.getElementById("levelBadge").innerText = "Ур. " + p.level;
   document.getElementById("coinsBadge").innerText = (p.coins || 0) + " 🐾";
-  const need = p.level * 100;
+  var need = p.level * 100;
   document.getElementById("stageText").innerText = (p.level >= 8 ? "Легенда 👑" : p.level >= 5 ? "Хранитель ✨" : "Малыш 🥚") + " • " + p.xp + " / " + need + " XP";
   document.getElementById("xpBar").style.width = Math.min(100, (p.xp / need) * 100) + "%";
   document.getElementById("lastAction").innerText = p.lastActionBy;
@@ -564,31 +601,34 @@ function sync(p) {
   document.getElementById("happyVal").innerText = p.happiness + "%"; document.getElementById("happyBar").style.width = p.happiness + "%";
   document.getElementById("energyVal").innerText = p.energy + "%"; document.getElementById("energyBar").style.width = p.energy + "%";
 
-  const owned = getMergedOwned(p);
-
-  ["plant","lamp","bed","window","scarf","halo","tophat","wings","stache"].forEach(id => {
-    const btn = document.getElementById("shop-" + id);
+  var owned = getMergedOwned(p);
+  var shopItems = ["plant","lamp","bed","window","scarf","halo","tophat","wings","stache"];
+  for(var i=0; i<shopItems.length; i++) {
+    var id = shopItems[i];
+    var btn = document.getElementById("shop-" + id);
     if (btn) {
-      if (owned.includes(id)) { btn.innerText = "Куплено ✅"; btn.classList.add("own"); }
-      else { btn.innerText = (btn.dataset.price || "?") + " 🐾"; btn.classList.remove("own"); }
+      if (owned.indexOf(id) > -1) { btn.innerText = "Куплено ✅"; btn.classList.add("own"); }
+      else { btn.innerText = (btn.getAttribute("data-price") || "?") + " 🐾"; btn.classList.remove("own"); }
     }
-  });
+  }
 
-  const wGrid = document.getElementById("wardrobe-grid");
-  const accs = [
+  var wGrid = document.getElementById("wardrobe-grid");
+  var accs = [
     { id:'crown', icon:'👑', name:'Корона' }, { id:'glasses', icon:'🕶️', name:'Очки' }, { id:'bow', icon:'🎀', name:'Бантик' },
     { id:'scarf', icon:'🧣', name:'Шарф' }, { id:'halo', icon:'😇', name:'Нимб' }, { id:'tophat', icon:'🎩', name:'Цилиндр' },
     { id:'wings', icon:'🦋', name:'Крылья' }, { id:'stache', icon:'🥸', name:'Усы' }
   ];
   wGrid.innerHTML = "";
-  accs.forEach(a => {
-    if (["scarf","halo","tophat","wings","stache"].includes(a.id) && !owned.includes(a.id)) return;
-    const div = document.createElement("div");
-    div.className = "card" + (p.accessories.includes(a.id) ? " eq" : "");
-    div.innerHTML = `<span style="font-size:24px">${a.icon}</span><b>${a.name}</b>`;
-    div.onclick = () => window.act('customize', { toggleAcc: a.id });
+  for(var i=0; i<accs.length; i++) {
+    var a = accs[i];
+    if (["scarf","halo","tophat","wings","stache"].indexOf(a.id) > -1 && owned.indexOf(a.id) === -1) continue;
+    var div = document.createElement("div");
+    div.className = "card" + (p.accessories.indexOf(a.id) > -1 ? " eq" : "");
+    div.innerHTML = "<span style='font-size:24px'>" + a.icon + "</span><b>" + a.name + "</b>";
+    div.setAttribute("data-acc", a.id);
+    div.onclick = function() { window.act('customize', { toggleAcc: this.getAttribute("data-acc") }); };
     wGrid.appendChild(div);
-  });
+  }
 
   if (p.isSleeping) {
     document.getElementById("stage").classList.add("night");
@@ -602,38 +642,42 @@ function sync(p) {
     if (!isWashMode) document.getElementById("moodText").innerText = "✨ Погладь меня!";
   }
 
-  const lst = document.getElementById("leaderboardList");
-  const arr = Object.values(p.leaderboard || {}).sort((a, b) => b.score - a.score);
+  var lst = document.getElementById("leaderboardList");
+  var arr = [];
+  if (p.leaderboard) {
+    for (var k in p.leaderboard) arr.push(p.leaderboard[k]);
+    arr.sort(function(a, b) { return b.score - a.score; });
+  }
+  
   if (arr.length) {
     lst.innerHTML = "";
-    arr.forEach((it, i) => {
-      const row = document.createElement("div"); row.className = "l-row";
-      row.innerHTML = `<span>${(i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "🐾 ")}${it.name}</span><span style="color:#a29bfe">${it.score} XP</span>`;
+    for(var i=0; i<arr.length; i++) {
+      var it = arr[i];
+      var row = document.createElement("div"); row.className = "l-row";
+      var medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "🐾 ";
+      row.innerHTML = "<span>" + medal + it.name + "</span><span style='color:#a29bfe'>" + it.score + " XP</span>";
       lst.appendChild(row);
-    });
+    }
   }
 
   if (window.updatePet3D) window.updatePet3D(p);
 }
 
-setInterval(() => {
-  const n = Date.now();
-  ["feed", "play", "wash"].forEach(k => {
-    const b = document.getElementById("btn-" + k), l = document.getElementById("lbl-" + k);
-    if (!b || !l) return;
-    const lf = (userCd[k] || 0) + CD[k] - n;
+setInterval(function() {
+  var n = Date.now();
+  var arr = ["feed", "play", "wash"];
+  for(var i=0; i<arr.length; i++) {
+    var k = arr[i];
+    var b = document.getElementById("btn-" + k), l = document.getElementById("lbl-" + k);
+    if (!b || !l) continue;
+    var lf = (userCd[k] || 0) + CD[k] - n;
     if (lf > 0) {
       b.classList.add("on-cd");
-      const m = Math.floor(lf / 60000), s = Math.floor((lf % 60000) / 1000);
-      l.innerText = m > 0 ? `${m}м ${s}с` : `${s}с`;
+      var m = Math.floor(lf / 60000), s = Math.floor((lf % 60000) / 1000);
+      l.innerText = m > 0 ? (m + "м " + s + "с") : (s + "с");
     } else { b.classList.remove("on-cd"); l.innerText = LBL[k]; }
-  });
+  }
 }, 1000);
-
-window.onload = () => {
-  init3D();
-  load();
-};
 </script>
 </body>
 </html>
