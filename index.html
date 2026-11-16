@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Тамагочи 3D</title>
+<title>AI Компаньон</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -59,9 +59,38 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 #bubbles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
 .bubble { position: absolute; background: rgba(255,255,255,0.8); border-radius: 50%; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.2); animation: bubbleUp 1s ease-out forwards; }
 @keyframes bubbleUp { 0% { transform: scale(0) translateY(0); opacity: 1; } 100% { transform: scale(1.5) translateY(-60px); opacity: 0; } }
+
+/* Стили для экрана создания */
+#create-screen { position:fixed; top:0; left:0; width:100%; height:100vh; background:#0b0d17; z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
+#create-screen h2 { font-size:24px; margin-bottom:10px; background:linear-gradient(90deg,#a29bfe,#ff9ff3); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+#create-screen p { color:#8f9bb3; font-size:14px; margin-bottom:30px; }
+.gender-btn { background:#1c2138; border:2px solid #74b9ff; border-radius:20px; padding:20px; cursor:pointer; color:white; display:flex; flex-direction:column; align-items:center; width:140px; transition:all 0.2s; }
+.gender-btn:active { transform: scale(0.95); }
+.gender-btn.female { border-color: #ff9ff3; }
 </style>
 </head>
 <body>
+
+<!-- Экран создания -->
+<div id="create-screen">
+  <h2>Кого ты ищешь?</h2>
+  <p>Твой цифровой компаньон будет общаться с тобой и поддерживать в трудную минуту.</p>
+  
+  <div style="display:flex;gap:20px;">
+    <button class="gender-btn" onclick="selectGender('male')">
+      <span style="font-size:50px;margin-bottom:10px;">👦</span>
+      <b style="font-size:16px;">Парень</b>
+      <span style="font-size:10px;color:#74b9ff;margin-top:5px;">Спокойный, надежный</span>
+    </button>
+    
+    <button class="gender-btn female" onclick="selectGender('female')">
+      <span style="font-size:50px;margin-bottom:10px;">👧</span>
+      <b style="font-size:16px;">Девушка</b>
+      <span style="font-size:10px;color:#ff9ff3;margin-top:5px;">Заботливая, эмоциональная</span>
+    </button>
+  </div>
+</div>
+
 <div class="stage" id="stage">
   <canvas id="cv"></canvas>
   <div id="bubbles"></div>
@@ -77,7 +106,7 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
     </div>
   </div>
   <div class="mood" id="moodText">✨ Погладь меня!</div>
-  <div class="log" id="lastAction" style="color:#ff9ff3">Инициализация скриптов...</div>
+  <div class="log" id="lastAction" style="color:#ff9ff3">Инициализация...</div>
 </div>
 
 <div id="drag-item">🍖</div>
@@ -146,14 +175,9 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 </div>
 
 <script>
-// Ловим все ошибки скрипта и показываем их на экране
 window.onerror = function(msg, url, line) {
   var log = document.getElementById("lastAction");
-  if (log) {
-    log.innerText = "ОШИБКА: " + msg;
-    log.style.color = "#ff4757";
-    log.style.fontSize = "12px";
-  }
+  if (log) { log.innerText = "ОШИБКА: " + msg; log.style.color = "#ff4757"; log.style.fontSize = "12px"; }
   return false;
 };
 
@@ -161,9 +185,7 @@ var API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/pet";
 var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
 if (tg) { tg.ready(); tg.expand(); }
 
-var haptic = function(type) { 
-  if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type || 'light'); 
-};
+var haptic = function(type) { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type || 'light'); };
 
 function getUser() {
   if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -191,7 +213,7 @@ var PALETTES = {
 var CD = { feed: 60000, play: 120000, wash: 180000 };
 var LBL = { feed: "Еда", play: "Играть", wash: "Мыть" };
 
-var pet = { name:"Пушистик", level:1, xp:0, coins:50, hunger:80, happiness:80, energy:90, color:"pink", accessories:[], inventory:[], isSleeping:false, lastActionBy:"Готов к игре!" };
+var pet = { name:"Пушистик", level:1, xp:0, coins:50, hunger:80, happiness:80, energy:90, color:"pink", gender:null, accessories:[], inventory:[], isSleeping:false, lastActionBy:"Готов к игре!" };
 var userCd = {};
 var OWNED_KEY = "tama_owned_" + chatId + "_" + me.id;
 
@@ -207,7 +229,7 @@ function getMergedOwned(p) {
   return merged; 
 }
 
-var scene, camera, renderer, petScaleGroup, petGroup, bodyMat, earMat, eyeL, eyeR;
+var scene, camera, renderer, petScaleGroup, petGroup, bodyMat, earMat, eyeL, eyeR, lashes, hairGroup;
 var crown, glasses, scarf, tophat, wings, stache, bowGroup;
 var plantGroup, lampGroup, bedGroup, fancyWindow, baseWindow, lLight;
 var isWashMode = false, jumpVel = 0, jumpY = 0, targetRotY = 0, currentRotY = 0;
@@ -314,6 +336,29 @@ function init3D() {
     eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), eyeMat); eyeL.position.set(-0.32, 0.2, 0.92); petGroup.add(eyeL);
     eyeR = eyeL.clone(); eyeR.position.x = 0.32; petGroup.add(eyeR);
 
+    // РЕСНИЦЫ ДЛЯ ДЕВУШЕК
+    lashes = new THREE.Group();
+    var lashMat = new THREE.MeshStandardMaterial({ color: 0x0f1118 });
+    var lashGeo = new THREE.CylinderGeometry(0.01, 0.02, 0.1, 8);
+    var l1 = new THREE.Mesh(lashGeo, lashMat); l1.position.set(-0.42, 0.3, 0.92); l1.rotation.z = 0.5;
+    var l2 = new THREE.Mesh(lashGeo, lashMat); l2.position.set(-0.3, 0.35, 0.92); l2.rotation.z = 0.2;
+    var l3 = new THREE.Mesh(lashGeo, lashMat); l3.position.set(0.3, 0.35, 0.92); l3.rotation.z = -0.2;
+    var l4 = new THREE.Mesh(lashGeo, lashMat); l4.position.set(0.42, 0.3, 0.92); l4.rotation.z = -0.5;
+    lashes.add(l1, l2, l3, l4);
+    lashes.visible = false;
+    petGroup.add(lashes);
+
+    // ВИХОР ДЛЯ ПАРНЕЙ
+    hairGroup = new THREE.Group();
+    var hairMat = new THREE.MeshStandardMaterial({ color: 0x0984e3 });
+    var spike1 = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.4, 8), hairMat);
+    spike1.position.set(0, 1.1, 0); spike1.rotation.x = -0.3;
+    var spike2 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 8), hairMat);
+    spike2.position.set(0.2, 1.05, 0); spike2.rotation.x = 0.2; spike2.rotation.z = -0.5;
+    hairGroup.add(spike1, spike2);
+    hairGroup.visible = false;
+    petGroup.add(hairGroup);
+
     var blushMat = new THREE.MeshBasicMaterial({ color: 0xff6b81, transparent: true, opacity: 0.55 });
     var blushL = new THREE.Mesh(new THREE.CircleGeometry(0.13, 32), blushMat); blushL.position.set(-0.5, -0.06, 0.85); blushL.rotation.y = -0.4; petGroup.add(blushL);
     var blushR = blushL.clone(); blushR.position.x = 0.5; blushR.rotation.y = 0.4; petGroup.add(blushR);
@@ -323,7 +368,7 @@ function init3D() {
     crown = new THREE.Group();
     var crownMat = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.75 });
     var cb = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.1, 16), crownMat); cb.position.y = 1.18; crown.add(cb);
-    for(var i=0; i<5; i++){ var sp = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.2, 8), crownMat); sp.position.set(Math.cos(i)*0.22, 1.31, Math.sin(i)*0.22); crown.add(sp); }
+    for(var i=0; i<5; i++){ var sp1 = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.2, 8), crownMat); sp1.position.set(Math.cos(i)*0.22, 1.31, Math.sin(i)*0.22); crown.add(sp1); }
     crown.visible = false; accGroup.add(crown);
 
     glasses = new THREE.Group();
@@ -422,8 +467,22 @@ function init3D() {
 
     window.updatePet3D = function(p) {
       if (!bodyMat) return;
-      var pal = PALETTES[p.color] || PALETTES.pink;
-      bodyMat.color.setHex(pal.a); earMat.color.setHex(pal.b);
+      
+      // Включаем признаки пола
+      lashes.visible = (p.gender === "female");
+      hairGroup.visible = (p.gender === "male");
+
+      // Меняем цвет в зависимости от пола, если пользователь не выбрал свой
+      if (p.color === "pink" && p.gender === "male") {
+        bodyMat.color.setHex(0x74b9ff); // Голубой
+        earMat.color.setHex(0x0652DD);
+      } else if (p.color === "pink" && p.gender === "female") {
+        bodyMat.color.setHex(0xff9ff3); // Розовый
+        earMat.color.setHex(0xc44569);
+      } else {
+        var pal = PALETTES[p.color] || PALETTES.pink;
+        bodyMat.color.setHex(pal.a); earMat.color.setHex(pal.b);
+      }
 
       crown.visible = p.accessories.indexOf("crown") > -1;
       glasses.visible = p.accessories.indexOf("glasses") > -1;
@@ -456,6 +515,14 @@ window.tab = function (t, b) {
   for(var i=0; i<btns.length; i++) btns[i].classList.remove("active");
   document.getElementById("tab-" + t).classList.add("active");
   b.classList.add("active"); haptic('light');
+};
+
+// ВЫБОР ПОЛА
+window.selectGender = function(g) {
+  document.getElementById("create-screen").style.display = "none";
+  window.act("setup_gender", { gender: g });
+  pet.gender = g;
+  if (window.updatePet3D) window.updatePet3D(pet);
 };
 
 var dragItem = document.getElementById('drag-item');
@@ -590,6 +657,14 @@ window.act = function (a, ex) {
 
 function sync(p) {
   pet = p;
+  
+  // Проверка на выбранный пол
+  if (!p.gender) {
+    document.getElementById("create-screen").style.display = "flex";
+  } else {
+    document.getElementById("create-screen").style.display = "none";
+  }
+
   document.getElementById("petName").innerText = p.name;
   document.getElementById("levelBadge").innerText = "Ур. " + p.level;
   document.getElementById("coinsBadge").innerText = (p.coins || 0) + " 🐾";
