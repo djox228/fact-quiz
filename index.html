@@ -4,20 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Тамагочи 3D</title>
-<script src="https://telegram.org"></script>
-<script src="https://adsgram.ai"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#090a10;color:#fff;user-select:none;padding-bottom:80px}
-.stage{position:relative;width:100%;height:50vh;min-height:310px;background:radial-gradient(circle at 50% 35%,#2b325c,#0d0f1a 85%);border-radius:0 0 32px 32px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.6)}
+.stage{position:relative;width:100%;height:50vh;min-height:310px;background:radial-gradient(circle at 50% 35%,#2b325c,#0d0f1a 85%);border-radius:0 0 32px 32px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.6);transition:background .6s}
 .stage.night{background:radial-gradient(circle at 50% 35%,#101426,#05060a 85%)}
-canvas{width:100%;height:100%;display:block}
-.hud{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.hud{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:2}
 .glass{background:rgba(20,24,38,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:7px 12px}
 .xp-b{width:105px;height:5px;background:rgba(255,255,255,.12);border-radius:5px;margin-top:4px;overflow:hidden}
 .xp-f{height:100%;background:linear-gradient(90deg,#00cec9,#6c5ce7);width:0%;transition:width .4s}
-.mood{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(15,18,30,.78);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
-.log{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.6);white-space:nowrap}
+.mood{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(15,18,30,.78);border:1px solid rgba(255,255,255,.1);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;z-index:2;pointer-events:none}
+.log{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.6);white-space:nowrap;z-index:2;pointer-events:none}
 .wrap{max-width:440px;margin:0 auto;padding:12px 14px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
 .stat{background:#151828;padding:9px;border-radius:14px;border:1px solid rgba(255,255,255,.06)}
@@ -123,99 +126,501 @@ canvas{width:100%;height:100%;display:block}
   <button class="n-btn" onclick="tab('wardrobe',this)"><span>🎨</span><span>Стиль</span></button>
   <button class="n-btn" onclick="tab('top',this)"><span>🏆</span><span>Топ чата</span></button>
 </div>
-<script>
-const API=["https://tamagotchi-bot",".djogrinder22.workers.dev/api/pet"].join("");
-const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
-if(tg){tg.ready();tg.expand();}
-const AdCtrl=window.Adsgram?window.Adsgram.init({blockId:"56776"}):null;
-const qp=new URLSearchParams(window.location.search);
-function getUser(){
-  if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user){
-    const u=tg.initDataUnsafe.user,n=u.first_name+(u.last_name?" "+u.last_name:"");
-    localStorage.setItem("tama_uid",String(u.id));
-    if(!localStorage.getItem("tama_nick"))localStorage.setItem("tama_nick",n);
-    return{id:String(u.id),name:localStorage.getItem("tama_nick")||n};
-  }
-  let id=localStorage.getItem("tama_uid");
-  if(!id){id="u_"+Math.floor(Math.random()*90000+10000);localStorage.setItem("tama_uid",id);}
-  return{id:id,name:localStorage.getItem("tama_nick")||"Игрок"};
-}
-let me=getUser();
-const sp=tg&&tg.initDataUnsafe?tg.initDataUnsafe.start_param:null;
-const chatId=qp.get("chat_id")||(sp?sp.replace("chat_",""):null)||me.id||"demo";
-const PAL={pink:{a:"#ff9ff3",b:"#c44569"},mint:{a:"#55efc4",b:"#009432"},sky:{a:"#74b9ff",b:"#0652DD"},gold:{a:"#ffeaa7",b:"#e17055"},cyber:{a:"#a29bfe",b:"#4834d4"}};
-const CD={feed:1800000,play:900000,wash:1200000},LBL={feed:"Кормить",play:"Играть",wash:"Мыть"};
-let pet={name:"Пушистик",level:1,xp:0,coins:50,hunger:80,happiness:80,energy:90,color:"pink",accessories:[],inventory:[],isSleeping:false,lastActionBy:"Готов к игре!"},userCd={};
 
-const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
-let W=0,H=0,jumpY=0,jumpV=0,tilt=0,drag=false,px=0,hearts=[];
-function resize(){W=cv.width=cv.offsetWidth*2;H=cv.height=cv.offsetHeight*2;}
-window.addEventListener("resize",resize);resize();
-cv.addEventListener("pointerdown",e=>{drag=true;px=e.clientX;if(jumpY===0)jumpV=18;hearts.push({x:W/2+(Math.random()-0.5)*120,y:H/2-40,a:1});});
-window.addEventListener("pointerup",()=>drag=false);
-window.addEventListener("pointermove",e=>{if(drag){tilt=Math.max(-0.5,Math.min(0.5,tilt+(e.clientX-px)*0.005));px=e.clientX;}});
-function draw(){
-  requestAnimationFrame(draw);
-  ctx.clearRect(0,0,W,H);
-  const t=Date.now()*0.003,cx=W/2+tilt*90,cy=H*0.54;
-  if(!drag)tilt*=0.94;
-  jumpY+=jumpV;if(jumpY>0)jumpV-=1.2;else{jumpY=0;jumpV=0;}
-  const bob=Math.sin(t)*8,py=cy-jumpY+bob,sc=pet.level>=8?1.15:pet.level>=5?1.08:1;
-  const podG=ctx.createRadialGradient(W/2,cy+135,10,W/2,cy+135,190);
-  podG.addColorStop(0,"rgba(108,92,231,0.55)");podG.addColorStop(0.7,"rgba(30,36,59,0.9)");podG.addColorStop(1,"rgba(13,15,26,0)");
-  ctx.fillStyle=podG;ctx.beginPath();ctx.ellipse(W/2,cy+135,195,46,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle="#6c5ce7";ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(W/2,cy+130,165,36,0,0,Math.PI*2);ctx.stroke();
-  ctx.font="56px sans-serif";ctx.textAlign="center";
-  if(pet.inventory.includes("plant"))ctx.fillText("🌿",W*0.18,cy+110);
-  if(pet.inventory.includes("lamp"))ctx.fillText("🔮",W*0.82,cy+105+Math.sin(t*1.4)*8);
-  if(pet.inventory.includes("sofa"))ctx.fillText("🪐",W*0.78,cy-130+Math.cos(t)*6);
-  const shS=Math.max(0.5,1-jumpY/220);
-  ctx.fillStyle="rgba(0,0,0,0.45)";ctx.beginPath();ctx.ellipse(cx,cy+122,95*shS,22*shS,0,0,Math.PI*2);ctx.fill();
-  ctx.save();ctx.translate(cx,py);ctx.scale(sc,sc);
-  const col=PAL[pet.color]||PAL.pink;
-  if(pet.level>=5){ctx.fillStyle="rgba(255,255,255,0.9)";const fl=Math.sin(t*2)*0.12;ctx.save();ctx.rotate(-0.2+fl);ctx.beginPath();ctx.ellipse(-115,-10,55,28,-0.4,0,Math.PI*2);ctx.fill();ctx.restore();ctx.save();ctx.rotate(0.2-fl);ctx.beginPath();ctx.ellipse(115,-10,55,28,0.4,0,Math.PI*2);ctx.fill();ctx.restore();}
-  if(pet.level>=3){ctx.fillStyle=col.b;ctx.beginPath();ctx.arc(88+tilt*30,45,32,0,Math.PI*2);ctx.fill();}
-  ctx.fillStyle=col.b;ctx.beginPath();ctx.ellipse(-55,-95,24,52,-0.25,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(55,-95,24,52,0.25,0,Math.PI*2);ctx.fill();
-  const bg=ctx.createRadialGradient(-30,-40,15,0,0,120);bg.addColorStop(0,col.a);bg.addColorStop(1,col.b);
-  ctx.fillStyle=bg;ctx.beginPath();ctx.arc(0,0,105,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="rgba(255,255,255,0.28)";ctx.beginPath();ctx.ellipse(-32,-52,32,16,-0.5,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="rgba(255,255,255,0.22)";ctx.beginPath();ctx.ellipse(0,38,62,46,0,0,Math.PI*2);ctx.fill();
-  const ex=tilt*45;ctx.fillStyle="#ff4757";ctx.globalAlpha=0.45;ctx.beginPath();ctx.ellipse(-52+ex,14,16,9,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(52+ex,14,16,9,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-  if(pet.isSleeping){ctx.strokeStyle="#1e272e";ctx.lineWidth=6;ctx.lineCap="round";ctx.beginPath();ctx.arc(-36+ex,-8,14,0.2,Math.PI-0.2);ctx.stroke();ctx.beginPath();ctx.arc(36+ex,-8,14,0.2,Math.PI-0.2);ctx.stroke();}
-  else{ctx.fillStyle="#11131c";ctx.beginPath();ctx.arc(-36+ex,-10,16,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(36+ex,-10,16,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-41+ex,-16,6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(31+ex,-16,6,0,Math.PI*2);ctx.fill();}
-  ctx.strokeStyle="#11131c";ctx.lineWidth=6;ctx.lineCap="round";ctx.beginPath();ctx.arc(ex,16,18,0.2,Math.PI-0.2);ctx.stroke();
-  if(pet.accessories.includes("scarf")){ctx.fillStyle="#00b894";ctx.beginPath();ctx.roundRect(-78,62,156,24,12);ctx.fill();}
-  if(pet.accessories.includes("bow")){ctx.fillStyle="#ff4757";ctx.beginPath();ctx.arc(ex,74,14,0,Math.PI*2);ctx.fill();}
-  if(pet.accessories.includes("glasses")){ctx.fillStyle="rgba(15,17,26,0.9)";ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(-62+ex,-28,48,32,8);ctx.fill();ctx.stroke();ctx.beginPath();ctx.roundRect(14+ex,-28,48,32,8);ctx.fill();ctx.stroke();}
-  if(pet.accessories.includes("crown")){ctx.fillStyle="#ffd32a";ctx.beginPath();ctx.moveTo(-34+ex,-98);ctx.lineTo(-22+ex,-132);ctx.lineTo(ex,-110);ctx.lineTo(22+ex,-132);ctx.lineTo(34+ex,-98);ctx.closePath();ctx.fill();}
-  if(pet.accessories.includes("halo")){ctx.strokeStyle="#ffeaa7";ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(ex,-136,44,11,0,0,Math.PI*2);ctx.stroke();}
-  ctx.restore();
-  hearts.forEach((h,i)=>{h.y-=3;h.a-=0.025;ctx.globalAlpha=Math.max(0,h.a);ctx.font="36px sans-serif";ctx.fillText("❤️",h.x,h.y);if(h.a<=0)hearts.splice(i,1);});ctx.globalAlpha=1;
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- Telegram / API (не менял логику, только починил URL выше) ---------- */
+const API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/pet";
+const tg = window.Telegram?.WebApp || null;
+if (tg) { tg.ready(); tg.expand(); }
+const AdCtrl = window.Adsgram ? window.Adsgram.init({ blockId: "56776" }) : null; // ← замени на свой Block ID
+const qp = new URLSearchParams(location.search);
+
+function getUser() {
+  if (tg?.initDataUnsafe?.user) {
+    const u = tg.initDataUnsafe.user;
+    const n = u.first_name + (u.last_name ? " " + u.last_name : "");
+    localStorage.setItem("tama_uid", String(u.id));
+    if (!localStorage.getItem("tama_nick")) localStorage.setItem("tama_nick", n);
+    return { id: String(u.id), name: localStorage.getItem("tama_nick") || n };
+  }
+  let id = localStorage.getItem("tama_uid");
+  if (!id) { id = "u_" + Math.floor(Math.random() * 90000 + 10000); localStorage.setItem("tama_uid", id); }
+  return { id, name: localStorage.getItem("tama_nick") || "Игрок" };
 }
-draw();
-function tab(t,b){document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".n-btn").forEach(e=>e.classList.remove("active"));document.getElementById("tab-"+t).classList.add("active");b.classList.add("active");}
-function saveNick(){const v=document.getElementById("nickInput").value.trim();if(!v)return;localStorage.setItem("tama_nick",v);me.name=v;document.getElementById("nickInput").value="";act("ping");}
-function saveName(){const v=document.getElementById("nameInput").value.trim();if(v){act("customize",{name:v});document.getElementById("nameInput").value="";tab("room",document.querySelector(".n-btn"));}}
-function watchAd(){if(!AdCtrl){act("golden_feed");return;}AdCtrl.show().then(()=>act("golden_feed")).catch(()=>{if(tg&&tg.showAlert)tg.showAlert("Реклама недоступна");});}
-async function load(){try{const r=await fetch(API+"?chat_id="+chatId+"&user_id="+me.id);const d=await r.json();if(d.userCd)userCd=d.userCd;if(d.pet)sync(d.pet);}catch(e){}}
-async function act(a,ex){try{jumpV=16;const r=await fetch(API+"?chat_id="+chatId,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:a,userId:me.id,userName:me.name},ex||{}))});const d=await r.json();if(d.userCd)userCd=d.userCd;if(!d.ok&&d.message&&tg&&tg.showAlert)tg.showAlert(d.message);if(d.pet)sync(d.pet);}catch(e){}}
-function sync(p){
-  pet=p;document.getElementById("petName").innerText=p.name;document.getElementById("levelBadge").innerText="Ур. "+p.level;document.getElementById("coinsBadge").innerText=(p.coins||0)+" 🐾";
-  const need=p.level*100,st=p.level>=8?"Легенда 👑":p.level>=5?"Хранитель ✨":p.level>=3?"Юниор 🐾":"Малыш 🥚";
-  document.getElementById("stageText").innerText=st+" • "+p.xp+" / "+need+" XP";document.getElementById("xpBar").style.width=Math.min(100,(p.xp/need)*100)+"%";
-  document.getElementById("lastAction").innerText=p.lastActionBy;document.getElementById("hungerVal").innerText=p.hunger+"%";document.getElementById("hungerBar").style.width=p.hunger+"%";
-  document.getElementById("happyVal").innerText=p.happiness+"%";document.getElementById("happyBar").style.width=p.happiness+"%";
-  const en=p.energy!==undefined?p.energy:90;document.getElementById("energyVal").innerText=en+"%";document.getElementById("energyBar").style.width=en+"%";
-  ["plant","lamp","sofa","scarf","halo"].forEach(id=>{const b=document.getElementById("shop-"+id);if(b&&p.inventory.includes(id)){b.innerText="Куплено ✅";b.classList.add("own");}});
-  ["scarf","halo"].forEach(id=>document.getElementById("card-"+id).style.display=p.inventory.includes(id)?"flex":"none");
-  ["crown","glasses","bow","scarf","halo"].forEach(id=>{const c=document.getElementById("card-"+id);if(c)c.classList.toggle("eq",p.accessories.includes(id));});
-  const stg=document.getElementById("stage"),md=document.getElementById("moodText");
-  if(p.isSleeping){stg.classList.add("night");document.getElementById("sleepIcon").innerText="☀️";document.getElementById("sleepLabel").innerText="Разбудить";md.innerText="💤 Спит...";}
-  else{stg.classList.remove("night");document.getElementById("sleepIcon").innerText="💤";document.getElementById("sleepLabel").innerText="Спать";md.innerText=p.hunger<30?"😿 Хочу кушать!":"✨ Погладь или покрути меня!";}
-  const lst=document.getElementById("leaderboardList"),arr=Object.values(p.leaderboard||{}).sort((a,b)=>b.score-a.score);
-  if(arr.length>0){lst.innerHTML="";arr.forEach((it,i)=>{const row=document.createElement("div");row.className="l-row";const l=document.createElement("span");l.innerText=(i===0?"🥇 ":i===1?"🥈 ":i===2?"🥉 ":"🐾 ")+it.name;const r=document.createElement("span");r.style.color="#a29bfe";r.innerText=it.score+" XP";row.appendChild(l);row.appendChild(r);lst.appendChild(row);});}
+let me = getUser();
+const sp = tg?.initDataUnsafe?.start_param;
+const chatId = qp.get("chat_id") || (sp ? sp.replace("chat_", "") : null) || me.id || "demo";
+
+const PALETTES = {
+  pink:  { a: 0xff9ff3, b: 0xc44569 },
+  mint:  { a: 0x55efc4, b: 0x009432 },
+  sky:   { a: 0x74b9ff, b: 0x0652DD },
+  gold:  { a: 0xffeaa7, b: 0xe17055 },
+  cyber: { a: 0xa29bfe, b: 0x4834d4 }
+};
+const CD = { feed: 1800000, play: 900000, wash: 1200000 };
+const LBL = { feed: "Кормить", play: "Играть", wash: "Мыть" };
+
+let pet = {
+  name: "Пушистик", level: 1, xp: 0, coins: 50,
+  hunger: 80, happiness: 80, energy: 90,
+  color: "pink", accessories: [], inventory: [],
+  isSleeping: false, lastActionBy: "Готов к игре!"
+};
+let userCd = {};
+
+/* ================= 3D СЦЕНА ================= */
+const canvas = document.getElementById("cv");
+const stageEl = document.getElementById("stage");
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+camera.position.set(0, 1.5, 5.4);
+camera.lookAt(0, 0.15, 0);
+
+// Свет
+scene.add(new THREE.HemisphereLight(0xffffff, 0x333344, 0.85));
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.7);
+keyLight.position.set(3, 6, 4);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(1024, 1024);
+keyLight.shadow.camera.near = 0.5;
+keyLight.shadow.camera.far = 20;
+keyLight.shadow.camera.left = -4;
+keyLight.shadow.camera.right = 4;
+keyLight.shadow.camera.top = 4;
+keyLight.shadow.camera.bottom = -4;
+keyLight.shadow.bias = -0.001;
+scene.add(keyLight);
+
+const rimLight = new THREE.DirectionalLight(0x6c5ce7, 1.4);
+rimLight.position.set(-4, 3, -3);
+scene.add(rimLight);
+
+const fillLight = new THREE.DirectionalLight(0xffeaa7, 0.5);
+fillLight.position.set(-2, 1, 3);
+scene.add(fillLight);
+
+// Пьедестал
+const pedestal = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.55, 1.7, 0.14, 64),
+  new THREE.MeshStandardMaterial({ color: 0x1a1f38, roughness: 0.5, metalness: 0.45 })
+);
+pedestal.position.y = -1.15;
+pedestal.receiveShadow = true;
+scene.add(pedestal);
+
+const glowingRing = new THREE.Mesh(
+  new THREE.TorusGeometry(1.5, 0.035, 16, 80),
+  new THREE.MeshBasicMaterial({ color: 0x6c5ce7 })
+);
+glowingRing.rotation.x = Math.PI / 2;
+glowingRing.position.y = -1.06;
+scene.add(glowingRing);
+
+// Группы
+const petScaleGroup = new THREE.Group(); // масштаб по уровню
+const petGroup = new THREE.Group();      // анимация дыхания + прыжок + поворот
+petScaleGroup.add(petGroup);
+scene.add(petScaleGroup);
+
+/* ---- Тело ---- */
+const bodyMat = new THREE.MeshPhysicalMaterial({
+  color: PALETTES.pink.a, roughness: 0.35, metalness: 0.05,
+  clearcoat: 0.9, clearcoatRoughness: 0.15
+});
+const body = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), bodyMat);
+body.scale.set(1, 1.02, 0.98);
+body.castShadow = true;
+body.receiveShadow = true;
+petGroup.add(body);
+
+// Живот
+const belly = new THREE.Mesh(
+  new THREE.SphereGeometry(0.68, 48, 48),
+  new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.7, transparent: true, opacity: 0.22 })
+);
+belly.position.set(0, -0.15, 0.6);
+belly.scale.set(1, 1, 0.45);
+petGroup.add(belly);
+
+/* ---- Уши ---- */
+const earMat = new THREE.MeshPhysicalMaterial({ color: PALETTES.pink.b, roughness: 0.4, clearcoat: 0.6 });
+const innerEarMat = new THREE.MeshPhysicalMaterial({ color: 0xffb8c8, roughness: 0.7 });
+
+const earL = new THREE.Mesh(new THREE.SphereGeometry(0.3, 32, 32), earMat);
+earL.position.set(-0.55, 0.88, 0);
+earL.scale.set(1, 1.4, 0.65);
+earL.rotation.z = 0.15;
+earL.castShadow = true;
+petGroup.add(earL);
+const earR = earL.clone(); earR.position.x = 0.55; earR.rotation.z = -0.15; petGroup.add(earR);
+
+const innerEarL = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 24), innerEarMat);
+innerEarL.position.set(-0.55, 0.88, 0.17);
+innerEarL.scale.set(1, 1.3, 0.3);
+petGroup.add(innerEarL);
+const innerEarR = innerEarL.clone(); innerEarR.position.x = 0.55; petGroup.add(innerEarR);
+
+/* ---- Глаза ---- */
+const eyeMat = new THREE.MeshPhysicalMaterial({
+  color: 0x0f1118, roughness: 0.05, metalness: 0.15, clearcoat: 1
+});
+const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), eyeMat);
+eyeL.position.set(-0.32, 0.2, 0.92);
+eyeL.castShadow = true;
+petGroup.add(eyeL);
+const eyeR = eyeL.clone(); eyeR.position.x = 0.32; petGroup.add(eyeR);
+
+const shineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const shineL = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), shineMat);
+shineL.position.set(-0.35, 0.24, 1.02); petGroup.add(shineL);
+const shineR = shineL.clone(); shineR.position.x = 0.29; petGroup.add(shineR);
+
+const shineS = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 12), shineMat);
+shineS.position.set(-0.28, 0.16, 1.03); petGroup.add(shineS);
+const shineSR = shineS.clone(); shineSR.position.x = 0.36; petGroup.add(shineSR);
+
+/* ---- Румяна ---- */
+const blushMat = new THREE.MeshBasicMaterial({ color: 0xff6b81, transparent: true, opacity: 0.55 });
+const blushGeo = new THREE.CircleGeometry(0.13, 32);
+const blushL = new THREE.Mesh(blushGeo, blushMat);
+blushL.position.set(-0.5, -0.06, 0.85); blushL.rotation.y = -0.4; petGroup.add(blushL);
+const blushR = blushL.clone(); blushR.position.x = 0.5; blushR.rotation.y = 0.4; petGroup.add(blushR);
+
+/* ---- Рот ---- */
+const mouthCurve = new THREE.QuadraticBezierCurve3(
+  new THREE.Vector3(-0.16, -0.18, 0.95),
+  new THREE.Vector3(0, -0.32, 1.0),
+  new THREE.Vector3(0.16, -0.18, 0.95)
+);
+const mouth = new THREE.Mesh(
+  new THREE.TubeGeometry(mouthCurve, 32, 0.03, 8, false),
+  new THREE.MeshStandardMaterial({ color: 0x0f1118, roughness: 0.4 })
+);
+petGroup.add(mouth);
+
+/* ---- Аксессуары ---- */
+// Корона
+const crownGroup = new THREE.Group();
+const crownMat = new THREE.MeshStandardMaterial({ color: 0xffd32a, metalness: 0.75, roughness: 0.25 });
+const crownBase = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.1, 16), crownMat);
+crownBase.position.y = 1.18; crownBase.castShadow = true;
+crownGroup.add(crownBase);
+for (let i = 0; i < 5; i++) {
+  const spike = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.2, 8), crownMat);
+  const a = (i / 5) * Math.PI * 2;
+  spike.position.set(Math.cos(a) * 0.22, 1.31, Math.sin(a) * 0.22);
+  spike.castShadow = true;
+  crownGroup.add(spike);
 }
-setInterval(()=>{const n=Date.now();["feed","play","wash"].forEach(k=>{const b=document.getElementById("btn-"+k),l=document.getElementById("lbl-"+k),lf=(userCd[k]||0)+CD[k]-n;if(lf>0){b.classList.add("on-cd");const m=Math.floor(lf/60000),s=Math.floor((lf%60000)/1000);l.innerText=m+":"+(s<10?"0":"")+s;}else{b.classList.remove("on-cd");l.innerText=LBL[k];}});},1000);
+crownGroup.visible = false;
+petGroup.add(crownGroup);
+
+// Очки
+const glassesGroup = new THREE.Group();
+const glassesMat = new THREE.MeshPhysicalMaterial({
+  color: 0x0f1118, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.9
+});
+const lensL = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.025, 12, 32), glassesMat);
+lensL.position.set(-0.32, 0.2, 0.96); glassesGroup.add(lensL);
+const lensR = lensL.clone(); lensR.position.x = 0.32; glassesGroup.add(lensR);
+const bridge = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.28, 8), glassesMat);
+bridge.rotation.z = Math.PI / 2; bridge.position.set(0, 0.2, 0.96);
+glassesGroup.add(bridge);
+glassesGroup.visible = false;
+petGroup.add(glassesGroup);
+
+// Бантик
+const bowGroup = new THREE.Group();
+const bowMat = new THREE.MeshPhysicalMaterial({ color: 0xff4757, roughness: 0.4, clearcoat: 0.7 });
+const bowCenter = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), bowMat);
+bowGroup.add(bowCenter);
+const bowL = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), bowMat);
+bowL.position.x = -0.12; bowL.scale.set(1, 1.4, 0.6); bowGroup.add(bowL);
+const bowR = bowL.clone(); bowR.position.x = 0.12; bowGroup.add(bowR);
+bowGroup.position.set(0, 0.62, 0.55);
+bowGroup.visible = false;
+petGroup.add(bowGroup);
+
+// Шарф
+const scarfGroup = new THREE.Group();
+const scarfMat = new THREE.MeshPhysicalMaterial({ color: 0x00b894, roughness: 0.6 });
+const scarfRing = new THREE.Mesh(new THREE.TorusGeometry(0.86, 0.1, 16, 64), scarfMat);
+scarfRing.rotation.x = Math.PI / 2;
+scarfRing.position.y = -0.68;
+scarfRing.scale.set(1, 0.9, 1);
+scarfGroup.add(scarfRing);
+const scarfTail = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.05), scarfMat);
+scarfTail.position.set(0.45, -0.88, 0.6);
+scarfGroup.add(scarfTail);
+scarfGroup.visible = false;
+petGroup.add(scarfGroup);
+
+// Нимб
+const haloGroup = new THREE.Group();
+const halo = new THREE.Mesh(
+  new THREE.TorusGeometry(0.38, 0.045, 16, 48),
+  new THREE.MeshBasicMaterial({ color: 0xffeaa7 })
+);
+halo.rotation.x = Math.PI / 2;
+halo.position.y = 1.5;
+haloGroup.add(halo);
+haloGroup.visible = false;
+petGroup.add(haloGroup);
+
+/* ================= АНИМАЦИЯ ================= */
+const clock = new THREE.Clock();
+let targetRotY = 0, currentRotY = 0;
+let isDragging = false, lastPointerX = 0;
+let jumpVel = 0, jumpY = 0;
+let blinkTimer = 0, blinkState = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.getElapsedTime();
+
+  // Дыхание
+  const breathe = 1 + Math.sin(t * 1.6) * 0.015;
+  petGroup.scale.set(breathe, 1 / breathe, breathe);
+
+  // Прыжок
+  jumpY += jumpVel;
+  jumpVel -= 0.014;
+  if (jumpY <= 0) { jumpY = 0; jumpVel = 0; }
+  const bob = Math.sin(t * 1.6) * 0.035;
+  petGroup.position.y = bob + jumpY;
+
+  // Поворот от свайпа
+  currentRotY += (targetRotY - currentRotY) * 0.15;
+  petGroup.rotation.y = currentRotY;
+
+  // Уши-«ушки» шевелятся
+  earL.rotation.z = 0.15 + Math.sin(t * 2.2) * 0.05;
+  earR.rotation.z = -0.15 - Math.sin(t * 2.2 + 0.4) * 0.05;
+
+  // Моргание
+  blinkTimer += dt;
+  if (blinkTimer > 2.8 + Math.random() * 2.5) { blinkState = 1; blinkTimer = 0; }
+  if (blinkState > 0) {
+    const s = Math.max(0.05, 1 - Math.abs(Math.sin(blinkState * Math.PI)));
+    eyeL.scale.y = s; eyeR.scale.y = s;
+    blinkState -= dt * 6;
+    if (blinkState < 0) { blinkState = 0; eyeL.scale.y = 1; eyeR.scale.y = 1; }
+  }
+
+  // Нимб плавает
+  if (haloGroup.visible) {
+    haloGroup.position.y = Math.sin(t * 2) * 0.05;
+    haloGroup.rotation.y = t * 0.6;
+  }
+
+  // Кольцо пульсирует
+  glowingRing.material.color.setHex(0x6c5ce7 + Math.floor(Math.sin(t * 2) * 0x101010));
+
+  renderer.render(scene, camera);
+}
+
+/* ================= СИНХРОНИЗАЦИЯ СОСТОЯНИЯ → 3D ================= */
+function updatePet3D(p) {
+  const pal = PALETTES[p.color] || PALETTES.pink;
+  bodyMat.color.setHex(pal.a);
+  earMat.color.setHex(pal.b);
+  innerEarMat.color.setHex(pal.a);
+
+  crownGroup.visible   = p.accessories.includes("crown");
+  glassesGroup.visible = p.accessories.includes("glasses");
+  bowGroup.visible     = p.accessories.includes("bow");
+  scarfGroup.visible   = p.accessories.includes("scarf");
+  haloGroup.visible    = p.accessories.includes("halo");
+
+  if (p.isSleeping) {
+    eyeL.scale.y = 0.08; eyeR.scale.y = 0.08;
+    mouth.visible = false;
+    keyLight.intensity = 0.35;
+    rimLight.intensity = 0.4;
+  } else {
+    eyeL.scale.y = 1; eyeR.scale.y = 1;
+    mouth.visible = true;
+    keyLight.intensity = 1.7;
+    rimLight.intensity = 1.4;
+  }
+
+  const s = p.level >= 8 ? 1.15 : p.level >= 5 ? 1.08 : p.level >= 3 ? 1.03 : 1;
+  petScaleGroup.scale.setScalar(s);
+}
+
+/* ================= РЕСАЙЗ ================= */
+function resize3D() {
+  const r = stageEl.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / r.height;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize3D);
+resize3D();
+
+/* ================= ВЗАИМОДЕЙСТВИЕ ================= */
+canvas.addEventListener("pointerdown", e => {
+  isDragging = true;
+  lastPointerX = e.clientX;
+  if (jumpY === 0) jumpVel = 0.16;
+});
+addEventListener("pointerup", () => { isDragging = false; });
+addEventListener("pointermove", e => {
+  if (!isDragging) return;
+  const dx = e.clientX - lastPointerX;
+  lastPointerX = e.clientX;
+  targetRotY += dx * 0.008;
+});
+
+/* ================= UI (почти без изменений) ================= */
+window.tab = function (t, b) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".n-btn").forEach(x => x.classList.remove("active"));
+  document.getElementById("tab-" + t).classList.add("active");
+  b.classList.add("active");
+};
+window.saveNick = function () {
+  const v = document.getElementById("nickInput").value.trim();
+  if (!v) return;
+  localStorage.setItem("tama_nick", v);
+  me.name = v;
+  document.getElementById("nickInput").value = "";
+  act("ping");
+};
+window.saveName = function () {
+  const v = document.getElementById("nameInput").value.trim();
+  if (v) {
+    act("customize", { name: v });
+    document.getElementById("nameInput").value = "";
+    document.querySelector('.n-btn').click();
+  }
+};
+window.watchAd = function () {
+  if (!AdCtrl) { act("golden_feed"); return; }
+  AdCtrl.show().then(() => act("golden_feed")).catch(() => tg?.showAlert?.("Реклама недоступна"));
+};
+
+async function load() {
+  try {
+    const r = await fetch(API + "?chat_id=" + chatId + "&user_id=" + me.id);
+    const d = await r.json();
+    if (d.userCd) userCd = d.userCd;
+    if (d.pet) sync(d.pet);
+  } catch (e) { console.warn("load error", e); }
+}
+window.act = async function (a, ex) {
+  try {
+    if (jumpY === 0) jumpVel = 0.16;
+    const r = await fetch(API + "?chat_id=" + chatId, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ action: a, userId: me.id, userName: me.name }, ex || {}))
+    });
+    const d = await r.json();
+    if (d.userCd) userCd = d.userCd;
+    if (!d.ok && d.message) tg?.showAlert?.(d.message);
+    if (d.pet) sync(d.pet);
+  } catch (e) { console.warn("act error", e); }
+};
+
+function sync(p) {
+  pet = p;
+  document.getElementById("petName").innerText = p.name;
+  document.getElementById("levelBadge").innerText = "Ур. " + p.level;
+  document.getElementById("coinsBadge").innerText = (p.coins || 0) + " 🐾";
+  const need = p.level * 100;
+  const st = p.level >= 8 ? "Легенда 👑" : p.level >= 5 ? "Хранитель ✨" : p.level >= 3 ? "Юниор 🐾" : "Малыш 🥚";
+  document.getElementById("stageText").innerText = st + " • " + p.xp + " / " + need + " XP";
+  document.getElementById("xpBar").style.width = Math.min(100, (p.xp / need) * 100) + "%";
+  document.getElementById("lastAction").innerText = p.lastActionBy;
+  document.getElementById("hungerVal").innerText = p.hunger + "%";
+  document.getElementById("hungerBar").style.width = p.hunger + "%";
+  document.getElementById("happyVal").innerText = p.happiness + "%";
+  document.getElementById("happyBar").style.width = p.happiness + "%";
+  const en = p.energy ?? 90;
+  document.getElementById("energyVal").innerText = en + "%";
+  document.getElementById("energyBar").style.width = en + "%";
+
+  ["plant", "lamp", "sofa", "scarf", "halo"].forEach(id => {
+    const b = document.getElementById("shop-" + id);
+    if (b && p.inventory.includes(id)) { b.innerText = "Куплено ✅"; b.classList.add("own"); }
+  });
+  ["scarf", "halo"].forEach(id => {
+    document.getElementById("card-" + id).style.display = p.inventory.includes(id) ? "flex" : "none";
+  });
+  ["crown", "glasses", "bow", "scarf", "halo"].forEach(id => {
+    document.getElementById("card-" + id)?.classList.toggle("eq", p.accessories.includes(id));
+  });
+
+  const stg = document.getElementById("stage");
+  const md = document.getElementById("moodText");
+  if (p.isSleeping) {
+    stg.classList.add("night");
+    document.getElementById("sleepIcon").innerText = "☀️";
+    document.getElementById("sleepLabel").innerText = "Разбудить";
+    md.innerText = "💤 Спит...";
+  } else {
+    stg.classList.remove("night");
+    document.getElementById("sleepIcon").innerText = "💤";
+    document.getElementById("sleepLabel").innerText = "Спать";
+    md.innerText = p.hunger < 30 ? "😿 Хочу кушать!" : "✨ Погладь или покрути меня!";
+  }
+
+  // Топ
+  const lst = document.getElementById("leaderboardList");
+  const arr = Object.values(p.leaderboard || {}).sort((a, b) => b.score - a.score);
+  if (arr.length) {
+    lst.innerHTML = "";
+    arr.forEach((it, i) => {
+      const row = document.createElement("div");
+      row.className = "l-row";
+      const l = document.createElement("span");
+      l.innerText = (i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "🐾 ") + it.name;
+      const r = document.createElement("span");
+      r.style.color = "#a29bfe";
+      r.innerText = it.score + " XP";
+      row.append(l, r);
+      lst.appendChild(row);
+    });
+  }
+
+  updatePet3D(p);
+}
+
+/* Кулдауны кнопок */
+setInterval(() => {
+  const n = Date.now();
+  ["feed", "play", "wash"].forEach(k => {
+    const b = document.getElementById("btn-" + k);
+    const l = document.getElementById("lbl-" + k);
+    const lf = (userCd[k] || 0) + CD[k] - n;
+    if (lf > 0) {
+      b.classList.add("on-cd");
+      const m = Math.floor(lf / 60000);
+      const s = Math.floor((lf % 60000) / 1000);
+      l.innerText = m + ":" + (s < 10 ? "0" : "") + s;
+    } else {
+      b.classList.remove("on-cd");
+      l.innerText = LBL[k];
+    }
+  });
+}, 1000);
+
+/* Старт */
+updatePet3D(pet);
+animate();
 load();
 </script>
 </body>
