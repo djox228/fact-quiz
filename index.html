@@ -3,88 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Neon Rift</title>
+<title>Rift Keepers</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:#050510;color:#fff;user-select:none;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+body{background:#0a0a10;color:#fff;user-select:none;overflow:hidden;height:100vh;display:flex;flex-direction:column}
 canvas{width:100%;height:100%;display:block;touch-action:none}
 
-/* UI Верхняя панель */
-.hud{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;pointer-events:none;z-index:10}
-.glass{background:rgba(15,20,40,.7);backdrop-filter:blur(10px);border:1px solid rgba(0,255,255,.3);border-radius:16px;padding:8px 16px;box-shadow:0 0 15px rgba(0,255,255,.1)}
-.val{font-size:18px;font-weight:900;color:#0ff;text-shadow:0 0 10px #0ff}
-.lbl{font-size:10px;color:#8f9bb3;text-transform:uppercase;font-weight:800;letter-spacing:1px}
+/* HUD */
+.hud{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;z-index:10;pointer-events:none}
+.glass{background:rgba(20,25,40,.8);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px 16px}
+.val{font-size:16px;font-weight:900;color:#fff}
+.lbl{font-size:10px;color:#8f9bb3;text-transform:uppercase;font-weight:800}
 
-/* Нижняя панель действий */
-.actions{position:absolute;bottom:20px;left:15px;right:15px;z-index:10;display:flex;flex-direction:column;gap:10px}
-.btn{width:100%;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;transition:all .1s;display:flex;justify-content:center;align-items:center;gap:8px}
+/* Меню снизу */
+.tabs{position:absolute;bottom:20px;left:15px;right:15px;display:flex;gap:10px;z-index:10}
+.tab-btn{flex:1;background:rgba(20,25,40,.9);border:1px solid rgba(255,255,255,.1);padding:12px;border-radius:14px;color:#8f9bb3;font-weight:800;font-size:14px;transition:all 0.2s}
+.tab-btn.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7;box-shadow:0 0 15px rgba(108,92,231,0.5)}
+
+/* Контент вкладок */
+.content{position:absolute;bottom:80px;left:15px;right:15px;z-index:10;display:none}
+.content.active{display:block}
+
+/* Кнопки */
+.btn{width:100%;border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;transition:transform 0.1s;display:flex;justify-content:center;align-items:center;gap:8px}
 .btn:active{transform:scale(.96)}
-.btn-summon{background:linear-gradient(135deg,#00cec9,#0984e3);color:#fff;box-shadow:0 0 20px rgba(0,206,201,0.4)}
-.btn-battle{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;box-shadow:0 0 20px rgba(255,71,87,0.4)}
+.btn-open{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;box-shadow:0 0 20px rgba(0,206,201,0.4)}
+.btn-buy{background:linear-gradient(135deg,#fdcb6e,#e17055);color:#1e272e}
 
-/* Уведомление */
-#toast{position:absolute;top:15%;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);padding:10px 20px;border-radius:20px;font-size:14px;font-weight:bold;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:20;text-align:center;border:1px solid rgba(255,255,255,0.2);width:80%}
+/* Модалка кейса */
+#case-modal{position:fixed;top:0;left:0;width:100%;height:100vh;background:rgba(0,0,0,0.9);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center}
+.case-box{width:100px;height:100px;background:#2d3436;border:4px solid #00cec9;border-radius:20px;display:flex;justify-content:center;align-items:center;font-size:40px;animation:shake 0.5s infinite}
+@keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(10deg)}50%{transform:rotate(0)}75%{transform:rotate(-10deg)}100%{transform:rotate(0)}}
+.drop-text{font-size:24px;font-weight:900;margin-top:20px;opacity:0;transition:opacity 0.5s}
+
+/* Инвентарь */
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px;max-height:200px;overflow-y:auto;padding-bottom:10px}
+.inv-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px;text-align:center;font-size:10px;cursor:pointer}
+.inv-item.equipped{border-color:#00cec9;background:rgba(0,206,201,0.2)}
 </style>
 </head>
 <body>
 
 <div class="hud">
   <div class="glass">
-    <div class="lbl">Энергия</div>
-    <div class="val" id="ui-energy">50 / 50</div>
+    <div class="lbl">Монеты</div>
+    <div class="val" id="ui-coins" style="color:#fdcb6e">0</div>
   </div>
   <div class="glass" style="text-align:right">
-    <div class="lbl">Монеты</div>
-    <div class="val" id="ui-coins" style="color:#ffeaa7;text-shadow:0 0 10px #ffeaa7">0</div>
+    <div class="lbl">Кейсы</div>
+    <div class="val" id="ui-cases" style="color:#00cec9">0</div>
   </div>
 </div>
 
-<div id="toast">Текст</div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('pet', this)">👾 Питомец</button>
+  <button class="tab-btn" onclick="switchTab('cases', this)">📦 Кейсы</button>
+</div>
 
-<div class="actions">
-  <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;color:#8f9bb3;font-weight:bold;">
-    <span>Ур. Арены: <span id="ui-arena" style="color:#fff">1</span></span>
-    <span id="ui-log">Собери отряд</span>
-  </div>
-  <button class="btn btn-summon" id="btn-summon">🌀 Призыв (10 ⚡)</button>
-  <button class="btn btn-battle" id="btn-battle">⚔️ В БОЙ (Авто-Баттлер)</button>
+<div id="content-pet" class="content active">
+  <div style="font-size:12px;text-align:center;color:#8f9bb3;margin-bottom:10px" id="ui-log">Твой питомец ждет экипировки!</div>
+  <div class="inv-grid" id="inv-grid"></div>
+</div>
+
+<div id="content-cases" class="content">
+  <button class="btn btn-open" onclick="openCase()" style="margin-bottom:10px">🔓 Открыть Кейс (100 🪙)</button>
+  <button class="btn btn-buy" onclick="buyCase()">🛒 Купить Кейс (100 🪙)</button>
+</div>
+
+<!-- Модалка открытия кейса -->
+<div id="case-modal">
+  <div class="case-box" id="case-box">📦</div>
+  <div class="drop-text" id="drop-text">Выпало: ...</div>
 </div>
 
 <script>
-var API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/game"; // Твой URL воркера
+var API = "https://tamagotchi-bot.djogrinder22.workers.dev/api/game"; // Твой URL
 var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
 if (tg) { tg.ready(); tg.expand(); }
 
 var me = { id: "u_" + Math.floor(Math.random() * 90000 + 10000) };
-if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-  me.id = String(tg.initDataUnsafe.user.id);
-}
+if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) me.id = String(tg.initDataUnsafe.user.id);
 var qp = new URLSearchParams(location.search);
 var chatId = qp.get("chat_id") || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param ? tg.initDataUnsafe.start_param.replace("chat_", "") : null) || me.id;
 
-var state = { energy: 0, coins: 0, arenaLevel: 1, grid: Array(9).fill(null) };
-var haptic = function(t) { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t || 'light'); };
+var state = { coins: 0, cases: 0, inventory: [], equipped: {} };
 
 // ================= THREE.JS =================
-var scene, camera, renderer;
-var unitsGroup = new THREE.Group();
-var gridBoxes = [];
-var draggingUnit = null;
-var isDragging = false;
-var dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
+var scene, camera, renderer, petGroup;
+var equippedMeshes = {};
 
 function init3D() {
   scene = new THREE.Scene();
-  // Туман для неоновой глубины
-  scene.fog = new THREE.FogExp2(0x050510, 0.05);
-  
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 7, 6);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, 1.5, 5);
+  camera.lookAt(0, 0.5, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -92,44 +106,35 @@ function init3D() {
   document.body.appendChild(renderer.domElement);
 
   // Свет
-  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-  var dLight = new THREE.DirectionalLight(0x00ffff, 1.5);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  var dLight = new THREE.DirectionalLight(0xffffff, 1.5);
   dLight.position.set(5, 10, 5);
   scene.add(dLight);
-  var pLight = new THREE.PointLight(0xff00ff, 2, 20);
-  pLight.position.set(-5, 5, -5);
+  var pLight = new THREE.PointLight(0x00ffff, 2, 10);
+  pLight.position.set(-2, 2, 2);
   scene.add(pLight);
 
-  // Сетка 3x3
-  var spacing = 2.2;
-  for (var i = 0; i < 9; i++) {
-    var row = Math.floor(i / 3);
-    var col = i % 3;
-    var x = (col - 1) * spacing;
-    var z = (row - 1) * spacing;
+  // Питомец (База)
+  petGroup = new THREE.Group();
+  
+  var bodyGeo = new THREE.SphereGeometry(1, 64, 64);
+  var bodyMat = new THREE.MeshPhysicalMaterial({ color: 0x74b9ff, roughness: 0.2, clearcoat: 1 });
+  var body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.castShadow = true;
+  petGroup.add(body);
 
-    // Ячейка (подложка)
-    var boxGeo = new THREE.BoxGeometry(2, 0.1, 2);
-    var boxMat = new THREE.MeshStandardMaterial({ color: 0x111122, transparent: true, opacity: 0.8 });
-    var box = new THREE.Mesh(boxGeo, boxMat);
-    box.position.set(x, -0.05, z);
-    box.userData = { index: i };
-    scene.add(box);
-    gridBoxes.push(box);
+  // Глаза
+  var eyeGeo = new THREE.SphereGeometry(0.15, 32, 32);
+  var eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+  var eyeL = new THREE.Mesh(eyeGeo, eyeMat); eyeL.position.set(-0.3, 0.2, 0.9); petGroup.add(eyeL);
+  var eyeR = new THREE.Mesh(eyeGeo, eyeMat); eyeR.position.set(0.3, 0.2, 0.9); petGroup.add(eyeR);
+  
+  // Блики
+  var shineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  var s1 = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), shineMat); s1.position.set(-0.35, 0.25, 1.0); petGroup.add(s1);
+  var s2 = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), shineMat); s2.position.set(0.25, 0.25, 1.0); petGroup.add(s2);
 
-    // Рамка ячейки (неон)
-    var edges = new THREE.EdgesGeometry(boxGeo);
-    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.3 }));
-    line.position.copy(box.position);
-    scene.add(line);
-  }
-
-  scene.add(unitsGroup);
-
-  // Обработка событий
-  renderer.domElement.addEventListener("pointerdown", onPointerDown);
-  window.addEventListener("pointermove", onPointerMove);
-  window.addEventListener("pointerup", onPointerUp);
+  scene.add(petGroup);
 
   animate();
 }
@@ -137,182 +142,167 @@ function init3D() {
 function animate() {
   requestAnimationFrame(animate);
   var t = Date.now() * 0.002;
-  
-  // Пульсация юнитов
-  unitsGroup.children.forEach(function(mesh, idx) {
-    if (!isDragging || mesh !== draggingUnit) {
-      mesh.position.y = 0.5 + Math.sin(t + idx) * 0.1;
-    }
-    if (mesh.userData.level) {
-      mesh.scale.setScalar(1 + (mesh.userData.level * 0.05));
-    }
-  });
-
+  if (petGroup) {
+    petGroup.position.y = Math.sin(t * 2) * 0.1;
+    petGroup.rotation.y = Math.sin(t * 0.5) * 0.3;
+  }
   renderer.render(scene, camera);
 }
 
-// ================= ЛОГИКА ИГРЫ =================
-function getUnitColor(level) {
-  if (level === 1) return 0x00ffff; // Циан
-  if (level === 2) return 0xff00ff; // Маджента
-  if (level === 3) return 0xffff00; // Желтый
-  return 0xff4757; // Красный (4+)
-}
-
-function renderGrid() {
-  // Очищаем старых юнитов
-  while(unitsGroup.children.length > 0){ 
-    unitsGroup.remove(unitsGroup.children[0]); 
+// ================= ЛОГИКА ЭКИПИРОВКИ =================
+// В реальности тут нужны сложные 3D модели, но для прототипа сделаем базовые формы
+function update3DPet() {
+  // Удаляем старую экипировку
+  for(var key in equippedMeshes) {
+    petGroup.remove(equippedMeshes[key]);
   }
+  equippedMeshes = {};
 
-  var spacing = 2.2;
-  for (var i = 0; i < 9; i++) {
-    var unit = state.grid[i];
-    if (unit) {
-      var row = Math.floor(i / 3);
-      var col = i % 3;
-      var x = (col - 1) * spacing;
-      var z = (row - 1) * spacing;
-
-      var geo = new THREE.SphereGeometry(0.6, 32, 32);
-      var mat = new THREE.MeshStandardMaterial({ 
-        color: getUnitColor(unit.level), 
-        emissive: getUnitColor(unit.level), 
-        emissiveIntensity: 0.5,
-        roughness: 0.2,
-        metalness: 0.8
-      });
-      var mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x, 0.5, z);
-      mesh.userData = { index: i, level: unit.level, id: unit.id };
-      unitsGroup.add(mesh);
+  // Шляпа
+  if (state.equipped["hat"]) {
+    var hatGroup = new THREE.Group();
+    if (state.equipped["hat"] === "hat_top") {
+      var b = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.05, 32), new THREE.MeshStandardMaterial({color:0x111}));
+      var t = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.6, 32), new THREE.MeshStandardMaterial({color:0x111}));
+      t.position.y = 0.3;
+      hatGroup.add(b, t);
+    } else if (state.equipped["hat"] === "hat_crown") {
+      var crown = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.2, 8), new THREE.MeshStandardMaterial({color:0xffd32a, metalness:0.8}));
+      hatGroup.add(crown);
     }
+    hatGroup.position.set(0, 1.0, 0);
+    petGroup.add(hatGroup);
+    equippedMeshes["hat"] = hatGroup;
+  }
+
+  // Очки
+  if (state.equipped["glasses"]) {
+    var glassGroup = new THREE.Group();
+    var gMat = new THREE.MeshStandardMaterial({color:0x00ffff, emissive:0x00ffff, transparent:true, opacity:0.5});
+    var lensL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.1), gMat);
+    lensL.position.set(-0.3, 0.2, 0.95);
+    var lensR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.1), gMat);
+    lensR.position.set(0.3, 0.2, 0.95);
+    glassGroup.add(lensL, lensR);
+    petGroup.add(glassGroup);
+    equippedMeshes["glasses"] = glassGroup;
+  }
+
+  // Крылья
+  if (state.equipped["wings"]) {
+    var wingGroup = new THREE.Group();
+    var wMat = new THREE.MeshStandardMaterial({color:0xff4757, side:THREE.DoubleSide, transparent:true, opacity:0.8});
+    var wL = new THREE.Mesh(new THREE.CircleGeometry(0.6, 32), wMat);
+    wL.position.set(-0.8, 0, -0.3); wL.rotation.y = 0.5;
+    var wR = new THREE.Mesh(new THREE.CircleGeometry(0.6, 32), wMat);
+    wR.position.set(0.8, 0, -0.3); wR.rotation.y = -0.5;
+    wingGroup.add(wL, wR);
+    petGroup.add(wingGroup);
+    equippedMeshes["wings"] = wingGroup;
   }
 }
 
-function onPointerDown(event) {
-  if (event.target.tagName !== 'CANVAS') return; // Игнорируем клики по кнопкам
+// ================= UI & API =================
+function updateUI() {
+  document.getElementById("ui-coins").innerText = state.coins;
+  document.getElementById("ui-cases").innerText = state.cases;
+  document.getElementById("ui-log").innerText = state.lastAction || "Твой питомец ждет экипировки!";
+
+  // Рендер инвентаря
+  var grid = document.getElementById("inv-grid");
+  grid.innerHTML = "";
   
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  var itemNames = {
+    "hat_cap": "Кепка", "hat_top": "Цилиндр", "hat_crown": "Корона",
+    "glass_sun": "Очки", "glass_cyber": "Кибер-визор",
+    "wing_bat": "Крылья Демона", "wing_angel": "Крылья Ангела"
+  };
+  var itemIcons = {
+    "hat_cap": "🧢", "hat_top": "🎩", "hat_crown": "👑",
+    "glass_sun": "🕶️", "glass_cyber": "🥽",
+    "wing_bat": "🦇", "wing_angel": "🦋"
+  };
 
-  raycaster.setFromCamera(mouse, camera);
-  var intersects = raycaster.intersectObjects(unitsGroup.children);
-
-  if (intersects.length > 0) {
-    draggingUnit = intersects[0].object;
-    isDragging = true;
-    haptic('light');
-    // Поднимаем юнита
-    draggingUnit.position.y = 2;
-  }
-}
-
-function onPointerMove(event) {
-  if (!isDragging || !draggingUnit) return;
-
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  var intersectPoint = new THREE.Vector3();
-  raycaster.ray.intersectPlane(dragPlane, intersectPoint);
-
-  if (intersectPoint) {
-    draggingUnit.position.x = intersectPoint.x;
-    draggingUnit.position.z = intersectPoint.z;
-  }
-}
-
-function onPointerUp(event) {
-  if (!isDragging || !draggingUnit) return;
-
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  var intersects = raycaster.intersectObjects(gridBoxes);
-
-  if (intersects.length > 0) {
-    var targetBox = intersects[0].object;
-    var fromIndex = draggingUnit.userData.index;
-    var toIndex = targetBox.userData.index;
-
-    if (fromIndex !== toIndex) {
-      // Проверяем, есть ли кто-то в целевой ячейке
-      var targetUnit = state.grid[toIndex];
-      var sourceUnit = state.grid[fromIndex];
-
-      if (targetUnit && sourceUnit && targetUnit.level === sourceUnit.level) {
-        // СЛИЯНИЕ
-        apiCall("merge", { from: fromIndex, to: toIndex });
-        haptic('success');
-      } else {
-        // Возвращаем на место (если не сливаем)
-        renderGrid(); 
-      }
-    } else {
-      renderGrid();
+  state.inventory.forEach(function(itemId) {
+    var div = document.createElement("div");
+    div.className = "inv-item";
+    
+    // Проверяем надето ли
+    var isEq = false;
+    for(var k in state.equipped) {
+      if (state.equipped[k] === itemId) isEq = true;
     }
-  } else {
-    renderGrid(); // Сброс, если бросили мимо
-  }
+    if (isEq) div.classList.add("equipped");
 
-  isDragging = false;
-  draggingUnit = null;
+    div.innerHTML = "<div style='font-size:20px'>" + (itemIcons[itemId] || "❓") + "</div>" + (itemNames[itemId] || itemId);
+    div.onclick = function() { equipItem(itemId); };
+    grid.appendChild(div);
+  });
+
+  update3DPet();
 }
 
-// ================= API =================
+function switchTab(tab, btn) {
+  document.querySelectorAll(".tab-btn").forEach(function(b){ b.classList.remove("active"); });
+  document.querySelectorAll(".content").forEach(function(c){ c.classList.remove("active"); });
+  btn.classList.add("active");
+  document.getElementById("content-" + tab).classList.add("active");
+}
+
 function apiCall(action, extra) {
   var bodyData = { action: action, userId: me.id };
   if (extra) for (var k in extra) bodyData[k] = extra[k];
 
   fetch(API + "?chat_id=" + chatId, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bodyData)
   })
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    if (!d.ok && d.message) showToast(d.message);
-    if (d.state) {
-      state = d.state;
-      updateUI();
-      renderGrid();
-    }
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(!d.ok && d.message && tg) tg.showAlert(d.message);
+    if(d.state) { state = d.state; updateUI(); }
   })
-  .catch(function(e) { showToast("Ошибка сети"); });
+  .catch(function(e){ if(tg) tg.showAlert("Ошибка сети"); });
 }
 
-function updateUI() {
-  document.getElementById("ui-energy").innerText = state.energy + " / " + state.maxEnergy;
-  document.getElementById("ui-coins").innerText = state.coins;
-  document.getElementById("ui-arena").innerText = state.arenaLevel;
-  if (state.lastAction) document.getElementById("ui-log").innerText = state.lastAction;
+function openCase() {
+  if (state.cases <= 0) return tg.showAlert("Нет кейсов!");
+  if (state.coins < 100) return tg.showAlert("Кейс стоит 100 монет!");
+
+  var modal = document.getElementById("case-modal");
+  var box = document.getElementById("case-box");
+  var txt = document.getElementById("drop-text");
+  
+  modal.style.display = "flex";
+  txt.style.opacity = 0;
+  box.style.animation = "shake 0.2s infinite";
+
+  apiCall("open_case", {}); // Запрос к серверу
+
+  setTimeout(function() {
+    box.style.animation = "none";
+    box.style.transform = "scale(1.5)";
+    box.innerText = "💥";
+    
+    setTimeout(function() {
+      box.innerText = "🎁";
+      txt.innerText = state.lastAction;
+      txt.style.opacity = 1;
+
+      setTimeout(function() {
+        modal.style.display = "none";
+        box.style.transform = "scale(1)";
+      }, 2000);
+    }, 500);
+  }, 1500);
 }
 
-function showToast(msg) {
-  var t = document.getElementById("toast");
-  t.innerText = msg;
-  t.style.opacity = 1;
-  setTimeout(function() { t.style.opacity = 0; }, 2500);
-}
-
-// Кнопки
-document.getElementById("btn-summon").onclick = function() { apiCall("summon"); };
-document.getElementById("btn-battle").onclick = function() { apiCall("battle"); };
+function buyCase() { apiCall("buy_case", {}); }
+function equipItem(id) { apiCall("equip", { itemId: id }); }
 
 // Запуск
 init3D();
-apiCall("init"); // Первичная загрузка
-
-setInterval(function() {
-  // Тихий опрос каждые 10 секунд для обновления энергии
-  fetch(API + "?chat_id=" + chatId)
-    .then(function(r){ return r.json(); })
-    .then(function(d){ if(d.state){ state = d.state; updateUI(); } });
-}, 10000);
-
+apiCall("init");
 </script>
 </body>
 </html>
