@@ -66,15 +66,8 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
 <body>
 <div class="wrap">
   <div class="header">
-    <div>
-      <div style="font-weight:800;font-size:16px" id="petName">Пушистик</div>
-      <div style="font-size:11px;color:#8f9bb3" id="stageText">Малыш 🥚 • 0 / 100 XP</div>
-      <div class="xp-bg"><div class="xp-fill" id="xpBar"></div></div>
-    </div>
-    <div class="badges">
-      <div class="coins" id="coinsBadge">50 🐾</div>
-      <div class="lvl" id="levelBadge">Ур. 1</div>
-    </div>
+    <div><div style="font-weight:800;font-size:16px" id="petName">Пушистик</div><div style="font-size:11px;color:#8f9bb3" id="stageText">Малыш 🥚 • 0 / 100 XP</div><div class="xp-bg"><div class="xp-fill" id="xpBar"></div></div></div>
+    <div class="badges"><div class="coins" id="coinsBadge">50 🐾</div><div class="lvl" id="levelBadge">Ур. 1</div></div>
   </div>
   <div id="tab-room" class="tab active">
     <div class="room" id="petRoom">
@@ -86,43 +79,22 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
       <div class="rug"></div>
       <div class="pet-box" id="petWrapper" onclick="petTouch(event)">
         <svg width="165" height="165" viewBox="0 0 220 220">
-          <defs>
-            <radialGradient id="bGrad" cx="35%" cy="30%" r="70%">
-              <stop offset="0%" stop-color="#ffb8f6" id="g1"/>
-              <stop offset="100%" stop-color="#d630a8" id="g2"/>
-            </radialGradient>
-          </defs>
-          <g id="evo-wings" style="display:none">
-            <circle cx="110" cy="115" r="78" fill="none" stroke="#ffeaa7" stroke-width="2" stroke-dasharray="6 6" opacity="0.55"/>
-            <path d="M55 110 C15 70, 15 135, 58 135 Z" fill="#fff" opacity="0.88"/>
-            <path d="M165 110 C205 70, 205 135, 162 135 Z" fill="#fff" opacity="0.88"/>
-          </g>
-          <path d="M62 82 C46 28, 82 22, 88 70 Z" fill="url(#bGrad)"/>
-          <path d="M158 82 C174 28, 138 22, 132 70 Z" fill="url(#bGrad)"/>
-          <g id="evo-teen" style="display:none">
-            <path d="M96 60 Q110 30 124 60 Q110 50 96 60 Z" fill="url(#bGrad)"/>
-            <circle cx="166" cy="148" r="14" fill="url(#bGrad)"/>
-          </g>
-          <ellipse cx="78" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
-          <ellipse cx="142" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
+          <defs><radialGradient id="bGrad" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#ffb8f6" id="g1"/><stop offset="100%" stop-color="#d630a8" id="g2"/></radialGradient></defs>
+          <g id="evo-wings" style="display:none"><circle cx="110" cy="115" r="78" fill="none" stroke="#ffeaa7" stroke-width="2" stroke-dasharray="6 6" opacity="0.55"/><path d="M55 110 C15 70, 15 135, 58 135 Z" fill="#fff" opacity="0.88"/><path d="M165 110 C205 70, 205 135, 162 135 Z" fill="#fff" opacity="0.88"/></g>
+          <path d="M62 82 C46 28, 82 22, 88 70 Z" fill="url(#bGrad)"/><path d="M158 82 C174 28, 138 22, 132 70 Z" fill="url(#bGrad)"/>
+          <g id="evo-teen" style="display:none"><path d="M96 60 Q110 30 124 60 Q110 50 96 60 Z" fill="url(#bGrad)"/><circle cx="166" cy="148" r="14" fill="url(#bGrad)"/></g>
+          <ellipse cx="78" cy="174" rx="18" ry="11" fill="url(#bGrad)"/><ellipse cx="142" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
           <rect x="54" y="60" width="112" height="114" rx="52" fill="url(#bGrad)"/>
           <ellipse cx="110" cy="142" rx="34" ry="24" fill="#fff" opacity="0.25"/>
           <ellipse cx="82" cy="76" rx="14" ry="6" transform="rotate(-20 82 76)" fill="#fff" opacity="0.35"/>
-          <ellipse cx="70" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
-          <ellipse cx="150" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
-          <g id="eyesOpen">
-            <circle cx="84" cy="104" r="12" fill="#1e272e"/><circle cx="80" cy="99" r="4.5" fill="#fff"/>
-            <circle cx="136" cy="104" r="12" fill="#1e272e"/><circle cx="132" cy="99" r="4.5" fill="#fff"/>
-          </g>
-          <g id="eyesClosed" style="display:none">
-            <path d="M72 106 Q84 115 96 106" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
-            <path d="M124 106 Q136 115 148 106" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
-          </g>
+          <ellipse cx="70" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/><ellipse cx="150" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
+          <g id="eyesOpen"><circle cx="84" cy="104" r="12" fill="#1e272e"/><circle cx="80" cy="99" r="4.5" fill="#fff"/><circle cx="136" cy="104" r="12" fill="#1e272e"/><circle cx="132" cy="99" r="4.5" fill="#fff"/></g>
+          <g id="eyesClosed" style="display:none"><path d="M72 106 Q84 115 96 106" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M124 106 Q136 115 148 106" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/></g>
           <polygon points="104,114 116,114 110,121" fill="#ff6b81"/>
           <path d="M96 126 Q110 138 124 126" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
           <g id="acc-crown" style="display:none"><polygon points="84,58 92,34 110,48 128,34 136,58" fill="#ffd32a"/></g>
           <g id="acc-halo" style="display:none"><ellipse cx="110" cy="34" rx="28" ry="7" fill="none" stroke="#ffeaa7" stroke-width="4"/></g>
-                    <g id="acc-glasses" style="display:none"><rect x="65" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/><rect x="117" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/><line x1="103" y1="101" x2="117" y2="101" stroke="#fff" stroke-width="3"/></g>
+          <g id="acc-glasses" style="display:none"><rect x="65" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/><rect x="117" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/><line x1="103" y1="101" x2="117" y2="101" stroke="#fff" stroke-width="3"/></g>
           <g id="acc-bow" style="display:none"><polygon points="110,152 90,141 90,163" fill="#ff4757"/><polygon points="110,152 130,141 130,163" fill="#ff4757"/></g>
           <g id="acc-scarf" style="display:none"><rect x="68" y="146" width="84" height="14" rx="7" fill="#00b894"/><rect x="122" y="154" width="14" height="24" rx="5" fill="#00b894"/></g>
         </svg>
@@ -134,7 +106,6 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
       <div class="stat"><div class="stat-t"><span>❤️ Радость</span><span id="happyVal">80%</span></div><div class="bar"><div class="fill" id="happyBar" style="width:80%;background:#ff7675"></div></div></div>
       <div class="stat"><div class="stat-t"><span>⚡ Энергия</span><span id="energyVal">90%</span></div><div class="bar"><div class="fill" id="energyBar" style="width:90%;background:#fdcb6e"></div></div></div>
     </div>
-
     <div class="btns">
       <button class="btn" id="btn-feed" onclick="sendAction('feed')"><span>🍖</span><span id="lbl-feed">Покормить</span></button>
       <button class="btn" id="btn-play" onclick="sendAction('play')"><span>🎾</span><span id="lbl-play">Поиграть</span></button>
@@ -143,7 +114,6 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
     </div>
     <button class="gold" onclick="watchAd()">✨ Золотой корм +100% и +50 🐾 (Реклама)</button>
   </div>
-
   <div id="tab-shop" class="tab">
     <div class="box">
       <div class="ttl">🛍️ Магазин для комнаты и питомца</div>
@@ -156,7 +126,6 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
       </div>
     </div>
   </div>
-
   <div id="tab-wardrobe" class="tab">
     <div class="box">
       <div class="ttl">✏️ Имя питомца</div>
@@ -179,13 +148,11 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
       </div>
     </div>
   </div>
-
   <div id="tab-top" class="tab">
     <div class="ttl">🏆 Самые заботливые игроки чата</div>
     <div id="leaderboardList"><div class="l-row"><span>Пока пусто</span><span>0 XP</span></div></div>
   </div>
 </div>
-
 <div class="nav">
   <button class="n-btn active" onclick="switchTab('room',this)"><span>🏠</span><span>Комната</span></button>
   <button class="n-btn" onclick="switchTab('shop',this)"><span>🛍️</span><span>Магазин</span></button>
@@ -198,112 +165,39 @@ const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
 if(tg){tg.ready();tg.expand();}
 const AdCtrl=window.Adsgram?window.Adsgram.init({blockId:"56776"}):null;
 const qp=new URLSearchParams(window.location.search);
-
-function getTgUser(){
-  if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)return tg.initDataUnsafe.user;
-  if(tg&&tg.initData){
-    try{const uStr=new URLSearchParams(tg.initData).get("user");if(uStr)return JSON.parse(uStr);}catch(e){}
-  }
-  return {id:"guest_"+Math.floor(Math.random()*9000+1000),first_name:"Игрок"};
-}
-const u=getTgUser();
-const displayName=u.first_name+(u.last_name?" "+u.last_name:"");
-const sp=tg&&tg.initDataUnsafe?tg.initDataUnsafe.start_param:null;
+function getTgUser(){if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)return tg.initDataUnsafe.user;if(tg&&tg.initData){try{const s=new URLSearchParams(tg.initData).get("user");if(s)return JSON.parse(s);}catch(e){}}return{id:"guest_"+Math.floor(Math.random()*9000+1000),first_name:"Игрок"};}
+const u=getTgUser(),displayName=u.first_name+(u.last_name?" "+u.last_name:""),sp=tg&&tg.initDataUnsafe?tg.initDataUnsafe.start_param:null;
 const chatId=qp.get("chat_id")||(sp?sp.replace("chat_",""):null)||u.id||"demo";
 const COLS={pink:["#ffb8f6","#d630a8"],mint:["#55efc4","#009473"],sky:["#74b9ff","#0652dd"],gold:["#ffeaa7","#e17055"],cyber:["#a29bfe","#4834d4"]};
-const CD_MS={feed:30*60*1000,play:15*60*1000,wash:20*60*1000};
-const DEF_LBL={feed:"Покормить",play:"Поиграть",wash:"Помыть"};
+const CD_MS={feed:1800000,play:900000,wash:1200000},DEF_LBL={feed:"Покормить",play:"Поиграть",wash:"Помыть"};
 let petData=null,userCd={};
-
-function switchTab(t,b){
-  document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
-  document.querySelectorAll(".n-btn").forEach(e=>e.classList.remove("active"));
-  document.getElementById("tab-"+t).classList.add("active");
-  b.classList.add("active");
-}
-function petTouch(e){
-  const w=document.getElementById("petWrapper");
-  w.classList.remove("jump");void w.offsetWidth;w.classList.add("jump");
-  const r=document.getElementById("petRoom"),h=document.createElement("div");
-  h.className="heart";h.innerText=petData&&petData.isSleeping?"💤":"❤️";
-  h.style.left=((e.offsetX||80)+110)+"px";h.style.top=((e.offsetY||80)+40)+"px";
-  r.appendChild(h);setTimeout(()=>h.remove(),1000);
-}
-async function loadPet(){
-  try{const r=await fetch(API+"?chat_id="+chatId+"&user_id="+u.id);const d=await r.json();if(d.userCd)userCd=d.userCd;if(d.pet)render(d.pet);}catch(e){}
-}
-async function sendAction(act,extra){
-  try{
-    const payload=Object.assign({action:act,userId:u.id,userName:displayName},extra||{});
-    const r=await fetch(API+"?chat_id="+chatId,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const d=await r.json();
-    if(d.userCd)userCd=d.userCd;
-    if(!d.ok&&d.message&&tg&&tg.showAlert)tg.showAlert(d.message);
-    if(d.pet)render(d.pet);
-  }catch(e){}
-}
+function switchTab(t,b){document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".n-btn").forEach(e=>e.classList.remove("active"));document.getElementById("tab-"+t).classList.add("active");b.classList.add("active");}
+function petTouch(e){const w=document.getElementById("petWrapper");w.classList.remove("jump");void w.offsetWidth;w.classList.add("jump");const r=document.getElementById("petRoom"),h=document.createElement("div");h.className="heart";h.innerText=petData&&petData.isSleeping?"💤":"❤️";h.style.left=((e.offsetX||80)+110)+"px";h.style.top=((e.offsetY||80)+40)+"px";r.appendChild(h);setTimeout(()=>h.remove(),1000);}
+async function loadPet(){try{const r=await fetch(API+"?chat_id="+chatId+"&user_id="+u.id);const d=await r.json();if(d.userCd)userCd=d.userCd;if(d.pet)render(d.pet);}catch(e){}}
+async function sendAction(act,extra){try{const r=await fetch(API+"?chat_id="+chatId,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:act,userId:u.id,userName:displayName},extra||{}))});const d=await r.json();if(d.userCd)userCd=d.userCd;if(!d.ok&&d.message&&tg&&tg.showAlert)tg.showAlert(d.message);if(d.pet)render(d.pet);}catch(e){}}
 function buyItem(id){sendAction("buy",{itemId:id});}
-function saveName(){
-  const v=document.getElementById("nameInput").value.trim();
-  if(v){sendAction("customize",{name:v});document.getElementById("nameInput").value="";switchTab("room",document.querySelector(".n-btn"));}
-}
-function watchAd(){
-  if(!AdCtrl){sendAction("golden_feed");return;}
-  AdCtrl.show().then(()=>sendAction("golden_feed")).catch(()=>{if(tg&&tg.showAlert)tg.showAlert("Реклама недоступна");});
-}
-function updateTimers(){
-  const now=Date.now();
-  ["feed","play","wash"].forEach(k=>{
-    const btn=document.getElementById("btn-"+k),lbl=document.getElementById("lbl-"+k);
-    const left=(userCd[k]||0)+CD_MS[k]-now;
-    if(left>0){btn.classList.add("on-cd");const m=Math.floor(left/60000),s=Math.floor((left%60000)/1000);lbl.innerText=m+":"+(s<10?"0":"")+s;}
-    else{btn.classList.remove("on-cd");lbl.innerText=DEF_LBL[k];}
-  });
-}
+function saveName(){const v=document.getElementById("nameInput").value.trim();if(v){sendAction("customize",{name:v});document.getElementById("nameInput").value="";switchTab("room",document.querySelector(".n-btn"));}}
+function watchAd(){if(!AdCtrl){sendAction("golden_feed");return;}AdCtrl.show().then(()=>sendAction("golden_feed")).catch(()=>{if(tg&&tg.showAlert)tg.showAlert("Реклама недоступна");});}
+function updateTimers(){const now=Date.now();["feed","play","wash"].forEach(k=>{const btn=document.getElementById("btn-"+k),lbl=document.getElementById("lbl-"+k),left=(userCd[k]||0)+CD_MS[k]-now;if(left>0){btn.classList.add("on-cd");const m=Math.floor(left/60000),s=Math.floor((left%60000)/1000);lbl.innerText=m+":"+(s<10?"0":"")+s;}else{btn.classList.remove("on-cd");lbl.innerText=DEF_LBL[k];}});}
 setInterval(updateTimers,1000);
-
 function render(p){
-  petData=p;
-  document.getElementById("petName").innerText=p.name;
-  document.getElementById("levelBadge").innerText="Ур. "+p.level;
-  document.getElementById("coinsBadge").innerText=(p.coins||0)+" 🐾";
+  petData=p;document.getElementById("petName").innerText=p.name;document.getElementById("levelBadge").innerText="Ур. "+p.level;document.getElementById("coinsBadge").innerText=(p.coins||0)+" 🐾";
   const need=p.level*100,stage=p.level>=5?"Хранитель ✨":p.level>=3?"Подросток 🐾":"Малыш 🥚";
-  document.getElementById("stageText").innerText=stage+" • "+p.xp+" / "+need+" XP";
-  document.getElementById("xpBar").style.width=Math.min(100,(p.xp/need)*100)+"%";
-  document.getElementById("lastAction").innerText=p.lastActionBy;
-  document.getElementById("hungerVal").innerText=p.hunger+"%";
-  document.getElementById("hungerBar").style.width=p.hunger+"%";
-  document.getElementById("happyVal").innerText=p.happiness+"%";
-  document.getElementById("happyBar").style.width=p.happiness+"%";
-  const en=p.energy!==undefined?p.energy:90;
-  document.getElementById("energyVal").innerText=en+"%";
-  document.getElementById("energyBar").style.width=en+"%";
-  const c=COLS[p.color]||COLS.pink;
-  document.getElementById("g1").setAttribute("stop-color",c);
-  document.getElementById("g2").setAttribute("stop-color",c);
-  document.getElementById("evo-teen").style.display=p.level>=3?"block":"none";
-  document.getElementById("evo-wings").style.display=p.level>=5?"block":"none";
-
+  document.getElementById("stageText").innerText=stage+" • "+p.xp+" / "+need+" XP";document.getElementById("xpBar").style.width=Math.min(100,(p.xp/need)*100)+"%";
+  document.getElementById("lastAction").innerText=p.lastActionBy;document.getElementById("hungerVal").innerText=p.hunger+"%";document.getElementById("hungerBar").style.width=p.hunger+"%";
+  document.getElementById("happyVal").innerText=p.happiness+"%";document.getElementById("happyBar").style.width=p.happiness+"%";
+  const en=p.energy!==undefined?p.energy:90;document.getElementById("energyVal").innerText=en+"%";document.getElementById("energyBar").style.width=en+"%";
+  const c=COLS[p.color]||COLS.pink;document.getElementById("g1").setAttribute("stop-color",c);document.getElementById("g2").setAttribute("stop-color",c);
+  document.getElementById("evo-teen").style.display=p.level>=3?"block":"none";document.getElementById("evo-wings").style.display=p.level>=5?"block":"none";
   const inv=Array.isArray(p.inventory)?p.inventory:[];
   ["plant","lamp","sofa"].forEach(id=>document.getElementById("dec-"+id).style.display=inv.includes(id)?"block":"none");
-  ["plant","lamp","sofa","scarf","halo"].forEach(id=>{
-    const b=document.getElementById("shop-"+id);
-    if(b&&inv.includes(id)){b.innerText="Куплено ✅";b.classList.add("owned");}
-  });
+  ["plant","lamp","sofa","scarf","halo"].forEach(id=>{const b=document.getElementById("shop-"+id);if(b&&inv.includes(id)){b.innerText="Куплено ✅";b.classList.add("owned");}});
   ["scarf","halo"].forEach(id=>document.getElementById("card-"+id).style.display=inv.includes(id)?"block":"none");
-
   const accs=Array.isArray(p.accessories)?p.accessories:[];
-  ["crown","glasses","bow","scarf","halo"].forEach(id=>{
-    const active=accs.includes(id);
-    document.getElementById("acc-"+id).style.display=active?"block":"none";
-    const card=document.getElementById("card-"+id);
-    if(card)card.classList.toggle("equipped",active);
-  });
-
+  ["crown","glasses","bow","scarf","halo"].forEach(id=>{const active=accs.includes(id);document.getElementById("acc-"+id).style.display=active?"block":"none";const card=document.getElementById("card-"+id);if(card)card.classList.toggle("equipped",active);});
   const rm=document.getElementById("petRoom"),eo=document.getElementById("eyesOpen"),ec=document.getElementById("eyesClosed"),md=document.getElementById("moodText"),win=document.getElementById("roomWindow");
   if(p.isSleeping){rm.classList.add("night");win.innerText="🌙";eo.style.display="none";ec.style.display="block";document.getElementById("sleepIcon").innerText="☀️";document.getElementById("sleepLabel").innerText="Разбудить";md.innerText="💤 Спит...";}
   else{rm.classList.remove("night");win.innerText="☀️";eo.style.display="block";ec.style.display="none";document.getElementById("sleepIcon").innerText="💤";document.getElementById("sleepLabel").innerText="Спать";md.innerText=p.hunger<30?"😿 Хочу кушать!":"😺 Счастлив и бодр!";}
-
   const lst=document.getElementById("leaderboardList"),arr=Object.values(p.leaderboard||{}).sort((a,b)=>b.score-a.score);
   if(arr.length>0){lst.innerHTML="";arr.forEach((it,i)=>{const row=document.createElement("div");row.className="l-row";const l=document.createElement("span");l.innerText=(i===0?"🥇 ":i===1?"🥈 ":i===2?"🥉 ":"🐾 ")+it.name;const r=document.createElement("span");r.style.color="#a29bfe";r.innerText=it.score+" XP";row.appendChild(l);row.appendChild(r);lst.appendChild(row);});}
   updateTimers();
