@@ -30,7 +30,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
 /* Нижняя панель */
 .bottom-panel{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg, #05050a 60%, transparent 100%);padding:20px 15px 30px;z-index:10;display:flex;flex-direction:column;gap:15px}
 .tabs{display:flex;gap:5px;background:rgba(20,25,45,0.8);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.05)}
-.tab-btn{flex:1;background:transparent;border:none;padding:12px 5px;border-radius:12px;color:#8f9bb3;font-weight:900;font-size:14px;transition:all 0.3s}
+.tab-btn{flex:1;background:transparent;border:none;padding:10px 2px;border-radius:12px;color:#8f9bb3;font-weight:900;font-size:12px;transition:all 0.3s}
 .tab-btn.active{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;box-shadow:0 0 15px rgba(108,92,231,0.5)}
 .content{display:none;animation:fadeIn 0.3s}
 .content.active{display:block}
@@ -39,11 +39,18 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
 .btn-pet{width:100%;background:linear-gradient(135deg,#ff9ff3,#f368e0);border:none;padding:16px;border-radius:16px;font-size:16px;font-weight:900;color:#fff;box-shadow:0 10px 25px rgba(243,104,224,0.4);transition:transform 0.1s}
 .btn-pet:active{transform:scale(0.95)}
 
-/* Магазин */
-.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+/* Магазин и Кастомизация */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .shop-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:15px;text-align:center;font-size:12px;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:8px}
 .shop-item button{background:#6c5ce7;color:#fff;border:none;padding:8px;border-radius:10px;font-weight:900;width:100%;cursor:pointer}
 .shop-item button.owned{background:#00b894;pointer-events:none}
+
+/* Кнопки кастомизации */
+.color-btn{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);cursor:pointer;margin:0 auto;transition:transform 0.2s}
+.color-btn:active{transform:scale(0.9)}
+.scale-btn{background:#252b48;border:none;color:#fff;padding:10px;border-radius:12px;font-weight:bold;font-size:14px;width:100%}
+.scale-btn:active{background:#6c5ce7}
 
 #ui-log{position:absolute;bottom:130px;width:100%;text-align:center;color:#8f9bb3;font-size:13px;z-index:10;pointer-events:none;text-shadow:0 2px 4px #000}
 </style>
@@ -62,6 +69,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
 <div class="bottom-panel">
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('home', this)">🏠 Дом</button>
+    <button class="tab-btn" onclick="switchTab('custom', this)">🎨 Стиль</button>
     <button class="tab-btn" onclick="switchTab('shop', this)">🛍️ Магазин</button>
   </div>
   
@@ -69,8 +77,40 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;touch
     <button class="btn-pet" onclick="petAction()">✨ Погладить</button>
   </div>
 
+  <div id="content-custom" class="content">
+    <div style="font-size:12px;color:#8f9bb3;margin-bottom:5px;font-weight:bold">Цвет питомца</div>
+    <div class="grid-4" style="margin-bottom:10px">
+      <div class="color-btn" style="background:#ff9ff3" onclick="customize({petColor:'#ff9ff3'})"></div>
+      <div class="color-btn" style="background:#55efc4" onclick="customize({petColor:'#55efc4'})"></div>
+      <div class="color-btn" style="background:#74b9ff" onclick="customize({petColor:'#74b9ff'})"></div>
+      <div class="color-btn" style="background:#ffeaa7" onclick="customize({petColor:'#ffeaa7'})"></div>
+    </div>
+    
+    <div style="font-size:12px;color:#8f9bb3;margin-bottom:5px;font-weight:bold">Цвет глаз</div>
+    <div class="grid-4" style="margin-bottom:10px">
+      <div class="color-btn" style="background:#05050a" onclick="customize({eyeColor:'#05050a'})"></div>
+      <div class="color-btn" style="background:#00cec9" onclick="customize({eyeColor:'#00cec9'})"></div>
+      <div class="color-btn" style="background:#e17055" onclick="customize({eyeColor:'#e17055'})"></div>
+      <div class="color-btn" style="background:#a29bfe" onclick="customize({eyeColor:'#a29bfe'})"></div>
+    </div>
+
+    <div style="font-size:12px;color:#8f9bb3;margin-bottom:5px;font-weight:bold">Размер</div>
+    <div class="grid-2" style="margin-bottom:10px">
+      <button class="scale-btn" onclick="customize({petScale:0.8})">Маленький</button>
+      <button class="scale-btn" onclick="customize({petScale:1.2})">Большой</button>
+    </div>
+
+    <div style="font-size:12px;color:#8f9bb3;margin-bottom:5px;font-weight:bold">Стены</div>
+    <div class="grid-4">
+      <div class="color-btn" style="background:#111122" onclick="customize({wallColor:'#111122'})"></div>
+      <div class="color-btn" style="background:#2d2350" onclick="customize({wallColor:'#2d2350'})"></div>
+      <div class="color-btn" style="background:#1a2e1a" onclick="customize({wallColor:'#1a2e1a'})"></div>
+      <div class="color-btn" style="background:#2e1a1a" onclick="customize({wallColor:'#2e1a1a'})"></div>
+    </div>
+  </div>
+
   <div id="content-shop" class="content">
-    <div class="shop-grid" id="shop-grid"></div>
+    <div class="grid-2" id="shop-grid"></div>
   </div>
 </div>
 
@@ -95,9 +135,9 @@ if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) me.id = String(tg.initDat
 var qp = new URLSearchParams(location.search);
 var chatId = qp.get("chat_id") || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param ? tg.initDataUnsafe.start_param.replace("chat_", "") : null) || me.id;
 
-var state = { coins: 0, petType: null, lastAction: "", inventory: [] };
+var state = { coins: 0, petType: null, petColor: "#ff9ff3", eyeColor: "#05050a", petScale: 1, wallColor: "#111122", floorColor: "#1a1a2e", inventory: [] };
 
-// ================= THREE.JS =================
+// ================= THREE.JS (PREMIUM GRAPHICS) =================
 var scene, camera, renderer;
 var petGroup, roomGroup;
 var clock = new THREE.Clock();
@@ -105,9 +145,9 @@ var particles = [];
 
 // Для анимации эмоций
 var normalEyesGroup, happyEyesGroup;
-var petMouth;
 var isPetting = false;
 var petAnimationTime = 0;
+var bodyMeshes = []; // Массив для смены цвета
 
 function init3D() {
   scene = new THREE.Scene();
@@ -120,21 +160,29 @@ function init3D() {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  
+  // НАСТРОЙКИ ДЛЯ КРАСИВОГО СВЕТА (Убирают эффект пластилина)
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  
   document.body.appendChild(renderer.domElement);
 
-  // Свет
+  // Мягкий свет
   scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-  var dLight = new THREE.DirectionalLight(0xffffff, 1.2);
-  dLight.position.set(5, 10, 5);
+  
+  var dLight = new THREE.DirectionalLight(0xfff0f5, 1.5);
+  dLight.position.set(3, 6, 4);
   dLight.castShadow = true;
   dLight.shadow.mapSize.width = 1024;
   dLight.shadow.mapSize.height = 1024;
+  dLight.shadow.bias = -0.001;
   scene.add(dLight);
 
-  var pLight = new THREE.PointLight(0xff9ff3, 2, 10);
-  pLight.position.set(-2, 2, 2);
+  var pLight = new THREE.PointLight(0x6c5ce7, 2, 10);
+  pLight.position.set(-3, 2, 2);
   scene.add(pLight);
 
   // ================= КОМНАТА =================
@@ -142,42 +190,39 @@ function init3D() {
   scene.add(roomGroup);
 
   // Пол
-  var floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.2, metalness: 0.1 }));
+  var floorMat = new THREE.MeshPhysicalMaterial({ color: state.floorColor, roughness: 0.2, metalness: 0.1, clearcoat: 0.5 });
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), floorMat);
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -0.5;
   floor.receiveShadow = true;
   roomGroup.add(floor);
 
   // Стены
-  var wallMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.8 });
+  var wallMat = new THREE.MeshStandardMaterial({ color: state.wallColor, roughness: 0.9 });
   var backWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 6), wallMat);
   backWall.position.set(0, 2.5, -3.1);
   backWall.receiveShadow = true;
   roomGroup.add(backWall);
 
-  // ГЛУБОКОЕ ОКНО
+  // Окно
   var winGroup = new THREE.Group();
-  // Рама
-  var frameMat = new THREE.MeshStandardMaterial({ color: 0x2a2f4a, roughness: 0.5 });
+  var frameMat = new THREE.MeshStandardMaterial({ color: 0x2a2f4a, roughness: 0.3, metalness: 0.5 });
   var topF = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.2, 0.4), frameMat); topF.position.y = 1.1;
   var botF = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.2, 0.4), frameMat); botF.position.y = -1.1;
   var leftF = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.2, 0.4), frameMat); leftF.position.x = -1.5;
   var rightF = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.2, 0.4), frameMat); rightF.position.x = 1.5;
   winGroup.add(topF, botF, leftF, rightF);
   
-  // Ночное небо за окном
   var sky = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 2.0), new THREE.MeshBasicMaterial({ color: 0x0a0c20 }));
   sky.position.z = -0.2;
   winGroup.add(sky);
   
-  // Звезды
   for(var i=0; i<15; i++) {
-    var star = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    var star = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     star.position.set((Math.random()-0.5)*2.5, (Math.random()-0.5)*1.8, -0.19);
     winGroup.add(star);
   }
   
-  // Луна
   var moon = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffeaa7 }));
   moon.position.set(0.8, 0.6, -0.19);
   winGroup.add(moon);
@@ -185,24 +230,23 @@ function init3D() {
   winGroup.position.set(0, 1.8, -3);
   roomGroup.add(winGroup);
 
-  // Кровать (Более детальная)
+  // Кровать
   var bedGroup = new THREE.Group();
-  var bedBase = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 1.4), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 }));
-  bedBase.position.y = -0.3; bedBase.castShadow = true; bedGroup.add(bedBase);
+  var bedBase = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 1.4), new THREE.MeshPhysicalMaterial({ color: 0x6c5ce7, roughness: 0.4 }));
+  bedBase.position.y = -0.3; bedBase.castShadow = true; bedBase.receiveShadow = true; bedGroup.add(bedBase);
   
-  var mattress = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.2, 1.2), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-  mattress.position.y = -0.1; mattress.castShadow = true; bedGroup.add(mattress);
+  var mattress = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.2, 1.2), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }));
+  mattress.position.y = -0.1; mattress.castShadow = true; mattress.receiveShadow = true; bedGroup.add(mattress);
   
   var pillow = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.8), new THREE.MeshStandardMaterial({ color: 0xa29bfe }));
   pillow.position.set(-0.7, 0.05, 0); pillow.castShadow = true; bedGroup.add(pillow);
   
-  var headboard = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 1.4), new THREE.MeshStandardMaterial({ color: 0x6c5ce7 }));
+  var headboard = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 1.4), new THREE.MeshPhysicalMaterial({ color: 0x6c5ce7 }));
   headboard.position.set(-1.2, 0.3, 0); headboard.castShadow = true; bedGroup.add(headboard);
 
   bedGroup.position.set(2.5, -0.2, -1.8);
   roomGroup.add(bedGroup);
 
-  // Ковер под питомцем
   var rug = new THREE.Mesh(new THREE.CircleGeometry(1.8, 64), new THREE.MeshStandardMaterial({ color: 0x2d2350, roughness: 1 }));
   rug.rotation.x = -Math.PI / 2;
   rug.position.set(0, -0.49, 0.5);
@@ -216,40 +260,38 @@ function init3D() {
   animate();
 }
 
-// ================= ГЕНЕРАЦИЯ ПИТОМЦЕВ С ЭМОЦИЯМИ =================
+// ================= ГЕНЕРАЦИЯ ПИТОМЦЕВ =================
 function createPet(type) {
   while(petGroup.children.length > 0){ petGroup.remove(petGroup.children[0]); }
+  bodyMeshes = [];
 
   var bodyMat, accentMat;
 
   if (type === "cat") {
-    bodyMat = new THREE.MeshPhysicalMaterial({ color: 0xff9ff3, roughness: 0.3, clearcoat: 0.8 });
-    accentMat = new THREE.MeshStandardMaterial({ color: 0xc44569 });
+    bodyMat = new THREE.MeshPhysicalMaterial({ color: state.petColor, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 });
+    accentMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
     
     var body = new THREE.Mesh(new THREE.SphereGeometry(0.6, 32, 32), bodyMat);
-    body.scale.set(1, 0.9, 1); body.position.y = 0.5; body.castShadow = true; petGroup.add(body);
+    body.scale.set(1, 0.9, 1); body.position.y = 0.5; body.castShadow = true; petGroup.add(body); bodyMeshes.push(body);
 
     var head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 32), bodyMat);
-    head.position.set(0, 1.1, 0.1); head.castShadow = true; petGroup.add(head);
+    head.position.set(0, 1.1, 0.1); head.castShadow = true; petGroup.add(head); bodyMeshes.push(head);
 
-    // Уши с внутренностями
     var earGeo = new THREE.ConeGeometry(0.15, 0.35, 4);
     var earL = new THREE.Mesh(earGeo, bodyMat); earL.position.set(-0.25, 1.45, 0.1); earL.rotation.z = 0.2; earL.castShadow = true;
     var earR = new THREE.Mesh(earGeo, bodyMat); earR.position.set(0.25, 1.45, 0.1); earR.rotation.z = -0.2; earR.castShadow = true;
-    petGroup.add(earL, earR);
+    petGroup.add(earL, earR); bodyMeshes.push(earL, earR);
     
     var innerEarGeo = new THREE.ConeGeometry(0.08, 0.2, 4);
     var iEL = new THREE.Mesh(innerEarGeo, accentMat); iEL.position.set(-0.25, 1.45, 0.15); iEL.rotation.z = 0.2;
     var iER = new THREE.Mesh(innerEarGeo, accentMat); iER.position.set(0.25, 1.45, 0.15); iER.rotation.z = -0.2;
     petGroup.add(iEL, iER);
 
-    // Лапки
     var legGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.3, 16);
     var legFL = new THREE.Mesh(legGeo, bodyMat); legFL.position.set(-0.3, 0.15, 0.3); legFL.castShadow = true;
     var legFR = new THREE.Mesh(legGeo, bodyMat); legFR.position.set(0.3, 0.15, 0.3); legFR.castShadow = true;
-    petGroup.add(legFL, legFR);
+    petGroup.add(legFL, legFR); bodyMeshes.push(legFL, legFR);
 
-    // Усы
     var wMat = new THREE.LineBasicMaterial({ color: 0xffffff });
     for(var i=0; i<3; i++){
       var w1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.15, 1.1 - i*0.05, 0.45), new THREE.Vector3(-0.4, 1.1 - i*0.1, 0.45)]), wMat);
@@ -258,73 +300,67 @@ function createPet(type) {
     }
 
   } else if (type === "fox") {
-    bodyMat = new THREE.MeshPhysicalMaterial({ color: 0xe17055, roughness: 0.4, clearcoat: 0.5 });
-    accentMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    bodyMat = new THREE.MeshPhysicalMaterial({ color: state.petColor, roughness: 0.3, clearcoat: 0.8 });
+    accentMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
     
     var body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 32, 32), bodyMat);
-    body.scale.set(1, 0.9, 1); body.position.y = 0.5; body.castShadow = true; petGroup.add(body);
+    body.scale.set(1, 0.9, 1); body.position.y = 0.5; body.castShadow = true; petGroup.add(body); bodyMeshes.push(body);
 
     var head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), bodyMat);
-    head.position.set(0, 1.05, 0.1); head.castShadow = true; petGroup.add(head);
+    head.position.set(0, 1.05, 0.1); head.castShadow = true; petGroup.add(head); bodyMeshes.push(head);
 
     var earGeo = new THREE.ConeGeometry(0.12, 0.5, 4);
     var earL = new THREE.Mesh(earGeo, bodyMat); earL.position.set(-0.25, 1.4, 0.1); earL.rotation.z = 0.1; earL.castShadow = true;
     var earR = new THREE.Mesh(earGeo, bodyMat); earR.position.set(0.25, 1.4, 0.1); earR.rotation.z = -0.1; earR.castShadow = true;
-    petGroup.add(earL, earR);
+    petGroup.add(earL, earR); bodyMeshes.push(earL, earR);
 
-    // Белые щеки
     var cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 16), accentMat); cheekL.position.set(-0.2, 0.95, 0.3);
     var cheekR = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 16), accentMat); cheekR.position.set(0.2, 0.95, 0.3);
     petGroup.add(cheekL, cheekR);
 
-    // Мордочка
     var snout = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.25, 16), accentMat);
     snout.position.set(0, 1.0, 0.45); snout.rotation.x = Math.PI/2; snout.castShadow = true; petGroup.add(snout);
 
-    // Хвост
     var tail = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), bodyMat);
-    tail.scale.set(1, 1.5, 1); tail.position.set(0, 0.4, -0.7); tail.rotation.x = -0.5; tail.castShadow = true; petGroup.add(tail);
+    tail.scale.set(1, 1.5, 1); tail.position.set(0, 0.4, -0.7); tail.rotation.x = -0.5; tail.castShadow = true; petGroup.add(tail); bodyMeshes.push(tail);
 
   } else if (type === "robot") {
-    bodyMat = new THREE.MeshPhysicalMaterial({ color: 0x74b9ff, metalness: 0.9, roughness: 0.1, clearcoat: 1 });
+    bodyMat = new THREE.MeshPhysicalMaterial({ color: state.petColor, metalness: 0.9, roughness: 0.1, clearcoat: 1 });
     accentMat = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 1 });
     
     var body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.8, 16), bodyMat);
-    body.position.y = 0.5; body.castShadow = true; petGroup.add(body);
+    body.position.y = 0.5; body.castShadow = true; petGroup.add(body); bodyMeshes.push(body);
 
     var head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), bodyMat);
-    head.position.y = 1.15; head.castShadow = true; petGroup.add(head);
+    head.position.y = 1.15; head.castShadow = true; petGroup.add(head); bodyMeshes.push(head);
 
     var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8), bodyMat);
-    antenna.position.set(0, 1.55, 0); petGroup.add(antenna);
+    antenna.position.set(0, 1.55, 0); petGroup.add(antenna); bodyMeshes.push(antenna);
     var bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), accentMat);
     bulb.position.set(0, 1.75, 0); petGroup.add(bulb);
 
     var armGeo = new THREE.SphereGeometry(0.15, 16, 16);
     var armL = new THREE.Mesh(armGeo, bodyMat); armL.position.set(-0.65, 0.7, 0); armL.castShadow = true;
     var armR = new THREE.Mesh(armGeo, bodyMat); armR.position.set(0.65, 0.7, 0); armR.castShadow = true;
-    petGroup.add(armL, armR);
+    petGroup.add(armL, armR); bodyMeshes.push(armL, armR);
   }
 
-  // ================= ЭМОЦИИ (Глаза и Рот) =================
+  // Эмоции
   normalEyesGroup = new THREE.Group();
   happyEyesGroup = new THREE.Group();
   happyEyesGroup.visible = false;
 
-  var eyeMat = new THREE.MeshStandardMaterial({ color: 0x05050a });
+  var eyeMat = new THREE.MeshStandardMaterial({ color: state.eyeColor, roughness: 0.1 });
   
   if (type === "robot") {
-    // Визор для робота
     var visor = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.1), accentMat);
     visor.position.set(0, 1.15, 0.36);
     petGroup.add(visor);
   } else {
-    // Обычные глаза
     var eL = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeMat); eL.position.set(-0.15, 1.15, 0.45);
     var eR = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeMat); eR.position.set(0.15, 1.15, 0.45);
     normalEyesGroup.add(eL, eR);
 
-    // Счастливые глаза (дуги)
     var arcGeo = new THREE.TorusGeometry(0.06, 0.02, 8, 16, Math.PI);
     var arcL = new THREE.Mesh(arcGeo, eyeMat); arcL.position.set(-0.15, 1.15, 0.45); arcL.rotation.z = Math.PI;
     var arcR = new THREE.Mesh(arcGeo, eyeMat); arcR.position.set(0.15, 1.15, 0.45); arcR.rotation.z = Math.PI;
@@ -333,61 +369,25 @@ function createPet(type) {
     petGroup.add(normalEyesGroup);
     petGroup.add(happyEyesGroup);
 
-    // Рот (улыбка)
     var mouthGeo = new THREE.TorusGeometry(0.1, 0.015, 8, 16, Math.PI);
-    petMouth = new THREE.Mesh(mouthGeo, eyeMat);
+    var petMouth = new THREE.Mesh(mouthGeo, eyeMat);
     petMouth.position.set(0, 0.95, 0.48);
     petMouth.rotation.z = Math.PI;
     petGroup.add(petMouth);
-
-    // Румяна (скрыты по умолчанию)
-    var blushMat = new THREE.MeshBasicMaterial({ color: 0xff4757, transparent: true, opacity: 0 });
-    var blushL = new THREE.Mesh(new THREE.CircleGeometry(0.08, 16), blushMat); blushL.position.set(-0.25, 1.05, 0.46);
-    var blushR = new THREE.Mesh(new THREE.CircleGeometry(0.08, 16), blushMat); blushR.position.set(0.25, 1.05, 0.46);
-    petGroup.add(blushL, blushR);
-    petGroup.userData.blush = [blushL, blushR];
   }
+  
+  petGroup.scale.setScalar(state.petScale);
 }
 
-// ================= ЭФФЕКТЫ =================
-function spawnParticles(x, y, z) {
-  for (var i = 0; i < 20; i++) {
-    var isHeart = Math.random() > 0.5;
-    var pGeo, pMat;
-    
-    if (isHeart) {
-      // Маленькие сердечки
-      pGeo = new THREE.SphereGeometry(0.04, 8, 8);
-      pMat = new THREE.MeshBasicMaterial({ color: 0xff9ff3 });
-    } else {
-      // Звездочки
-      pGeo = new THREE.BoxGeometry(0.04, 0.04, 0.04);
-      pMat = new THREE.MeshBasicMaterial({ color: 0xffeaa7 });
-    }
-    
-    var mesh = new THREE.Mesh(pGeo, pMat);
-    mesh.position.set(x + (Math.random()-0.5)*0.5, y, z + (Math.random()-0.5)*0.5);
-    scene.add(mesh);
-
-    particles.push({
-      mesh: mesh,
-      vel: new THREE.Vector3((Math.random() - 0.5) * 0.15, Math.random() * 0.2 + 0.1, (Math.random() - 0.5) * 0.15),
-      life: 1.0,
-      isHeart: isHeart
-    });
-  }
-}
-
-// ================= ОТРИСОВКА МЕБЕЛИ =================
 function updateRoom() {
-  // Удаляем старую мебель
   var toRemove = [];
-  roomGroup.children.forEach(function(c) {
-    if (c.userData.isFurniture) toRemove.push(c);
-  });
+  roomGroup.children.forEach(function(c) { if (c.userData.isFurniture) toRemove.push(c); });
   toRemove.forEach(function(c) { roomGroup.remove(c); });
 
-  // Растение
+  // Смена цвета пола и стен
+  if(roomGroup.children[0]) roomGroup.children[0].material.color.set(state.floorColor);
+  if(roomGroup.children[1]) roomGroup.children[1].material.color.set(state.wallColor);
+
   if (state.inventory.indexOf("plant") > -1) {
     var plantGrp = new THREE.Group();
     var pot = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.15, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0x8b4513 }));
@@ -400,7 +400,6 @@ function updateRoom() {
     roomGroup.add(plantGrp);
   }
 
-  // Торшер
   if (state.inventory.indexOf("lamp") > -1) {
     var lampGrp = new THREE.Group();
     var stand = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.5, 8), new THREE.MeshStandardMaterial({ color: 0x333 }));
@@ -415,54 +414,40 @@ function updateRoom() {
   }
 }
 
-// ================= АНИМАЦИЯ =================
 function animate() {
   requestAnimationFrame(animate);
   var t = clock.getElapsedTime();
   var dt = Math.min(clock.getDelta(), 0.1);
 
   if (petGroup) {
-    var scale = 1 + Math.sin(t * 2) * 0.02;
+    var scale = state.petScale;
     
-    // Если гладим - подпрыгивает и меняет лицо
     if (isPetting) {
       petAnimationTime += dt;
-      scale = 1.1 + Math.sin(t * 20) * 0.05; // Быстрое дрожание от радости
-      petGroup.position.y = -0.4 + Math.abs(Math.sin(t * 10)) * 0.2; // Прыжки
+      scale = state.petScale * (1.1 + Math.sin(t * 20) * 0.05);
+      petGroup.position.y = -0.4 + Math.abs(Math.sin(t * 10)) * 0.2;
       
       if (normalEyesGroup) normalEyesGroup.visible = false;
       if (happyEyesGroup) happyEyesGroup.visible = true;
-      if (petGroup.userData.blush) petGroup.userData.blush.forEach(function(b) { b.material.opacity = 0.8; });
 
-      if (petAnimationTime > 1.5) {
-        isPetting = false;
-        petAnimationTime = 0;
-      }
+      if (petAnimationTime > 1.5) { isPetting = false; petAnimationTime = 0; }
     } else {
-      scale = 1 + Math.sin(t * 2) * 0.02;
+      scale = state.petScale * (1 + Math.sin(t * 2) * 0.02);
       petGroup.position.y = -0.4 + Math.sin(t * 1.5) * 0.03;
       
       if (normalEyesGroup) normalEyesGroup.visible = true;
       if (happyEyesGroup) happyEyesGroup.visible = false;
-      if (petGroup.userData.blush) petGroup.userData.blush.forEach(function(b) { b.material.opacity = 0; });
     }
-    
     petGroup.scale.set(scale, scale, scale);
   }
 
-  // Обновление частиц
   for (var i = particles.length - 1; i >= 0; i--) {
     var p = particles[i];
     p.mesh.position.add(p.vel);
     p.vel.y -= 0.01;
     p.life -= 0.02;
     p.mesh.material.opacity = p.life;
-    if (p.isHeart) p.mesh.scale.setScalar(p.life);
-
-    if (p.life <= 0) {
-      scene.remove(p.mesh);
-      particles.splice(i, 1);
-    }
+    if (p.life <= 0) { scene.remove(p.mesh); particles.splice(i, 1); }
   }
 
   renderer.render(scene, camera);
@@ -480,16 +465,13 @@ function updateUI() {
     if (petGroup.children.length === 0) createPet(state.petType);
   }
 
-  updateRoom(); // Обновляем мебель на основе купленного
+  updateRoom();
 
   var shopGrid = document.getElementById("shop-grid");
   shopGrid.innerHTML = "";
-  
   var items = [
-    { id: "plant", name: "Неон. растение", cost: 50, icon: "🪴" },
-    { id: "lamp", name: "Торшер", cost: 100, icon: "💡" },
-    { id: "garland", name: "Гирлянда", cost: 150, icon: "✨" },
-    { id: "rug", name: "Ковер", cost: 200, icon: "🧶" }
+    { id: "plant", name: "Растение", cost: 50, icon: "🪴" },
+    { id: "lamp", name: "Торшер", cost: 100, icon: "💡" }
   ];
 
   items.forEach(function(item) {
@@ -498,12 +480,7 @@ function updateUI() {
     var isOwned = state.inventory.indexOf(item.id) > -1;
     var btnClass = isOwned ? "owned" : "";
     var btnText = isOwned ? "Куплено ✅" : item.cost + " 💰";
-
-    div.innerHTML = `
-      <div style="font-size:30px">${item.icon}</div>
-      <div>${item.name}</div>
-      <button class="${btnClass}" onclick="buyItem('${item.id}')">${btnText}</button>
-    `;
+    div.innerHTML = `<div style="font-size:30px">${item.icon}</div><div>${item.name}</div><button class="${btnClass}" onclick="buyItem('${item.id}')">${btnText}</button>`;
     shopGrid.appendChild(div);
   });
 }
@@ -522,11 +499,23 @@ window.selectPet = function(type) {
   apiCall("select_pet", { petType: type });
 };
 
+window.customize = function(data) {
+  apiCall("customize", data);
+};
+
 window.petAction = function() {
   if (!state.petType) return;
   isPetting = true;
   petAnimationTime = 0;
-  spawnParticles(0, 0.5, 0.5);
+  
+  for (var i = 0; i < 10; i++) {
+    var pMat = new THREE.MeshBasicMaterial({ color: 0xff9ff3 });
+    var mesh = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), pMat);
+    mesh.position.set(0 + (Math.random()-0.5)*0.5, 0.5, 0.5 + (Math.random()-0.5)*0.5);
+    scene.add(mesh);
+    particles.push({ mesh: mesh, vel: new THREE.Vector3((Math.random() - 0.5) * 0.15, Math.random() * 0.2 + 0.1, (Math.random() - 0.5) * 0.15), life: 1.0 });
+  }
+  
   apiCall("pet", {});
 };
 
@@ -543,7 +532,20 @@ function apiCall(action, extra) {
   .then(function(r){ return r.json(); })
   .then(function(d){
     if(!d.ok && d.message && tg) tg.showAlert(d.message);
-    if(d.state) { state = d.state; updateUI(); }
+    if(d.state) { 
+      state = d.state; 
+      updateUI(); 
+      
+      // Мгновенное обновление цвета при клике на палитру
+      if(action === "customize") {
+        bodyMeshes.forEach(function(m) { m.material.color.set(state.petColor); });
+        if(normalEyesGroup) {
+           normalEyesGroup.children.forEach(function(m){ m.material.color.set(state.eyeColor); });
+           happyEyesGroup.children.forEach(function(m){ m.material.color.set(state.eyeColor); });
+        }
+        petGroup.scale.setScalar(state.petScale);
+      }
+    }
   });
 }
 
