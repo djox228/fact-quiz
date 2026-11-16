@@ -8,14 +8,14 @@
   <script src="https://adsgram.ai"></script>
   <style>
     :root {
-      --bg: #12141d;
-      --card: #1e2230;
+      --bg: #0f111a;
+      --card: #1a1d2d;
+      --card-light: #25293e;
       --accent: #6c5ce7;
-      --gold: #fdcb6e;
       --text: #ffffff;
-      --sub: #a4b0be;
+      --sub: #8f9bb3;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
       background: var(--bg);
       color: var(--text);
@@ -23,323 +23,549 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 16px;
+      padding: 12px 14px 86px 14px;
       user-select: none;
     }
+    .container { width: 100%; max-width: 420px; }
+
+    /* Шапка */
     .header {
-      width: 100%;
-      max-width: 400px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--card);
       padding: 12px 16px;
-      border-radius: 16px;
-      margin-bottom: 16px;
+      border-radius: 18px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
+    .xp-bar-wrap { width: 130px; height: 6px; background: #0f111a; border-radius: 6px; margin-top: 5px; overflow: hidden; }
+    .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a29bfe, #6c5ce7); width: 0%; transition: width 0.4s; }
     .level-badge {
-      background: var(--accent);
-      padding: 4px 12px;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      padding: 6px 14px;
       border-radius: 20px;
-      font-weight: bold;
-      font-size: 14px;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.35);
     }
+
+    /* Комната питомца */
     .room {
-      width: 100%;
-      max-width: 400px;
-      height: 260px;
-      background: radial-gradient(circle at center, #2c324a 0%, #181b26 100%);
-      border-radius: 24px;
+      height: 250px;
+      background: radial-gradient(circle at 50% 40%, #2d3559 0%, #161926 100%);
+      border-radius: 26px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
-      margin-bottom: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      margin-bottom: 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
       overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: background 0.6s ease;
     }
-    .pet-avatar {
-      width: 130px;
-      height: 130px;
-      background: linear-gradient(135deg, #ff9ff3, #f368e0);
-      border-radius: 45% 45% 40% 40%;
-      position: relative;
-      animation: breathe 3s ease-in-out infinite;
-      cursor: pointer;
-      transition: transform 0.2s;
-      box-shadow: 0 15px 30px rgba(243, 104, 224, 0.3);
+    .room.night {
+      background: radial-gradient(circle at 50% 30%, #141829 0%, #090b12 100%);
     }
-    .pet-avatar:active { transform: scale(0.9); }
-    .pet-avatar.jump { animation: jump 0.5s ease; }
-    .ear {
-      width: 34px;
-      height: 45px;
-      background: #f368e0;
-      border-radius: 50% 50% 0 0;
+    .floor {
       position: absolute;
-      top: -22px;
-    }
-    .ear.left { left: 16px; transform: rotate(-15deg); }
-    .ear.right { right: 16px; transform: rotate(15deg); }
-    .eyes {
-      display: flex;
-      justify-content: space-between;
-      width: 64px;
-      position: absolute;
-      top: 48px;
-      left: 33px;
-    }
-    .eye {
-      width: 14px;
-      height: 18px;
-      background: #12141d;
+      bottom: -30px;
+      width: 130%;
+      height: 90px;
+      background: rgba(255,255,255,0.03);
       border-radius: 50%;
-      position: relative;
-      animation: blink 4s infinite;
-    }
-    .eye::after {
-      content: '';
-      width: 5px;
-      height: 5px;
-      background: #fff;
-      border-radius: 50%;
-      position: absolute;
-      top: 3px;
-      left: 3px;
-    }
-    .mouth {
-      width: 22px;
-      height: 10px;
-      border-bottom: 4px solid #12141d;
-      border-radius: 0 0 20px 20px;
-      position: absolute;
-      top: 76px;
-      left: 54px;
-    }
-    .mouth.sad {
-      border-bottom: none;
-      border-top: 4px solid #12141d;
-      border-radius: 20px 20px 0 0;
-      top: 80px;
     }
     .status-bubble {
       position: absolute;
-      top: 14px;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(5px);
+      top: 12px;
+      background: rgba(15, 17, 26, 0.65);
+      backdrop-filter: blur(8px);
       padding: 6px 14px;
       border-radius: 20px;
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.08);
+      z-index: 5;
     }
     .last-action {
       position: absolute;
-      bottom: 12px;
-      font-size: 12px;
+      bottom: 10px;
+      font-size: 11px;
       color: var(--sub);
+      background: rgba(0,0,0,0.3);
+      padding: 4px 10px;
+      border-radius: 12px;
+      z-index: 5;
     }
-    .stats {
+
+    /* SVG Питомец */
+    .pet-wrapper {
+      position: relative;
+      width: 165px;
+      height: 165px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 3;
+      animation: floatPet 3.2s ease-in-out infinite;
+    }
+    .pet-wrapper.jump { animation: jumpPet 0.5s ease; }
+    .pet-shadow {
+      width: 90px;
+      height: 16px;
+      background: rgba(0,0,0,0.45);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 34px;
+      filter: blur(3px);
+    }
+    .particle {
+      position: absolute;
+      font-size: 20px;
+      pointer-events: none;
+      animation: flyUp 1s ease-out forwards;
+      z-index: 10;
+    }
+
+    /* Статы (3 полоски в ряд) */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat-card {
+      background: var(--card);
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .bar-bg { width: 100%; height: 7px; background: #0f111a; border-radius: 6px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+
+    /* Кнопки действий */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .act-btn {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 12px 4px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+    }
+    .act-btn:active { transform: scale(0.93); background: var(--card-light); }
+    .act-icon { font-size: 22px; }
+    .act-label { font-size: 11px; font-weight: 600; color: #dfe6e9; }
+
+    .btn-gold {
       width: 100%;
-      max-width: 400px;
+      border: none;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #e17055 100%);
+      color: #1e272e;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(253, 203, 110, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-gold:active { transform: scale(0.97); }
+
+    /* Вкладки (Табы) */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Гардероб */
+    .wardrobe-box {
       background: var(--card);
       padding: 16px;
       border-radius: 20px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
-    .stat-row { margin-bottom: 12px; }
-    .stat-row:last-child { margin-bottom: 0; }
-    .stat-label {
+    .wardrobe-title { font-size: 13px; color: var(--sub); margin-bottom: 10px; font-weight: 600; }
+    .name-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .name-input {
+      flex: 1;
+      background: #0f111a;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .save-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 0 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .swatches { display: flex; gap: 10px; margin-bottom: 16px; }
+    .swatch {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+    }
+    .swatch.selected { border-color: #fff; transform: scale(1.1); }
+    .acc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .acc-item {
+      background: #0f111a;
+      padding: 10px 4px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .acc-item.selected { border-color: var(--accent); background: var(--card-light); }
+
+    /* Лидерборд */
+    .leader-row {
       display: flex;
       justify-content: space-between;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
-    .bar-bg {
-      width: 100%;
-      height: 10px;
-      background: #12141d;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 10px;
-      transition: width 0.4s ease;
-    }
-    .actions {
-      width: 100%;
-      max-width: 400px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    button {
-      border: none;
-      padding: 16px;
-      border-radius: 16px;
-      font-size: 15px;
-      font-weight: bold;
-      color: #fff;
+      align-items: center;
       background: var(--card);
+      padding: 12px 16px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+
+    /* Нижняя навигация */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(26, 29, 45, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 16px 0;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      z-index: 50;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--sub);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.1s, opacity 0.2s;
     }
-    button:active { transform: scale(0.96); }
-    .btn-feed { background: #00b894; }
-    .btn-play { background: #0984e3; }
-    .btn-gold {
-      grid-column: span 2;
-      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-      color: #12141d;
+    .nav-btn.active { color: #a29bfe; }
+    .nav-btn span:first-child { font-size: 20px; }
+
+    @keyframes floatPet {
+      0%, 100% { transform: translateY(0) scaleY(1); }
+      50% { transform: translateY(-6px) scaleY(1.03); }
     }
-    @keyframes breathe {
-      0%, 100% { transform: scaleY(1) translateY(0); }
-      50% { transform: scaleY(1.04) translateY(-4px); }
+    @keyframes jumpPet {
+      0%, 100% { transform: translateY(0) scale(1); }
+      40% { transform: translateY(-28px) scale(1.06, 0.94); }
+      70% { transform: translateY(4px) scale(0.95, 1.05); }
     }
-    @keyframes blink {
-      0%, 96%, 100% { transform: scaleY(1); }
-      98% { transform: scaleY(0.1); }
-    }
-    @keyframes jump {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-25px); }
+    @keyframes flyUp {
+      0% { opacity: 1; transform: translateY(0) scale(0.8); }
+      100% { opacity: 0; transform: translateY(-65px) scale(1.3); }
     }
   </style>
 </head>
 <body>
 
+<div class="container">
+  <!-- Шапка -->
   <div class="header">
     <div>
-      <div style="font-weight: bold; font-size: 18px;" id="petName">Пушистик</div>
-      <div style="font-size: 12px; color: var(--sub);" id="xpText">Опыт: 0 / 100 XP</div>
+      <div style="font-weight: 800; font-size: 17px;" id="petName">Пушистик</div>
+      <div style="font-size: 11px; color: var(--sub);" id="xpText">Опыт: 0 / 100 XP</div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpBar"></div></div>
     </div>
     <div class="level-badge" id="levelBadge">Ур. 1</div>
   </div>
 
-  <div class="room">
-    <div class="status-bubble" id="moodText">😺 Загрузка...</div>
-    <div class="pet-avatar" id="petAvatar" onclick="animateJump()">
-      <div class="ear left"></div>
-      <div class="ear right"></div>
-      <div class="eyes">
-        <div class="eye"></div>
-        <div class="eye"></div>
-      </div>
-      <div class="mouth" id="petMouth"></div>
-    </div>
-    <div class="last-action" id="lastAction">Синхронизация...</div>
-  </div>
+  <!-- ВКЛАДКА 1: КОМНАТА -->
+  <div id="tab-room" class="tab-content active">
+    <div class="room" id="petRoom">
+      <div class="status-bubble" id="moodText">😺 Привет! Погладь меня</div>
+      <div class="floor"></div>
+      <div class="pet-shadow"></div>
 
-  <div class="stats">
-    <div class="stat-row">
-      <div class="stat-label"><span>🍖 Сытость</span><span id="hungerVal">80%</span></div>
-      <div class="bar-bg"><div class="bar-fill" id="hungerBar" style="width: 80%; background: #00b894;"></div></div>
-    </div>
-    <div class="stat-row">
-      <div class="stat-label"><span>❤️ Настроение</span><span id="happyVal">80%</span></div>
-      <div class="bar-bg"><div class="bar-fill" id="happyBar" style="width: 80%; background: #ff7675;"></div></div>
-    </div>
-  </div>
+      <div class="pet-wrapper" id="petWrapper" onclick="petTouch(event)">
+        <!-- Детализированный SVG-персонаж -->
+        <svg width="150" height="150" viewBox="0 0 200 200" id="petSvg">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff9ff3" id="gradStart"/>
+              <stop offset="100%" stop-color="#f368e0" id="gradEnd"/>
+            </linearGradient>
+          </defs>
+          <!-- Ушки -->
+          <path d="M52 75 C38 25, 72 20, 78 65 Z" fill="url(#bodyGrad)"/>
+          <path d="M148 75 C162 25, 128 20, 122 65 Z" fill="url(#bodyGrad)"/>
+          <path d="M56 70 C47 38, 68 35, 72 64 Z" fill="#ffb8d9" opacity="0.7"/>
+Подключаемся к чату...
+🍖 Сытость80%
 
-  <div class="actions">
-    <button class="btn-feed" onclick="sendAction('feed')">🍖 Покормить</button>
-    <button class="btn-play" onclick="sendAction('play')">🎾 Поиграть</button>
-    <button class="btn-gold" onclick="watchAdForGold()">✨ Золотой корм (Смотреть рекламу)</button>
-  </div>
 
-  <script>
-    const API_URL = "https://workers.dev";
-    const tg = window.Telegram.WebApp;
-    tg.expand();
 
-    // Инициализация рекламы AdsGram с вашим blockId
-    const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "56776" }) : null;
+❤️ Радость80%
 
-    // Определяем ID чата (из параметра ссылки или личного ID пользователя)
-    const urlParams = new URLSearchParams(window.location.search);
-    const startParam = tg.initDataUnsafe?.start_param;
-    let chatId = urlParams.get("chat_id") || (startParam ? startParam.replace("chat_", "") : null) || tg.initDataUnsafe?.user?.id || "demo_chat";
 
-    const user = tg.initDataUnsafe?.user || { id: "guest", first_name: "Игрок" };
 
-    async function loadPet() {
-      try {
-        const res = await fetch(`${API_URL}?chat_id=${chatId}`);
-        const data = await res.json();
-        if (data.pet) renderPet(data.pet);
-      } catch (e) {
-        document.getElementById("lastAction").innerText = "Ошибка связи с сервером";
-      }
-    }
+⚡ Энергия90%
 
-    async function sendAction(action) {
-      animateJump();
-      try {
-        const res = await fetch(`${API_URL}?chat_id=${chatId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: action,
-            userId: user.id,
-            userName: user.first_name
-          })
-        });
-        const data = await res.json();
-        if (!data.ok && data.message) {
-          tg.showAlert(data.message);
-        }
-        if (data.pet) renderPet(data.pet);
-      } catch (e) {
-        tg.showAlert("Не удалось выполнить действие");
-      }
-    }
 
-    function watchAdForGold() {
-      if (!AdController) {
-        // Если запущено вне Telegram для теста — сразу даем бонус
-        sendAction("golden_feed");
-        return;
-      }
-      AdController.show().then((result) => {
-        // Пользователь досмотрел рекламу до конца
-        sendAction("golden_feed");
-        tg.showAlert("🎉 Питомец съел Золотой корм! Сытость и настроение 100%!");
-      }).catch((err) => {
-        tg.showAlert("Реклама сейчас недоступна или закрыта раньше времени.");
-      });
-    }
+🍖
+Покормить
 
-    function renderPet(pet) {
-      document.getElementById("petName").innerText = pet.name;
-      document.getElementById("levelBadge").innerText = `Ур. ${pet.level}`;
-      document.getElementById("xpText").innerText = `Опыт: ${pet.xp} / ${pet.level * 100} XP`;
-      document.getElementById("lastAction").innerText = pet.lastActionBy;
 
-      document.getElementById("hungerVal").innerText = `${pet.hunger}%`;
-      document.getElementById("hungerBar").style.width = `${pet.hunger}%`;
+🎾
+Поиграть
 
-      document.getElementById("happyVal").innerText = `${pet.happiness}%`;
-      document.getElementById("happyBar").style.width = `${pet.happiness}%`;
 
-      const mouth = document.getElementById("petMouth");
-      const mood = document.getElementById("moodText");
+🛁
+Помыть
 
-      if (pet.hunger < 30 || pet.happiness < 30) {
-        mouth.classList.add("sad");
-        mood.innerText = pet.hunger < 30 ? "😿 Очень хочу кушать!" : "😾 Мне скучно...";
-        } else {
-mouth.classList.remove("sad");
-mood.innerText = "😺 Отличное настроение!";
+
+💤
+Спать
+
+✨
+Золотой корм +100% ко всему (Реклама)
+
+✏️ Имя питомца для всего чата
+
+
+ОК
+🎨 Окрас питомца
+
+
+
+
+
+
+👑 Аксессуар
+
+🚫
+Без
+👑
+Корона
+🕶️
+Очки
+🎀
+Бантик
+
+
+🏆 Самые заботливые игроки чата
+
+Пока никто не кормил питомца0 XP
+
+
+🏠
+Комната
+
+
+🎨
+Стиль
+
+
+🏆
+Топ чата
+
+const API_URL = "workers.dev";
+const tg = window.Telegram?.WebApp;
+if (tg) {
+tg.ready();
+tg.expand();
+}
+const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "56776" }) : null;
+const urlParams = new URLSearchParams(window.location.search);
+const startParam = tg?.initDataUnsafe?.start_param;
+const chatId = urlParams.get("chat_id") || (startParam ? startParam.replace("chat_", "") : null) || tg?.initDataUnsafe?.user?.id || "demo_chat";
+const user = tg?.initDataUnsafe?.user || { id: "guest_1", first_name: "Игрок" };
+const PALETTES = {
+pink: ["#ff9ff3", "#f368e0"],
+mint: ["#55efc4", "#00b894"],
+sky: ["#74b9ff", "#0984e3"],
+gold: ["#ffeaa7", "#fdcb6e"],
+cyber: ["#a29bfe", "#6c5ce7"]
+};
+let currentPet = null;
+function switchTab(tabName, btn) {
+document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+document.querySelectorAll(".nav-btn").forEach(el => el.classList.remove("active"));
+document.getElementById(tab-${tabName}).classList.add("active");
+btn.classList.add("active");
+if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+}
+function petTouch(e) {
+const wrap = document.getElementById("petWrapper");
+wrap.classList.remove("jump");
+void wrap.offsetWidth;
+wrap.classList.add("jump");
+if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+// Вылетающие сердечки при клике
+const room = document.getElementById("petRoom");
+const heart = document.createElement("div");
+heart.className = "particle";
+heart.innerText = currentPet?.isSleeping ? "💤" : ["❤️", "✨", "💕", "🐾"][Math.floor(Math.random() * 4)];
+heart.style.left = (e.offsetX || 80) + 110 + "px";
+heart.style.top = (e.offsetY || 80) + 40 + "px";
+room.appendChild(heart);
+setTimeout(() => heart.remove(), 1000);
+}
+async function loadPet() {
+try {
+const res = await fetch(${API_URL}?chat_id=${chatId});
+const data = await res.json();
+if (data.pet) renderPet(data.pet);
+} catch (e) {
+document.getElementById("lastAction").innerText = "Автономный режим";
 }
 }
-function animateJump() {
-const el = document.getElementById("petAvatar");
-el.classList.remove("jump");
-void el.offsetWidth;
-el.classList.add("jump");
+async function sendAction(action, extraPayload = {}) {
+if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+try {
+const res = await fetch(${API_URL}?chat_id=${chatId}, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+action,
+userId: user.id,
+userName: user.first_name,
+...extraPayload
+})
+});
+const data = await res.json();
+if (!data.ok && data.message) {
+if (tg?.showAlert) tg.showAlert(data.message);
+else alert(data.message);
+}
+if (data.pet) renderPet(data.pet);
+} catch (e) {
+console.error(e);
+}
+}
+function saveName() {
+const val = document.getElementById("nameInput").value.trim();
+if (!val) return;
+sendAction("customize", { name: val });
+document.getElementById("nameInput").value = "";
+switchTab("room", document.querySelector(".nav-btn"));
+}
+function setColor(colorKey) {
+sendAction("customize", { color: colorKey });
+}
+function setAccessory(accKey) {
+sendAction("customize", { accessory: accKey });
+}
+function watchAdForGold() {
+if (!AdController) {
+sendAction("golden_feed");
+return;
+}
+AdController.show().then(() => {
+sendAction("golden_feed");
+if (tg?.showAlert) tg.showAlert("✨ Питомец съел Золотой корм! Все показатели 100%!");
+}).catch(() => {
+if (tg?.showAlert) tg.showAlert("Реклама временно недоступна.");
+});
+}
+function renderPet(pet) {
+currentPet = pet;
+document.getElementById("petName").innerText = pet.name;
+document.getElementById("levelBadge").innerText = Ур. ${pet.level};
+const xpNeeded = pet.level * 100;
+document.getElementById("xpText").innerText = Опыт: ${pet.xp} / ${xpNeeded} XP;
+document.getElementById("xpBar").style.width = ${Math.min(100, (pet.xp / xpNeeded) * 100)}%;
+document.getElementById("lastAction").innerText = pet.lastActionBy;
+// Шкалы
+document.getElementById("hungerVal").innerText = ${pet.hunger}%;
+document.getElementById("hungerBar").style.width = ${pet.hunger}%;
+document.getElementById("happyVal").innerText = ${pet.happiness}%;
+document.getElementById("happyBar").style.width = ${pet.happiness}%;
+const energy = pet.energy ?? 90;
+document.getElementById("energyVal").innerText = ${energy}%;
+document.getElementById("energyBar").style.width = ${energy}%;
+// Цвет SVG
+const colors = PALETTES[pet.color] || PALETTES.pink;
+document.getElementById("gradStart").setAttribute("stop-color", colors[0]);
+document.getElementById("gradEnd").setAttribute("stop-color", colors[1]);
+// Аксессуары
+["crown", "glasses", "bow"].forEach(id => {
+document.getElementById(acc-${id}).style.display = (pet.accessory === id) ? "block" : "none";
+});
+// Сон и эмоции
+const room = document.getElementById("petRoom");
+const eyesOpen = document.getElementById("eyesOpen");
+const eyesClosed = document.getElementById("eyesClosed");
+const mouth = document.getElementById("mouthPath");
+const mood = document.getElementById("moodText");
+if (pet.isSleeping) {
+room.classList.add("night");
+eyesOpen.style.display = "none";
+eyesClosed.style.display = "block";
+document.getElementById("sleepIcon").innerText = "☀️";
+document.getElementById("sleepLabel").innerText = "Разбудить";
+mood.innerText = "💤 Питомец сладко спит...";
+} else {
+room.classList.remove("night");
+eyesOpen.style.display = "block";
+eyesClosed.style.display = "none";
+document.getElementById("sleepIcon").innerText = "💤";
+document.getElementById("sleepLabel").innerText = "Спать";
+if (pet.hunger < 30) {
+mouth.setAttribute("d", "M88 126 Q100 116 112 126");
+mood.innerText = "😿 Очень голоден! Покорми меня";
+} else if (energy < 25) {
+mouth.setAttribute("d", "M92 123 Q100 123 108 123");
+mood.innerText = "🥱 Хочу спать...";
+} else {
+mouth.setAttribute("d", "M88 120 Q100 132 112 120");
+mood.innerText = "😺 Счастлив и готов играть!";
+}
+}
+// Лидерборд
+const list = document.getElementById("leaderboardList");
+const entries = Object.values(pet.leaderboard || {}).sort((a, b) => b.score - a.score);
+if (entries.length > 0) {
+list.innerHTML = entries.map((item, idx) => <div class="leader-row"> <span>${idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "🐾"} <b>${item.name}</b></span> <span style="color:#a29bfe; font-weight:700;">${item.score} XP</span> </div>).join("");
+}
 }
 loadPet();
-      </script>
+  </script>
 </body>
 </html>
-
