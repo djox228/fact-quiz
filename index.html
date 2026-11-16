@@ -10,26 +10,28 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:12px 14px 85px;user-select:none}
 .wrap{width:100%;max-width:420px}
-.header{display:flex;justify-content:space-between;align-items:center;background:#1a1d2d;padding:12px 16px;border-radius:18px;margin-bottom:12px}
-.xp-bg{width:130px;height:6px;background:#0f111a;border-radius:6px;margin-top:5px;overflow:hidden}
+.header{display:flex;justify-content:space-between;align-items:center;background:#1a1d2d;padding:12px 16px;border-radius:18px;margin-bottom:12px;border:1px solid rgba(255,255,255,.06)}
+.xp-bg{width:140px;height:6px;background:#0f111a;border-radius:6px;margin-top:5px;overflow:hidden}
 .xp-fill{height:100%;background:linear-gradient(90deg,#a29bfe,#6c5ce7);width:0%;transition:width .4s}
-.lvl{background:linear-gradient(135deg,#6c5ce7,#a29bfe);padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px}
-.room{height:240px;background:radial-gradient(circle at 50% 40%,#2d3559,#161926);border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:12px;overflow:hidden;transition:background .5s}
-.room.night{background:radial-gradient(circle at 50% 30%,#141829,#090b12)}
-.bubble{position:absolute;top:12px;background:rgba(15,17,26,.7);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;z-index:5}
-.last-act{position:absolute;bottom:10px;font-size:11px;color:#8f9bb3;background:rgba(0,0,0,.35);padding:4px 10px;border-radius:12px;z-index:5}
-.pet-box{width:155px;height:155px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:float 3s ease-in-out infinite;z-index:3}
+.lvl{background:linear-gradient(135deg,#6c5ce7,#a29bfe);padding:6px 14px;border-radius:20px;font-weight:800;font-size:13px;text-align:right}
+.room{height:255px;background:radial-gradient(circle at 50% 35%,#303960,#141724);border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;margin-bottom:12px;overflow:hidden;border:1px solid rgba(255,255,255,.08);transition:background .5s}
+.room.night{background:radial-gradient(circle at 50% 30%,#121626,#080a10)}
+.window{position:absolute;top:24px;right:24px;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:22px}
+.rug{position:absolute;bottom:22px;width:150px;height:32px;background:radial-gradient(ellipse at center,rgba(108,92,231,.35),rgba(108,92,231,.05));border-radius:50%}
+.bubble{position:absolute;top:12px;left:14px;background:rgba(15,17,26,.75);padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;z-index:5;border:1px solid rgba(255,255,255,.07)}
+.last-act{position:absolute;bottom:8px;font-size:11px;color:#a4b0be;background:rgba(0,0,0,.45);padding:4px 12px;border-radius:12px;z-index:5}
+.pet-box{width:175px;height:175px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:float 3s ease-in-out infinite;z-index:3}
 .pet-box.jump{animation:jump .5s ease}
-.shadow{width:85px;height:14px;background:rgba(0,0,0,.45);border-radius:50%;position:absolute;bottom:34px;filter:blur(3px)}
 .heart{position:absolute;font-size:20px;pointer-events:none;animation:fly 1s ease-out forwards;z-index:10}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.stat{background:#1a1d2d;padding:10px;border-radius:16px}
+.stat{background:#1a1d2d;padding:10px;border-radius:16px;border:1px solid rgba(255,255,255,.04)}
 .stat-t{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:6px}
 .bar{width:100%;height:7px;background:#0f111a;border-radius:6px;overflow:hidden}
 .fill{height:100%;border-radius:6px;transition:width .4s}
 .btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-.btn{background:#1a1d2d;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px 4px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.btn{background:#1a1d2d;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:10px 4px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative}
 .btn:active{transform:scale(.93);background:#25293e}
+.btn.on-cd{opacity:.55}
 .btn span:first-child{font-size:22px}
 .btn span:last-child{font-size:11px;font-weight:600}
 .gold{width:100%;border:none;padding:14px;border-radius:16px;font-size:14px;font-weight:800;background:linear-gradient(135deg,#ffeaa7,#fdcb6e,#e17055);color:#1e272e;cursor:pointer}
@@ -41,8 +43,9 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
 .ok{background:#6c5ce7;border:none;color:#fff;padding:0 16px;border-radius:12px;font-weight:700;cursor:pointer}
 .cols{display:flex;gap:12px;margin-bottom:16px}
 .col{width:38px;height:38px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2)}
-.accs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.acc{background:#0f111a;padding:10px 4px;border-radius:12px;text-align:center;font-size:12px;cursor:pointer}
+.accs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.acc{background:#0f111a;padding:12px 4px;border-radius:14px;text-align:center;font-size:12px;cursor:pointer;border:2px solid transparent}
+.acc.equipped{border-color:#6c5ce7;background:#25293e}
 .l-row{display:flex;justify-content:space-between;background:#1a1d2d;padding:12px 16px;border-radius:14px;margin-bottom:8px;font-size:14px}
 .nav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,29,45,.96);display:flex;justify-content:space-around;padding:10px 0 16px;border-top:1px solid rgba(255,255,255,.07);z-index:50}
 .n-btn{background:none;border:none;color:#8f9bb3;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;cursor:pointer}
@@ -58,62 +61,96 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
   <div class="header">
     <div>
       <div style="font-weight:800;font-size:17px" id="petName">Пушистик</div>
-      <div style="font-size:11px;color:#8f9bb3" id="xpText">Опыт: 0 / 100 XP</div>
+      <div style="font-size:11px;color:#8f9bb3" id="stageText">Стадия: Малыш • 0 / 100 XP</div>
       <div class="xp-bg"><div class="xp-fill" id="xpBar"></div></div>
     </div>
     <div class="lvl" id="levelBadge">Ур. 1</div>
   </div>
+
   <div id="tab-room" class="tab active">
     <div class="room" id="petRoom">
       <div class="bubble" id="moodText">😺 Привет! Погладь меня</div>
-      <div class="shadow"></div>
+      <div class="window" id="roomWindow">☀️</div>
+      <div class="rug"></div>
       <div class="pet-box" id="petWrapper" onclick="petTouch(event)">
-        <svg width="150" height="150" viewBox="0 0 200 200">
+        <svg width="170" height="170" viewBox="0 0 220 220">
           <defs>
-            <linearGradient id="bGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ff9ff3" id="g1"/>
-              <stop offset="100%" stop-color="#f368e0" id="g2"/>
-            </linearGradient>
+            <radialGradient id="bGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#ffb8f6" id="g1"/>
+              <stop offset="100%" stop-color="#d630a8" id="g2"/>
+            </radialGradient>
           </defs>
-          <path d="M52 75 C38 25, 72 20, 78 65 Z" fill="url(#bGrad)"/>
-          <path d="M148 75 C162 25, 128 20, 122 65 Z" fill="url(#bGrad)"/>
-          <ellipse cx="68" cy="164" rx="16" ry="10" fill="url(#bGrad)"/>
-          <ellipse cx="132" cy="164" rx="16" ry="10" fill="url(#bGrad)"/>
-          <rect x="48" y="58" width="104" height="106" rx="48" fill="url(#bGrad)"/>
-          <ellipse cx="62" cy="114" rx="10" ry="6" fill="#ff4757" opacity="0.5"/>
-          <ellipse cx="138" cy="114" rx="10" ry="6" fill="#ff4757" opacity="0.5"/>
+          <!-- ЭВОЛЮЦИЯ 5+ УР: Волшебные крылышки и аура -->
+          <g id="evo-wings" style="display:none">
+            <circle cx="110" cy="115" r="78" fill="none" stroke="#ffeaa7" stroke-width="2" stroke-dasharray="6 6" opacity="0.5"/>
+            <path d="M55 110 C15 75, 15 135, 58 135 Z" fill="#ffffff" opacity="0.85"/>
+            <path d="M165 110 C205 75, 205 135, 162 135 Z" fill="#ffffff" opacity="0.85"/>
+          </g>
+          <!-- Ушки базовые -->
+          <path d="M62 82 C46 28, 82 22, 88 70 Z" fill="url(#bGrad)"/>
+          <path d="M158 82 C174 28, 138 22, 132 70 Z" fill="url(#bGrad)"/>
+          <path d="M66 76 C56 42, 78 38, 82 68 Z" fill="#ffffff" opacity="0.35"/>
+          <path d="M154 76 C164 42, 142 38, 138 68 Z" fill="#ffffff" opacity="0.35"/>
+          <!-- ЭВОЛЮЦИЯ 3+ УР: Хохолок и хвостик -->
+          <g id="evo-teen" style="display:none">
+            <path d="M98 60 Q110 34 122 60 Q110 52 98 60 Z" fill="url(#bGrad)"/>
+            <circle cx="166" cy="148" r="14" fill="url(#bGrad)"/>
+          </g>
+          <!-- Лапки -->
+          <ellipse cx="78" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
+          <ellipse cx="142" cy="174" rx="18" ry="11" fill="url(#bGrad)"/>
+          <!-- Объемное тело -->
+          <rect x="54" y="60" width="112" height="114" rx="52" fill="url(#bGrad)"/>
+          <!-- Светлое пузико -->
+          <ellipse cx="110" cy="142" rx="34" ry="24" fill="#ffffff" opacity="0.25"/>
+          <!-- Блик на лбу -->
+          <ellipse cx="82" cy="76" rx="14" ry="6" transform="rotate(-20 82 76)" fill="#ffffff" opacity="0.35"/>
+          <!-- Румянец -->
+          <ellipse cx="70" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
+          <ellipse cx="150" cy="120" rx="11" ry="6" fill="#ff4757" opacity="0.5"/>
+          <!-- Глазки -->
           <g id="eyesOpen">
-            <circle cx="75" cy="98" r="11" fill="#1e272e"/>
-            <circle cx="71" cy="94" r="4" fill="#fff"/>
-            <circle cx="125" cy="98" r="11" fill="#1e272e"/>
-            <circle cx="121" cy="94" r="4" fill="#fff"/>
+            <circle cx="84" cy="104" r="12" fill="#1e272e"/>
+            <circle cx="80" cy="99" r="4.5" fill="#fff"/>
+            <circle cx="88" cy="107" r="2" fill="#fff"/>
+            <circle cx="136" cy="104" r="12" fill="#1e272e"/>
+            <circle cx="132" cy="99" r="4.5" fill="#fff"/>
+            <circle cx="140" cy="107" r="2" fill="#fff"/>
           </g>
           <g id="eyesClosed" style="display:none">
-            <path d="M64 100 Q75 108 86 100" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
-            <path d="M114 100 Q125 108 136 100" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M72 106 Q84 115 96 106" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M124 106 Q136 115 148 106" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
           </g>
-          <polygon points="95,108 105,108 100,114" fill="#ff6b81"/>
-          <path id="mouthPath" d="M88 120 Q100 132 112 120" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
-          <g id="acc-crown" style="display:none"><polygon points="75,54 83,32 100,46 117,32 125,54" fill="#ffd32a"/></g>
-          <g id="acc-glasses" style="display:none"><rect x="57" y="86" width="36" height="22" rx="6" fill="#1e272e" opacity=".88"/><rect x="107" y="86" width="36" height="22" rx="6" fill="#1e272e" opacity=".88"/><line x1="93" y1="95" x2="107" y2="95" stroke="#1e272e" stroke-width="4"/></g>
-          <g id="acc-bow" style="display:none"><polygon points="100,142 82,132 82,152" fill="#ff4757"/><polygon points="100,142 118,132 118,152" fill="#ff4757"/></g>
-        </svg>
-      </div>
-      <div class="last-act" id="lastAction">Готов к игре!</div>
-    </div>
+          <!-- Носик и ротик -->
+          <polygon points="104,114 116,114 110,121" fill="#ff6b81"/>
+          <path id="mouthPath" d="M96 126 Q110 138 124 126" stroke="#1e272e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <!-- НЕЗАВИСИМЫЕ АКСЕССУАРЫ -->
+          <g id="acc-crown" style="display:none">
+            <polygon points="84,58 92,34 110,48 128,34 136,58" fill="#ffd32a" stroke="#ffa801" stroke-width="2"/>
+            <circle cx="110" cy="50" r="3" fill="#ff4757"/>
+          </g>
+          <g id="acc-glasses" style="display:none">
+            <rect x="65" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/>
+            <rect x="117" y="91" width="38" height="24" rx="7" fill="#1e272e" opacity=".9" stroke="#fff" stroke-width="1.5"/>
+            <line x1="103" y1="101" x2="117" y2="101" stroke="#fff" stroke-width="3"/>
+          </g>
+          <g id="acc-bow" style="display:none">
     <div class="stats">
       <div class="stat"><div class="stat-t"><span>🍖 Сытость</span><span id="hungerVal">80%</span></div><div class="bar"><div class="fill" id="hungerBar" style="width:80%;background:#00b894"></div></div></div>
       <div class="stat"><div class="stat-t"><span>❤️ Радость</span><span id="happyVal">80%</span></div><div class="bar"><div class="fill" id="happyBar" style="width:80%;background:#ff7675"></div></div></div>
       <div class="stat"><div class="stat-t"><span>⚡ Энергия</span><span id="energyVal">90%</span></div><div class="bar"><div class="fill" id="energyBar" style="width:90%;background:#fdcb6e"></div></div></div>
     </div>
+
     <div class="btns">
-      <button class="btn" onclick="sendAction('feed')"><span>🍖</span><span>Покормить</span></button>
-      <button class="btn" onclick="sendAction('play')"><span>🎾</span><span>Поиграть</span></button>
-      <button class="btn" onclick="sendAction('wash')"><span>🛁</span><span>Помыть</span></button>
-      <button class="btn" onclick="sendAction('sleep')"><span id="sleepIcon">💤</span><span id="sleepLabel">Спать</span></button>
+      <button class="btn" id="btn-feed" onclick="sendAction('feed')"><span>🍖</span><span id="lbl-feed">Покормить</span></button>
+      <button class="btn" id="btn-play" onclick="sendAction('play')"><span>🎾</span><span id="lbl-play">Поиграть</span></button>
+      <button class="btn" id="btn-wash" onclick="sendAction('wash')"><span>🛁</span><span id="lbl-wash">Помыть</span></button>
+      <button class="btn" id="btn-sleep" onclick="sendAction('sleep')"><span id="sleepIcon">💤</span><span id="sleepLabel">Спать</span></button>
     </div>
+
     <button class="gold" onclick="watchAd()">✨ Золотой корм +100% ко всему (Реклама)</button>
   </div>
+
   <div id="tab-wardrobe" class="tab">
     <div class="box">
       <div class="ttl">✏️ Имя питомца для всего чата</div>
@@ -129,20 +166,21 @@ body{background:#0f111a;color:#fff;display:flex;flex-direction:column;align-item
         <div class="col" style="background:#fdcb6e" onclick="sendAction('customize',{color:'gold'})"></div>
         <div class="col" style="background:#6c5ce7" onclick="sendAction('customize',{color:'cyber'})"></div>
       </div>
-      <div class="ttl">👑 Аксессуар</div>
+      <div class="ttl">👑 Аксессуары (можно надеть все сразу!)</div>
       <div class="accs">
-        <div class="acc" onclick="sendAction('customize',{accessory:'none'})">🚫<br>Без</div>
-        <div class="acc" onclick="sendAction('customize',{accessory:'crown'})">👑<br>Корона</div>
-        <div class="acc" onclick="sendAction('customize',{accessory:'glasses'})">🕶️<br>Очки</div>
-        <div class="acc" onclick="sendAction('customize',{accessory:'bow'})">🎀<br>Бантик</div>
+        <div class="acc" id="card-crown" onclick="sendAction('customize',{toggleAcc:'crown'})">👑<br>Корона</div>
+        <div class="acc" id="card-glasses" onclick="sendAction('customize',{toggleAcc:'glasses'})">🕶️<br>Очки</div>
+        <div class="acc" id="card-bow" onclick="sendAction('customize',{toggleAcc:'bow'})">🎀<br>Бантик</div>
       </div>
     </div>
   </div>
+
   <div id="tab-top" class="tab">
     <div class="ttl">🏆 Самые заботливые игроки чата</div>
     <div id="leaderboardList"><div class="l-row"><span>Пока пусто</span><span>0 XP</span></div></div>
   </div>
 </div>
+
 <div class="nav">
   <button class="n-btn active" onclick="switchTab('room',this)"><span>🏠</span><span>Комната</span></button>
   <button class="n-btn" onclick="switchTab('wardrobe',this)"><span>🎨</span><span>Стиль</span></button>
@@ -154,11 +192,34 @@ const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
 if(tg){tg.ready();tg.expand();}
 const AdCtrl=window.Adsgram?window.Adsgram.init({blockId:"56776"}):null;
 const qp=new URLSearchParams(window.location.search);
+
+function getTgUser(){
+  if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)return tg.initDataUnsafe.user;
+  if(tg&&tg.initData){
+    try{
+      const p=new URLSearchParams(tg.initData);
+      const uStr=p.get("user");
+      if(uStr)return JSON.parse(uStr);
+    }catch(e){}
+  }
+  return {id:"guest_"+Math.floor(Math.random()*9000+1000),first_name:"Игрок"};
+}
+
+const u=getTgUser();
+const displayName=u.first_name+(u.last_name?" "+u.last_name:"");
 const sp=tg&&tg.initDataUnsafe?tg.initDataUnsafe.start_param:null;
-const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user?tg.initDataUnsafe.user:{id:"guest",first_name:"Игрок"};
 const chatId=qp.get("chat_id")||(sp?sp.replace("chat_",""):null)||u.id||"demo";
-const COLS={pink:["#ff9ff3","#f368e0"],mint:["#55efc4","#00b894"],sky:["#74b9ff","#0984e3"],gold:["#ffeaa7","#fdcb6e"],cyber:["#a29bfe","#6c5ce7"]};
-let petData=null;
+const COLS={
+  pink:["#ffb8f6","#d630a8"],
+  mint:["#55efc4","#009473"],
+  sky:["#74b9ff","#0652dd"],
+  gold:["#ffeaa7","#e17055"],
+  cyber:["#a29bfe","#4834d4"]
+};
+const CD_MS={feed:30*60*1000,play:15*60*1000,wash:20*60*1000};
+const DEF_LBL={feed:"Покормить",play:"Поиграть",wash:"Помыть"};
+let petData=null,userCd={};
+
 function switchTab(t,b){
   document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
   document.querySelectorAll(".n-btn").forEach(e=>e.classList.remove("active"));
@@ -170,34 +231,69 @@ function petTouch(e){
   w.classList.remove("jump");void w.offsetWidth;w.classList.add("jump");
   const r=document.getElementById("petRoom"),h=document.createElement("div");
   h.className="heart";h.innerText=petData&&petData.isSleeping?"💤":"❤️";
-  h.style.left=((e.offsetX||70)+110)+"px";h.style.top=((e.offsetY||70)+40)+"px";
+  h.style.left=((e.offsetX||80)+110)+"px";h.style.top=((e.offsetY||80)+40)+"px";
   r.appendChild(h);setTimeout(()=>h.remove(),1000);
 }
 async function loadPet(){
-  try{const r=await fetch(API+"?chat_id="+chatId);const d=await r.json();if(d.pet)render(d.pet);}catch(e){}
+  try{
+    const r=await fetch(API+"?chat_id="+chatId+"&user_id="+u.id);
+    const d=await r.json();
+    if(d.userCd)userCd=d.userCd;
+    if(d.pet)render(d.pet);
+  }catch(e){}
 }
 async function sendAction(act,extra){
   try{
-    const r=await fetch(API+"?chat_id="+chatId,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:act,userId:u.id,userName:u.first_name},extra||{}))});
+    const payload=Object.assign({action:act,userId:u.id,userName:displayName},extra||{});
+    const r=await fetch(API+"?chat_id="+chatId,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
     const d=await r.json();
+    if(d.userCd)userCd=d.userCd;
     if(!d.ok&&d.message&&tg&&tg.showAlert)tg.showAlert(d.message);
     if(d.pet)render(d.pet);
   }catch(e){}
 }
 function saveName(){
   const v=document.getElementById("nameInput").value.trim();
-  if(v){sendAction("customize",{name:v});document.getElementById("nameInput").value="";switchTab("room",document.querySelector(".n-btn"));}
+  if(v){
+    sendAction("customize",{name:v});
+    document.getElementById("nameInput").value="";
+    switchTab("room",document.querySelector(".n-btn"));
+  }
 }
 function watchAd(){
   if(!AdCtrl){sendAction("golden_feed");return;}
-  AdCtrl.show().then(()=>sendAction("golden_feed")).catch(()=>{if(tg&&tg.showAlert)tg.showAlert("Реклама недоступна");});
+  AdCtrl.show().then(()=>sendAction("golden_feed")).catch(()=>{
+    if(tg&&tg.showAlert)tg.showAlert("Реклама недоступна");
+  });
 }
+function updateTimers(){
+  const now=Date.now();
+  ["feed","play","wash"].forEach(k=>{
+    const btn=document.getElementById("btn-"+k),lbl=document.getElementById("lbl-"+k);
+    const left=(userCd[k]||0)+CD_MS[k]-now;
+    if(left>0){
+      btn.classList.add("on-cd");
+      const m=Math.floor(left/60000),s=Math.floor((left%60000)/1000);
+      lbl.innerText=m+":"+(s<10?"0":"")+s;
+    }else{
+      btn.classList.remove("on-cd");
+      lbl.innerText=DEF_LBL[k];
+    }
+  });
+}
+setInterval(updateTimers,1000);
+
 function render(p){
   petData=p;
   document.getElementById("petName").innerText=p.name;
   document.getElementById("levelBadge").innerText="Ур. "+p.level;
   const need=p.level*100;
-  document.getElementById("xpText").innerText="Опыт: "+p.xp+" / "+need+" XP";
+  const stage=p.level>=5?"Хранитель ✨":p.level>=3?"Подросток 🐾":"Малыш 🥚";
+  document.getElementById("stageText").innerText=stage+" • "+p.xp+" / "+need+" XP";
   document.getElementById("xpBar").style.width=Math.min(100,(p.xp/need)*100)+"%";
   document.getElementById("lastAction").innerText=p.lastActionBy;
   document.getElementById("hungerVal").innerText=p.hunger+"%";
@@ -207,15 +303,59 @@ function render(p){
   const en=p.energy!==undefined?p.energy:90;
   document.getElementById("energyVal").innerText=en+"%";
   document.getElementById("energyBar").style.width=en+"%";
+
   const c=COLS[p.color]||COLS.pink;
   document.getElementById("g1").setAttribute("stop-color",c[0]);
   document.getElementById("g2").setAttribute("stop-color",c[1]);
-  ["crown","glasses","bow"].forEach(id=>document.getElementById("acc-"+id).style.display=p.accessory===id?"block":"none");
-  const rm=document.getElementById("petRoom"),eo=document.getElementById("eyesOpen"),ec=document.getElementById("eyesClosed"),md=document.getElementById("moodText");
-  if(p.isSleeping){rm.classList.add("night");eo.style.display="none";ec.style.display="block";document.getElementById("sleepIcon").innerText="☀️";document.getElementById("sleepLabel").innerText="Разбудить";md.innerText="💤 Спит...";}
-  else{rm.classList.remove("night");eo.style.display="block";ec.style.display="none";document.getElementById("sleepIcon").innerText="💤";document.getElementById("sleepLabel").innerText="Спать";md.innerText=p.hunger<30?"😿 Хочу кушать!":"😺 Счастлив и бодр!";}
-  const lst=document.getElementById("leaderboardList"),arr=Object.values(p.leaderboard||{}).sort((a,b)=>b.score-a.score);
-  if(arr.length>0){lst.innerHTML="";arr.forEach((it,i)=>{const row=document.createElement("div");row.className="l-row";const l=document.createElement("span");l.innerText=(i===0?"🥇 ":i===1?"🥈 ":i===2?"🥉 ":"🐾 ")+it.name;const r=document.createElement("span");r.style.color="#a29bfe";r.innerText=it.score+" XP";row.appendChild(l);row.appendChild(r);lst.appendChild(row);});}
+
+  document.getElementById("evo-teen").style.display=p.level>=3?"block":"none";
+  document.getElementById("evo-wings").style.display=p.level>=5?"block":"none";
+
+  const accs=Array.isArray(p.accessories)?p.accessories:[];
+  ["crown","glasses","bow"].forEach(id=>{
+    const active=accs.includes(id);
+    document.getElementById("acc-"+id).style.display=active?"block":"none";
+    document.getElementById("card-"+id).classList.toggle("equipped",active);
+  });
+
+  const rm=document.getElementById("petRoom");
+  const eo=document.getElementById("eyesOpen");
+  const ec=document.getElementById("eyesClosed");
+  const md=document.getElementById("moodText");
+  const win=document.getElementById("roomWindow");
+
+  if(p.isSleeping){
+    rm.classList.add("night");win.innerText="🌙";
+    eo.style.display="none";ec.style.display="block";
+    document.getElementById("sleepIcon").innerText="☀️";
+    document.getElementById("sleepLabel").innerText="Разбудить";
+    md.innerText="💤 Спит...";
+  }else{
+    rm.classList.remove("night");win.innerText="☀️";
+    eo.style.display="block";ec.style.display="none";
+    document.getElementById("sleepIcon").innerText="💤";
+    document.getElementById("sleepLabel").innerText="Спать";
+    md.innerText=p.hunger<30?"😿 Хочу кушать!":"😺 Счастлив и бодр!";
+  }
+
+  const lst=document.getElementById("leaderboardList");
+  const arr=Object.values(p.leaderboard||{}).sort((a,b)=>b.score-a.score);
+  if(arr.length>0){
+    lst.innerHTML="";
+    arr.forEach((it,i)=>{
+      const row=document.createElement("div");
+      row.className="l-row";
+      const l=document.createElement("span");
+      l.innerText=(i===0?"🥇 ":i===1?"🥈 ":i===2?"🥉 ":"🐾 ")+it.name;
+      const r=document.createElement("span");
+      r.style.color="#a29bfe";
+      r.innerText=it.score+" XP";
+      row.appendChild(l);
+      row.appendChild(r);
+      lst.appendChild(row);
+    });
+  }
+  updateTimers();
 }
 loadPet();
 </script>
