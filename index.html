@@ -28,7 +28,6 @@
     }
     .container { width: 100%; max-width: 420px; }
 
-    /* Шапка */
     .header {
       display: flex;
       justify-content: space-between;
@@ -50,7 +49,6 @@
       box-shadow: 0 4px 12px rgba(108, 92, 231, 0.35);
     }
 
-    /* Комната питомца */
     .room {
       height: 250px;
       background: radial-gradient(circle at 50% 40%, #2d3559 0%, #161926 100%);
@@ -100,7 +98,6 @@
       z-index: 5;
     }
 
-    /* SVG Питомец */
     .pet-wrapper {
       position: relative;
       width: 165px;
@@ -130,7 +127,6 @@
       z-index: 10;
     }
 
-    /* Статы (3 полоски в ряд) */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -146,14 +142,13 @@
     .stat-top {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       margin-bottom: 6px;
     }
     .bar-bg { width: 100%; height: 7px; background: #0f111a; border-radius: 6px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
 
-    /* Кнопки действий */
     .actions-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -195,11 +190,9 @@
     }
     .btn-gold:active { transform: scale(0.97); }
 
-    /* Вкладки (Табы) */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Гардероб */
     .wardrobe-box {
       background: var(--card);
       padding: 16px;
@@ -235,7 +228,6 @@
       cursor: pointer;
       border: 3px solid transparent;
     }
-    .swatch.selected { border-color: #fff; transform: scale(1.1); }
     .acc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .acc-item {
       background: #0f111a;
@@ -246,9 +238,8 @@
       cursor: pointer;
       border: 1px solid transparent;
     }
-    .acc-item.selected { border-color: var(--accent); background: var(--card-light); }
+    .acc-item:active { border-color: var(--accent); background: var(--card-light); }
 
-    /* Лидерборд */
     .leader-row {
       display: flex;
       justify-content: space-between;
@@ -257,9 +248,9 @@
       padding: 12px 16px;
       border-radius: 14px;
       margin-bottom: 8px;
+      font-size: 14px;
     }
 
-    /* Нижняя навигация */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -306,7 +297,6 @@
 <body>
 
 <div class="container">
-  <!-- Шапка -->
   <div class="header">
     <div>
       <div style="font-weight: 800; font-size: 17px;" id="petName">Пушистик</div>
@@ -316,7 +306,6 @@
     <div class="level-badge" id="levelBadge">Ур. 1</div>
   </div>
 
-  <!-- ВКЛАДКА 1: КОМНАТА -->
   <div id="tab-room" class="tab-content active">
     <div class="room" id="petRoom">
       <div class="status-bubble" id="moodText">😺 Привет! Погладь меня</div>
@@ -324,7 +313,6 @@
       <div class="pet-shadow"></div>
 
       <div class="pet-wrapper" id="petWrapper" onclick="petTouch(event)">
-        <!-- Детализированный SVG-персонаж -->
         <svg width="150" height="150" viewBox="0 0 200 200" id="petSvg">
           <defs>
             <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -332,11 +320,17 @@
               <stop offset="100%" stop-color="#f368e0" id="gradEnd"/>
             </linearGradient>
           </defs>
-          <!-- Ушки -->
           <path d="M52 75 C38 25, 72 20, 78 65 Z" fill="url(#bodyGrad)"/>
           <path d="M148 75 C162 25, 128 20, 122 65 Z" fill="url(#bodyGrad)"/>
           <path d="M56 70 C47 38, 68 35, 72 64 Z" fill="#ffb8d9" opacity="0.7"/>
-Подключаемся к чату...
+          <path d="M144 70 C153 38, 132 35, 128 64 Z" fill="#ffb8d9" opacity="0.7"/>
+
+          <rect x="48" y="58" width="104" height="106" rx="48" fill="url(#bodyGrad)"/>
+
+          <ellipse cx="68" cy="164" rx="16" ry="10" fill="url(#bodyGrad)"/>
+          <ellipse cx="132" cy="164" rx="16" ry="10" fill="url(#bodyGrad)"/>
+
+Готов к игре!
 🍖 Сытость80%
 
 
@@ -388,7 +382,7 @@
 🎀
 Бантик
 
-
+          
 🏆 Самые заботливые игроки чата
 
 Пока никто не кормил питомца0 XP
@@ -406,16 +400,17 @@
 Топ чата
 
 const API_URL = "workers.dev";
-const tg = window.Telegram?.WebApp;
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 if (tg) {
 tg.ready();
 tg.expand();
 }
 const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "56776" }) : null;
 const urlParams = new URLSearchParams(window.location.search);
-const startParam = tg?.initDataUnsafe?.start_param;
-const chatId = urlParams.get("chat_id") || (startParam ? startParam.replace("chat_", "") : null) || tg?.initDataUnsafe?.user?.id || "demo_chat";
-const user = tg?.initDataUnsafe?.user || { id: "guest_1", first_name: "Игрок" };
+const startParam = tg && tg.initDataUnsafe ? tg.initDataUnsafe.start_param : null;
+const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+const chatId = urlParams.get("chat_id") || (startParam ? startParam.replace("chat_", "") : null) || (tgUser ? tgUser.id : "demo_chat");
+const user = tgUser || { id: "guest_1", first_name: "Игрок" };
 const PALETTES = {
 pink: ["#ff9ff3", "#f368e0"],
 mint: ["#55efc4", "#00b894"],
@@ -425,53 +420,53 @@ cyber: ["#a29bfe", "#6c5ce7"]
 };
 let currentPet = null;
 function switchTab(tabName, btn) {
-document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-document.querySelectorAll(".nav-btn").forEach(el => el.classList.remove("active"));
-document.getElementById(tab-${tabName}).classList.add("active");
+document.querySelectorAll(".tab-content").forEach(function(el) { el.classList.remove("active"); });
+document.querySelectorAll(".nav-btn").forEach(function(el) { el.classList.remove("active"); });
+document.getElementById("tab-" + tabName).classList.add("active");
 btn.classList.add("active");
-if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
 function petTouch(e) {
 const wrap = document.getElementById("petWrapper");
 wrap.classList.remove("jump");
 void wrap.offsetWidth;
 wrap.classList.add("jump");
-if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
-// Вылетающие сердечки при клике
+if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
 const room = document.getElementById("petRoom");
 const heart = document.createElement("div");
 heart.className = "particle";
-heart.innerText = currentPet?.isSleeping ? "💤" : ["❤️", "✨", "💕", "🐾"][Math.floor(Math.random() * 4)];
-heart.style.left = (e.offsetX || 80) + 110 + "px";
-heart.style.top = (e.offsetY || 80) + 40 + "px";
+const icons = ["❤️", "✨", "💕", "🐾"];
+heart.innerText = currentPet && currentPet.isSleeping ? "💤" : icons[Math.floor(Math.random() * icons.length)];
+heart.style.left = ((e.offsetX || 80) + 110) + "px";
+heart.style.top = ((e.offsetY || 80) + 40) + "px";
 room.appendChild(heart);
-setTimeout(() => heart.remove(), 1000);
+setTimeout(function() { heart.remove(); }, 1000);
 }
 async function loadPet() {
 try {
-const res = await fetch(${API_URL}?chat_id=${chatId});
+const res = await fetch(API_URL + "?chat_id=" + chatId);
 const data = await res.json();
 if (data.pet) renderPet(data.pet);
 } catch (e) {
 document.getElementById("lastAction").innerText = "Автономный режим";
 }
 }
-async function sendAction(action, extraPayload = {}) {
-if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+async function sendAction(action, extraPayload) {
+if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
 try {
-const res = await fetch(${API_URL}?chat_id=${chatId}, {
+const payload = Object.assign({
+action: action,
+userId: user.id,
+userName: user.first_name
+}, extraPayload || {});
+const res = await fetch(API_URL + "?chat_id=" + chatId, {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-action,
-userId: user.id,
-userName: user.first_name,
-...extraPayload
-})
+body: JSON.stringify(payload)
 });
 const data = await res.json();
 if (!data.ok && data.message) {
-if (tg?.showAlert) tg.showAlert(data.message);
+if (tg && tg.showAlert) tg.showAlert(data.message);
 else alert(data.message);
 }
 if (data.pet) renderPet(data.pet);
@@ -497,38 +492,34 @@ if (!AdController) {
 sendAction("golden_feed");
 return;
 }
-AdController.show().then(() => {
+AdController.show().then(function() {
 sendAction("golden_feed");
-if (tg?.showAlert) tg.showAlert("✨ Питомец съел Золотой корм! Все показатели 100%!");
-}).catch(() => {
-if (tg?.showAlert) tg.showAlert("Реклама временно недоступна.");
+if (tg && tg.showAlert) tg.showAlert("✨ Питомец съел Золотой корм! Все показатели 100%!");
+}).catch(function() {
+if (tg && tg.showAlert) tg.showAlert("Реклама временно недоступна.");
 });
 }
 function renderPet(pet) {
 currentPet = pet;
 document.getElementById("petName").innerText = pet.name;
-document.getElementById("levelBadge").innerText = Ур. ${pet.level};
+document.getElementById("levelBadge").innerText = "Ур. " + pet.level;
 const xpNeeded = pet.level * 100;
-document.getElementById("xpText").innerText = Опыт: ${pet.xp} / ${xpNeeded} XP;
-document.getElementById("xpBar").style.width = ${Math.min(100, (pet.xp / xpNeeded) * 100)}%;
+document.getElementById("xpText").innerText = "Опыт: " + pet.xp + " / " + xpNeeded + " XP";
+document.getElementById("xpBar").style.width = Math.min(100, (pet.xp / xpNeeded) * 100) + "%";
 document.getElementById("lastAction").innerText = pet.lastActionBy;
-// Шкалы
-document.getElementById("hungerVal").innerText = ${pet.hunger}%;
-document.getElementById("hungerBar").style.width = ${pet.hunger}%;
-document.getElementById("happyVal").innerText = ${pet.happiness}%;
-document.getElementById("happyBar").style.width = ${pet.happiness}%;
-const energy = pet.energy ?? 90;
-document.getElementById("energyVal").innerText = ${energy}%;
-document.getElementById("energyBar").style.width = ${energy}%;
-// Цвет SVG
+document.getElementById("hungerVal").innerText = pet.hunger + "%";
+document.getElementById("hungerBar").style.width = pet.hunger + "%";
+document.getElementById("happyVal").innerText = pet.happiness + "%";
+document.getElementById("happyBar").style.width = pet.happiness + "%";
+const energy = pet.energy !== undefined ? pet.energy : 90;
+document.getElementById("energyVal").innerText = energy + "%";
+document.getElementById("energyBar").style.width = energy + "%";
 const colors = PALETTES[pet.color] || PALETTES.pink;
-document.getElementById("gradStart").setAttribute("stop-color", colors[0]);
-document.getElementById("gradEnd").setAttribute("stop-color", colors[1]);
-// Аксессуары
-["crown", "glasses", "bow"].forEach(id => {
-document.getElementById(acc-${id}).style.display = (pet.accessory === id) ? "block" : "none";
+document.getElementById("gradStart").setAttribute("stop-color", colors);
+document.getElementById("gradEnd").setAttribute("stop-color", colors);
+["crown", "glasses", "bow"].forEach(function(id) {
+document.getElementById("acc-" + id).style.display = (pet.accessory === id) ? "block" : "none";
 });
-// Сон и эмоции
 const room = document.getElementById("petRoom");
 const eyesOpen = document.getElementById("eyesOpen");
 const eyesClosed = document.getElementById("eyesClosed");
@@ -558,11 +549,24 @@ mouth.setAttribute("d", "M88 120 Q100 132 112 120");
 mood.innerText = "😺 Счастлив и готов играть!";
 }
 }
-// Лидерборд
 const list = document.getElementById("leaderboardList");
-const entries = Object.values(pet.leaderboard || {}).sort((a, b) => b.score - a.score);
+const entries = Object.values(pet.leaderboard || {}).sort(function(a, b) { return b.score - a.score; });
 if (entries.length > 0) {
-list.innerHTML = entries.map((item, idx) => <div class="leader-row"> <span>${idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "🐾"} <b>${item.name}</b></span> <span style="color:#a29bfe; font-weight:700;">${item.score} XP</span> </div>).join("");
+list.innerHTML = "";
+entries.forEach(function(item, idx) {
+const row = document.createElement("div");
+row.className = "leader-row";
+const left = document.createElement("span");
+const medal = idx === 0 ? "🥇 " : idx === 1 ? "🥈 " : idx === 2 ? "🥉 " : "🐾 ";
+left.innerText = medal + item.name;
+const right = document.createElement("span");
+right.style.color = "#a29bfe";
+right.style.fontWeight = "700";
+right.innerText = item.score + " XP";
+row.appendChild(left);
+row.appendChild(right);
+list.appendChild(row);
+});
 }
 }
 loadPet();
