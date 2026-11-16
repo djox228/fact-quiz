@@ -1,727 +1,329 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Азартная Арена — Crash, Mines & Cases</title>
-<script src="https://telegram.org"></script>
-<script src="https://adsgram.ai"></script>
-<style>
-* { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-html, body {
-    margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-    background: #07090f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #fff; display: flex; flex-direction: column; align-items: center;
-}
-.app {
-    width: 100%; max-width: 430px; height: 100%; padding: 10px 12px 14px 12px;
-    display: flex; flex-direction: column; justify-content: space-between;
-}
-
-.top-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-.bal-box {
-    background: #121724; border: 1.5px solid #26324a; padding: 7px 12px; border-radius: 14px;
-    font-size: 15px; font-weight: 900; color: #4ade80; display: flex; align-items: center; gap: 6px;
-}
-.ad-top-btn {
-    background: linear-gradient(90deg, #f59e0b, #ea580c); border: none; color: #fff;
-    padding: 8px 12px; border-radius: 14px; font-size: 12px; font-weight: 900; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
-}
-.ad-top-btn:active { transform: scale(0.95); }
-
-.nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
-.nav-btn {
-    background: #111622; border: 1.5px solid #1f293d; color: #94a3b8;
-    padding: 10px 4px; border-radius: 14px; font-size: 12px; font-weight: 900;
-    cursor: pointer; text-align: center; transition: 0.15s;
-}
-.nav-btn.active {
-    background: rgba(56, 189, 248, 0.16); border-color: #38bdf8; color: #fff;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
-}
-
-.screen {
-    flex: 1; display: none; flex-direction: column; justify-content: space-between;
-    background: #0e131f; border: 1.5px solid #202a3f; border-radius: 22px; padding: 12px;
-    overflow: hidden;
-}
-.screen.active { display: flex; }
-
-/* Общая панель ставок */
-.bet-panel {
-    background: #090c14; border: 1px solid #1c2538; border-radius: 16px; padding: 8px;
-    display: flex; flex-direction: column; gap: 8px;
-}
-.bet-row { display: flex; gap: 5px; align-items: center; }
-.bet-chip {
-    flex: 1; background: #151d2e; border: 1px solid #283552; color: #cbd5e1;
-    padding: 7px 4px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; text-align: center;
-}
-.bet-chip.active { background: #38bdf8; border-color: #7dd3fc; color: #060911; }
-.main-action {
-    width: 100%; padding: 14px; border-radius: 14px; border: none; font-size: 15px; font-weight: 900;
-    cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.1s;
-}
-.main-action:active { transform: scale(0.98); }
-.btn-green { background: linear-gradient(90deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35); }
-.btn-orange { background: linear-gradient(90deg, #f59e0b, #d97706); color: #090b10; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4); }
-.btn-disabled { background: #1e293b; color: #64748b; cursor: not-allowed; box-shadow: none; }
-
-/* 1. РАКЕТА (CRASH) */
-.crash-stage {
-    flex: 1; position: relative; background: radial-gradient(circle at bottom left, #172038 0%, #080b12 100%);
-    border-radius: 16px; border: 1px solid #1e283d; margin-bottom: 10px; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-}
-#crash-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.crash-mult {
-    position: relative; z-index: 2; font-size: 48px; font-weight: 900;
-    font-variant-numeric: tabular-nums; text-shadow: 0 4px 24px rgba(0,0,0,0.8);
-}
-.crash-history {
-    position: absolute; top: 8px; left: 8px; right: 8px; display: flex; gap: 5px; overflow: hidden; z-index: 3;
-}
-.hist-pill {
-    padding: 3px 7px; border-radius: 8px; font-size: 11px; font-weight: 800; background: rgba(15, 23, 42, 0.85);
-}
-
-/* 2. МИНЫ (MINES) */
-.mines-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.mine-opts { display: flex; gap: 5px; }
-.mine-opt {
-    background: #151d2e; border: 1px solid #283552; color: #94a3b8; padding: 5px 9px;
-    border-radius: 9px; font-size: 11px; font-weight: 800; cursor: pointer;
-}
-.mine-opt.active { background: #ef4444; border-color: #fca5a5; color: #fff; }
-.next-mult { font-size: 13px; font-weight: 900; color: #fbbf24; }
-
-.mines-grid {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
-    aspect-ratio: 1 / 1; max-height: 270px; margin: auto; width: 100%;
-}
-.cell {
-    background: linear-gradient(145deg, #1b2438, #131a29); border: 1.5px solid #2b3854;
-    border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    font-size: 22px; cursor: pointer; transition: transform 0.1s, background 0.15s;
-}
-.cell:active { transform: scale(0.92); }
-.cell.gem { background: rgba(34, 197, 94, 0.2); border-color: #22c55e; box-shadow: 0 0 12px rgba(34,197,94,0.3); }
-.cell.bomb { background: rgba(239, 68, 68, 0.28); border-color: #ef4444; box-shadow: 0 0 14px rgba(239,68,68,0.4); }
-.cell.dim { opacity: 0.45; }
-
-/* 3. КЕЙСЫ И КОЛЛЕКЦИЯ */
-.case-box {
-    background: linear-gradient(145deg, #171f33, #0e1320); border: 1.5px solid #2c3a57;
-    border-radius: 16px; padding: 12px; text-align: center; margin-bottom: 8px;
-}
-.roulette-wrap {
-    position: relative; width: 100%; height: 76px; background: #070a10; border-radius: 12px;
-    border: 1.5px solid #26324a; overflow: hidden; margin: 8px 0;
-}
-.roulette-line {
-    position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #f59e0b; z-index: 5;
-    box-shadow: 0 0 10px #f59e0b;
-}
-.roulette-track {
-    display: flex; height: 100%; align-items: center; will-change: transform;
-}
-.r-item {
-    min-width: 74px; height: 64px; margin: 0 3px; border-radius: 10px; background: #131a29;
-    border-bottom: 3px solid #64748b; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; font-size: 24px;
-}
-.r-item span { font-size: 9px; font-weight: 800; color: #cbd5e1; margin-top: 2px; }
-.rar-common { border-color: #94a3b8; }
-.rar-rare { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
-.rar-epic { border-color: #c084fc; background: rgba(192, 132, 252, 0.12); }
-.rar-legend { border-color: #fbbf24; background: rgba(251, 191, 36, 0.15); }
-
-.inv-title { font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 6px; display: flex; justify-content: space-between; }
-.inv-grid {
-    flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; align-content: start;
-}
-.inv-card {
-    background: #121826; border: 1px solid #232e45; border-radius: 12px; padding: 6px 4px;
-    text-align: center; font-size: 22px; position: relative;
-}
-.inv-card.locked { opacity: 0.25; filter: grayscale(1); }
-.inv-name { font-size: 9px; font-weight: 800; color: #e2e8f0; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.inv-cnt { position: absolute; top: 3px; right: 5px; font-size: 9px; font-weight: 900; color: #fbbf24; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Тамагочи 2.0</title>
+  <script src="https://telegram.org"></script>
+  <script src="https://adsgram.ai"></script>
+  <style>
+    :root {
+      --bg: #12141d;
+      --card: #1e2230;
+      --accent: #6c5ce7;
+      --gold: #fdcb6e;
+      --text: #ffffff;
+      --sub: #a4b0be;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      user-select: none;
+    }
+    .header {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      padding: 12px 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+    .level-badge {
+      background: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .room {
+      width: 100%;
+      max-width: 400px;
+      height: 260px;
+      background: radial-gradient(circle at center, #2c324a 0%, #181b26 100%);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+    .pet-avatar {
+      width: 130px;
+      height: 130px;
+      background: linear-gradient(135deg, #ff9ff3, #f368e0);
+      border-radius: 45% 45% 40% 40%;
+      position: relative;
+      animation: breathe 3s ease-in-out infinite;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 15px 30px rgba(243, 104, 224, 0.3);
+    }
+    .pet-avatar:active { transform: scale(0.9); }
+    .pet-avatar.jump { animation: jump 0.5s ease; }
+    .ear {
+      width: 34px;
+      height: 45px;
+      background: #f368e0;
+      border-radius: 50% 50% 0 0;
+      position: absolute;
+      top: -22px;
+    }
+    .ear.left { left: 16px; transform: rotate(-15deg); }
+    .ear.right { right: 16px; transform: rotate(15deg); }
+    .eyes {
+      display: flex;
+      justify-content: space-between;
+      width: 64px;
+      position: absolute;
+      top: 48px;
+      left: 33px;
+    }
+    .eye {
+      width: 14px;
+      height: 18px;
+      background: #12141d;
+      border-radius: 50%;
+      position: relative;
+      animation: blink 4s infinite;
+    }
+    .eye::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+    }
+    .mouth {
+      width: 22px;
+      height: 10px;
+      border-bottom: 4px solid #12141d;
+      border-radius: 0 0 20px 20px;
+      position: absolute;
+      top: 76px;
+      left: 54px;
+    }
+    .mouth.sad {
+      border-bottom: none;
+      border-top: 4px solid #12141d;
+      border-radius: 20px 20px 0 0;
+      top: 80px;
+    }
+    .status-bubble {
+      position: absolute;
+      top: 14px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(5px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+    .last-action {
+      position: absolute;
+      bottom: 12px;
+      font-size: 12px;
+      color: var(--sub);
+    }
+    .stats {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      padding: 16px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .stat-row { margin-bottom: 12px; }
+    .stat-row:last-child { margin-bottom: 0; }
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .bar-bg {
+      width: 100%;
+      height: 10px;
+      background: #12141d;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+    .actions {
+      width: 100%;
+      max-width: 400px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    button {
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #fff;
+      background: var(--card);
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    button:active { transform: scale(0.96); }
+    .btn-feed { background: #00b894; }
+    .btn-play { background: #0984e3; }
+    .btn-gold {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+      color: #12141d;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scaleY(1) translateY(0); }
+      50% { transform: scaleY(1.04) translateY(-4px); }
+    }
+    @keyframes blink {
+      0%, 96%, 100% { transform: scaleY(1); }
+      98% { transform: scaleY(0.1); }
+    }
+    @keyframes jump {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-25px); }
+    }
+  </style>
 </head>
 <body>
 
-<div class="app">
-    <div class="top-bar">
-        <div class="bal-box">💵 <span id="bal-txt">1000</span> $</div>
-        <button class="ad-top-btn" id="ad-btn">🎬 +1000 $ (Реклама)</button>
+  <div class="header">
+    <div>
+      <div style="font-weight: bold; font-size: 18px;" id="petName">Пушистик</div>
+      <div style="font-size: 12px; color: var(--sub);" id="xpText">Опыт: 0 / 100 XP</div>
     </div>
+    <div class="level-badge" id="levelBadge">Ур. 1</div>
+  </div>
 
-    <div class="nav-tabs">
-        <button class="nav-btn active" data-scr="crash">🚀 РАКЕТА</button>
-        <button class="nav-btn" data-scr="mines">💣 МИНЫ</button>
-        <button class="nav-btn" data-scr="cases">🎁 КЕЙСЫ</button>
+  <div class="room">
+    <div class="status-bubble" id="moodText">😺 Загрузка...</div>
+    <div class="pet-avatar" id="petAvatar" onclick="animateJump()">
+      <div class="ear left"></div>
+      <div class="ear right"></div>
+      <div class="eyes">
+        <div class="eye"></div>
+        <div class="eye"></div>
+      </div>
+      <div class="mouth" id="petMouth"></div>
     </div>
+    <div class="last-action" id="lastAction">Синхронизация...</div>
+  </div>
 
-    <!-- ЭКРАН 1: РАКЕТА (CRASH) -->
-    <div class="screen active" id="scr-crash">
-        <div class="crash-stage">
-            <div class="crash-history" id="crash-hist"></div>
-            <canvas id="crash-canvas"></canvas>
-            <div class="crash-mult" id="crash-mult">1.00x</div>
-        </div>
-        <div class="bet-panel">
-            <div class="bet-row" id="crash-chips">
-                <div class="bet-chip active" data-v="100">100 $</div>
-                <div class="bet-chip" data-v="250">250 $</div>
-                <div class="bet-chip" data-v="500">500 $</div>
-                <div class="bet-chip" data-v="all">ВА-БАНК</div>
-            </div>
-            <button class="main-action btn-green" id="crash-btn">🚀 ЗАПУСТИТЬ (100 $)</button>
-        </div>
+  <div class="stats">
+    <div class="stat-row">
+      <div class="stat-label"><span>🍖 Сытость</span><span id="hungerVal">80%</span></div>
+      <div class="bar-bg"><div class="bar-fill" id="hungerBar" style="width: 80%; background: #00b894;"></div></div>
     </div>
-
-    <!-- ЭКРАН 2: МИНЫ (MINES) -->
-    <div class="screen" id="scr-mines">
-        <div class="mines-top">
-            <div class="mine-opts" id="mine-opts">
-                <div class="mine-opt active" data-m="3">💣 3</div>
-                <div class="mine-opt" data-m="5">💣 5</div>
-                <div class="mine-opt" data-m="10">💣 10</div>
-            </div>
-            <div class="next-mult" id="mines-info">Множитель: 1.00x</div>
-        </div>
-
-        <div class="mines-grid" id="mines-grid"></div>
-
-        <div class="bet-panel" style="margin-top:8px;">
-            <div class="bet-row" id="mines-chips">
-                <div class="bet-chip active" data-v="100">100 $</div>
-                <div class="bet-chip" data-v="250">250 $</div>
-                <div class="bet-chip" data-v="500">500 $</div>
-                <div class="bet-chip" data-v="all">ВА-БАНК</div>
-            </div>
-            <button class="main-action btn-green" id="mines-btn">💣 ИГРАТЬ (100 $)</button>
-        </div>
+    <div class="stat-row">
+      <div class="stat-label"><span>❤️ Настроение</span><span id="happyVal">80%</span></div>
+      <div class="bar-bg"><div class="bar-fill" id="happyBar" style="width: 80%; background: #ff7675;"></div></div>
     </div>
+  </div>
 
-    <!-- ЭКРАН 3: КЕЙСЫ И ГАРАЖ -->
-    <div class="screen" id="scr-cases">
-        <div class="case-box">
-            <div style="font-size:13px; font-weight:900; color:#fbbf24;">💎 ЭЛИТНЫЙ КЕЙС МИЛЛИАРДЕРА</div>
-            <div class="roulette-wrap">
-                <div class="roulette-line"></div>
-                <div class="roulette-track" id="r-track"></div>
-🎁 ОТКРЫТЬ ЗА 500 $
+  <div class="actions">
+    <button class="btn-feed" onclick="sendAction('feed')">🍖 Покормить</button>
+    <button class="btn-play" onclick="sendAction('play')">🎾 Поиграть</button>
+    <button class="btn-gold" onclick="watchAdForGold()">✨ Золотой корм (Смотреть рекламу)</button>
+  </div>
 
+  <script>
+    const API_URL = "https://workers.dev";
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-ТВОЯ КОЛЛЕКЦИЯ РОСКОШИ:
-0 / 12
+    // Инициализация рекламы AdsGram с вашим blockId
+    const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "56776" }) : null;
 
+    // Определяем ID чата (из параметра ссылки или личного ID пользователя)
+    const urlParams = new URLSearchParams(window.location.search);
+    const startParam = tg.initDataUnsafe?.start_param;
+    let chatId = urlParams.get("chat_id") || (startParam ? startParam.replace("chat_", "") : null) || tg.initDataUnsafe?.user?.id || "demo_chat";
 
+    const user = tg.initDataUnsafe?.user || { id: "guest", first_name: "Игрок" };
 
-var tg = window.Telegram ? window.Telegram.WebApp : null;
-function initTg() {
-if (!tg) return;
-try {
-tg.ready();
-tg.expand();
-if (tg.requestFullscreen) tg.requestFullscreen();
-if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-} catch (e) {}
-}
-initTg();
-setTimeout(initTg, 300);
-var AdController = null;
-function initAds() {
-try {
-if (window.Adsgram && !AdController) {
-AdController = window.Adsgram.init({ blockId: "56776" });
-}
-} catch (e) {}
-}
-initAds();
-function haptic(type) {
-if (tg && tg.HapticFeedback) {
-try {
-if (type === 'light') tg.HapticFeedback.impactOccurred('light');
-else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
-else tg.HapticFeedback.notificationOccurred(type);
-} catch (e) {}
-}
-}
-// Синтезатор звуков
-var audioCtx = null;
-function playTone(freq, type, dur, vol) {
-try {
-if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
-audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
-if (!audioCtx) return;
-if (audioCtx.state === 'suspended') audioCtx.resume();
-var osc = audioCtx.createOscillator();
-var gain = audioCtx.createGain();
-osc.type = type || 'sine';
-osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-gain.gain.setValueAtTime(vol || 0.06, audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-osc.connect(gain); gain.connect(audioCtx.destination);
-osc.start(); osc.stop(audioCtx.currentTime + dur);
-} catch (e) {}
-}
-// Баланс и инвентарь
-var balance = parseInt(localStorage.getItem('aa_bal') || '1000', 10);
-var inventory = {};
-try { inventory = JSON.parse(localStorage.getItem('aa_inv') || '{}'); } catch (e) { inventory = {}; }
-var balTxt = document.getElementById('bal-txt');
-function setBalance(val) {
-balance = Math.max(0, Math.round(val));
-balTxt.innerText = balance.toLocaleString('ru-RU');
-try { localStorage.setItem('aa_bal', balance); } catch (e) {}
-updateCrashBtnLabel();
-updateMinesBtnLabel();
-}
-// Навигация вкладок
-var navBtns = document.querySelectorAll('.nav-btn');
-var screens = document.querySelectorAll('.screen');
-for (var n = 0; n < navBtns.length; n++) {
-(function(btn) {
-btn.addEventListener('click', function() {
-for (var i = 0; i < navBtns.length; i++) navBtns[i].classList.remove('active');
-for (var j = 0; j < screens.length; j++) screens[j].classList.remove('active');
-btn.classList.add('active');
-document.getElementById('scr-' + btn.getAttribute('data-scr')).classList.add('active');
-haptic('light');
-if (btn.getAttribute('data-scr') === 'crash') resizeCrashCanvas();
-});
-})(navBtns[n]);
-}
-// ================= 1. РАКЕТА (CRASH) =================
-var crashCanvas = document.getElementById('crash-canvas');
-var cCtx = crashCanvas.getContext('2d');
-var crashMultEl = document.getElementById('crash-mult');
-var crashBtn = document.getElementById('crash-btn');
-var crashHistEl = document.getElementById('crash-hist');
-var crashBetSel = '100';
-var crashState = 'idle'; // idle | flying | crashed
-var crashBetAmount = 0;
-var currentMult = 1.00;
-var crashTarget = 1.00;
-var crashStartTime = 0;
-var crashAnimId = null;
-var crashHistory = new Array(1.85, 4.20, 1.12, 9.45, 2.30);
-function renderCrashHistory() {
-crashHistEl.innerHTML = '';
-for (var i = 0; i < crashHistory.length; i++) {
-var m = crashHistory[i];
-var div = document.createElement('div');
-div.className = 'hist-pill';
-div.style.color = m >= 2.0 ? '#4ade80' : '#f87171';
-div.innerText = m.toFixed(2) + 'x';
-crashHistEl.appendChild(div);
-}
-}
-renderCrashHistory();
-function resizeCrashCanvas() {
-var rect = crashCanvas.parentElement.getBoundingClientRect();
-crashCanvas.width = rect.width;
-crashCanvas.height = rect.height;
-}
-window.addEventListener('resize', resizeCrashCanvas);
-setTimeout(resizeCrashCanvas, 100);
-function getSelectedBet(sel) {
-if (balance <= 0) return 0;
-if (sel === 'all') return balance;
-return Math.min(balance, parseInt(sel, 10));
-}
-function updateCrashBtnLabel() {
-if (crashState === 'flying') {
-var winNow = Math.round(crashBetAmount * currentMult);
-crashBtn.className = 'main-action btn-orange';
-crashBtn.innerText = '💰 ЗАБРАТЬ ' + winNow + ' $';
-} else {
-var b = getSelectedBet(crashBetSel);
-crashBtn.className = b > 0 ? 'main-action btn-green' : 'main-action btn-disabled';
-crashBtn.innerText = b > 0 ? ('🚀 ЗАПУСТИТЬ (' + b + ' $)') : 'ПОПОЛНИ БАЛАНС ↗';
-}
-}
-var crashChips = document.querySelectorAll('#crash-chips .bet-chip');
-for (var cc = 0; cc < crashChips.length; cc++) {
-(function(chip) {
-chip.addEventListener('click', function() {
-if (crashState === 'flying') return;
-for (var x = 0; x < crashChips.length; x++) crashChips[x].classList.remove('active');
-chip.classList.add('active');
-crashBetSel = chip.getAttribute('data-v');
-updateCrashBtnLabel();
-haptic('light');
-});
-})(crashChips[cc]);
-}
-function drawRocketCurve(progress, isBoom) {
-var w = crashCanvas.width;
-var h = crashCanvas.height;
-cCtx.clearRect(0, 0, w, h);
-// Сетка
-cCtx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
-cCtx.lineWidth = 1;
-for (var gx = 40; gx < w; gx += 40) {
-cCtx.beginPath(); cCtx.moveTo(gx, 0); cCtx.lineTo(gx, h); cCtx.stroke();
-}
-for (var gy = 40; gy < h; gy += 40) {
-cCtx.beginPath(); cCtx.moveTo(0, gy); cCtx.lineTo(w, gy); cCtx.stroke();
-}
-var p = Math.min(1, progress);
-var endX = 25 + p * (w - 65);
-var endY = (h - 25) - Math.pow(p, 1.45) * (h - 70);
-// Заливка под графиком
-var grad = cCtx.createLinearGradient(0, endY, 0, h);
-grad.addColorStop(0, isBoom ? 'rgba(239, 68, 68, 0.35)' : 'rgba(56, 189, 248, 0.35)');
-grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-cCtx.beginPath();
-cCtx.moveTo(25, h - 25);
-cCtx.quadraticCurveTo(25 + (endX - 25) * 0.55, h - 25, endX, endY);
-cCtx.lineTo(endX, h - 25);
-cCtx.closePath();
-cCtx.fillStyle = grad;
-cCtx.fill();
-// Линия траектории
-cCtx.beginPath();
-cCtx.moveTo(25, h - 25);
-cCtx.quadraticCurveTo(25 + (endX - 25) * 0.55, h - 25, endX, endY);
-cCtx.lineWidth = 4;
-cCtx.strokeStyle = isBoom ? '#ef4444' : '#38bdf8';
-cCtx.stroke();
-// Иконка ракеты или взрыва
-cCtx.font = '28px sans-serif';
-cCtx.textAlign = 'center';
-cCtx.textBaseline = 'middle';
-cCtx.fillText(isBoom ? '💥' : '🚀', endX, endY);
-}
-crashBtn.addEventListener('click', function() {
-if (crashState === 'flying') {
-// Забираем выигрыш!
-cancelAnimationFrame(crashAnimId);
-crashState = 'idle';
-var winSum = Math.round(crashBetAmount * currentMult);
-setBalance(balance + winSum);
-crashMultEl.style.color = '#4ade80';
-crashMultEl.innerText = 'WIN +' + winSum + ' $';
-playTone(780, 'sine', 0.2, 0.1);
-haptic('success');
-updateCrashBtnLabel();
-return;
-}
-var bet = getSelectedBet(crashBetSel);
-if (bet <= 0) return;
-setBalance(balance - bet);
-crashBetAmount = bet;
-crashState = 'flying';
-currentMult = 1.00;
-crashMultEl.style.color = '#fff';
-// Честная генерация точки краша (от 1.05x до 35x)
-var r = Math.random();
-if (r < 0.08) crashTarget = 1.00 + Math.random() * 0.15;
-else crashTarget = Math.min(45, 0.96 / (1 - r));
-crashStartTime = performance.now();
-playTone(320, 'triangle', 0.15, 0.06);
-haptic('light');
-function tickCrash(now) {
-if (crashState !== 'flying') return;
-var elapsed = (now - crashStartTime) / 1000;
-currentMult = Math.pow(Math.E, elapsed * 0.28);
-if (currentMult >= crashTarget) {
-// Взрыв!
-currentMult = crashTarget;
-crashState = 'crashed';
-crashMultEl.style.color = '#ef4444';
-crashMultEl.innerText = '💥 ' + currentMult.toFixed(2) + 'x';
-drawRocketCurve(Math.min(1, elapsed / 8), true);
-crashHistory.unshift(currentMult);
-if (crashHistory.length > 6) crashHistory.pop();
-renderCrashHistory();
-playTone(110, 'sawtooth', 0.3, 0.1);
-haptic('error');
-updateCrashBtnLabel();
-return;
-}
-crashMultEl.innerText = currentMult.toFixed(2) + 'x';
-drawRocketCurve(Math.min(1, elapsed / 8), false);
-updateCrashBtnLabel();
-crashAnimId = requestAnimationFrame(tickCrash);
-}
-crashAnimId = requestAnimationFrame(tickCrash);
-});
-// ================= 2. МИНЫ (MINES) =================
-var minesGridEl = document.getElementById('mines-grid');
-var minesBtn = document.getElementById('mines-btn');
-var minesInfoEl = document.getElementById('mines-info');
-var minesCount = 3;
-var minesBetSel = '100';
-var minesActive = false;
-var minesBetAmount = 0;
-var minesField = new Array();
-var openedSafe = 0;
-var minesMult = 1.00;
-function calcMinesMult(bombs, opened) {
-if (opened === 0) return 1.00;
-var mult = 1.0;
-for (var i = 0; i < opened; i++) {
-mult *= (25 - i) / (25 - bombs - i);
-}
-return Math.max(1.05, mult * 0.96);
-}
-function updateMinesBtnLabel() {
-if (minesActive) {
-if (openedSafe === 0) {
-minesBtn.className = 'main-action btn-disabled';
-minesBtn.innerText = 'ОТКРОЙ ЛЮБУЮ КЛЕТКУ';
-} else {
-var win = Math.round(minesBetAmount * minesMult);
-minesBtn.className = 'main-action btn-orange';
-minesBtn.innerText = '💎 ЗАБРАТЬ ' + win + ' $ (' + minesMult.toFixed(2) + 'x)';
-}
-} else {
-var b = getSelectedBet(minesBetSel);
-minesBtn.className = b > 0 ? 'main-action btn-green' : 'main-action btn-disabled';
-minesBtn.innerText = b > 0 ? ('💣 ИГРАТЬ (' + b + ' $)') : 'ПОПОЛНИ БАЛАНС ↗';
-}
-}
-var mineOpts = document.querySelectorAll('#mine-opts .mine-opt');
-for (var mo = 0; mo < mineOpts.length; mo++) {
-(function(opt) {
-opt.addEventListener('click', function() {
-if (minesActive) return;
-for (var x = 0; x < mineOpts.length; x++) mineOpts[x].classList.remove('active');
-opt.classList.add('active');
-minesCount = parseInt(opt.getAttribute('data-m'), 10);
-haptic('light');
-});
-})(mineOpts[mo]);
-}
-var minesChips = document.querySelectorAll('#mines-chips .bet-chip');
-for (var mc = 0; mc < minesChips.length; mc++) {
-(function(chip) {
-chip.addEventListener('click', function() {
-if (minesActive) return;
-for (var x = 0; x < minesChips.length; x++) minesChips[x].classList.remove('active');
-chip.classList.add('active');
-minesBetSel = chip.getAttribute('data-v');
-updateMinesBtnLabel();
-haptic('light');
-});
-})(minesChips[mc]);
-}
-function buildMinesBoard() {
-minesGridEl.innerHTML = '';
-for (var i = 0; i < 25; i++) {
-var cell = document.createElement('div');
-cell.className = 'cell';
-cell.innerText = '?';
-(function(idx, el) {
-el.addEventListener('click', function() { onMineCellClick(idx, el); });
-})(i, cell);
-minesGridEl.appendChild(cell);
-}
-}
-buildMinesBoard();
-function onMineCellClick(idx, el) {
-if (!minesActive) return;
-if (el.classList.contains('gem') || el.classList.contains('bomb')) return;
-if (minesField[idx] === 1) {
-// Попал на бомбу!
-minesActive = false;
-var allCells = minesGridEl.children;
-for (var i = 0; i < 25; i++) {
-if (minesField[i] === 1) {
-allCells[i].className = 'cell bomb';
-allCells[i].innerText = '💣';
-} else if (!allCells[i].classList.contains('gem')) {
-allCells[i].className = 'cell dim';
-allCells[i].innerText = '💎';
-}
-}
-minesInfoEl.innerText = '💥 БУМ! Ставка сгорела';
-playTone(120, 'sawtooth', 0.3, 0.1);
-haptic('error');
-updateMinesBtnLabel();
-} else {
-// Алмаз!
-el.className = 'cell gem';
-el.innerText = '💎';
-openedSafe++;
-minesMult = calcMinesMult(minesCount, openedSafe);
-minesInfoEl.innerText = 'Множитель: ' + minesMult.toFixed(2) + 'x';
-playTone(440 + openedSafe * 45, 'sine', 0.12, 0.08);
-haptic('light');
-updateMinesBtnLabel();
-}
-}
-minesBtn.addEventListener('click', function() {
-if (minesActive) {
-if (openedSafe === 0) return;
-minesActive = false;
-var win = Math.round(minesBetAmount * minesMult);
-setBalance(balance + win);
-minesInfoEl.innerText = '✅ Забрал: +' + win + ' $';
-playTone(750, 'sine', 0.2, 0.1);
-haptic('success');
-updateMinesBtnLabel();
-return;
-}
-var bet = getSelectedBet(minesBetSel);
-if (bet <= 0) return;
-setBalance(balance - bet);
-minesBetAmount = bet;
-minesActive = true;
-openedSafe = 0;
-minesMult = 1.00;
-minesInfoEl.innerText = 'Множитель: 1.00x';
-// Расставляем мины
-minesField = new Array(25);
-for (var i = 0; i < 25; i++) minesField[i] = 0;
-var placed = 0;
-while (placed < minesCount) {
-var r = Math.floor(Math.random() * 25);
-if (minesField[r] === 0) {
-minesField[r] = 1;
-placed++;
-}
-}
-buildMinesBoard();
-updateMinesBtnLabel();
-haptic('light');
-});
-// ================= 3. КЕЙСЫ И КОЛЛЕКЦИЯ =================
-var lootItems = new Array(
-{ id: 'i1', icon: '⌚', name: 'Rolex Gold', rar: 'rar-common', weight: 28 },
-{ id: 'i2', icon: '📱', name: 'iPhone Titanium', rar: 'rar-common', weight: 26 },
-{ id: 'i3', icon: '👟', name: 'Nike Dior', rar: 'rar-common', weight: 24 },
-{ id: 'i4', icon: '🏍️', name: 'Ducati V4', rar: 'rar-rare', weight: 16 },
-{ id: 'i5', icon: '💎', name: 'Алмаз 10 карат', rar: 'rar-rare', weight: 14 },
-{ id: 'i6', icon: '🏎️', name: 'Ferrari SF90', rar: 'rar-rare', weight: 12 },
-{ id: 'i7', icon: '🚁', name: 'Вертолёт VIP', rar: 'rar-epic', weight: 7 },
-{ id: 'i8', icon: '🛥️', name: 'Супер-яхта', rar: 'rar-epic', weight: 6 },
-{ id: 'i9', icon: '🏰', name: 'Замок в Альпах', rar: 'rar-epic', weight: 5 },
-{ id: 'i10', icon: '🏝️', name: 'Частный остров', rar: 'rar-legend', weight: 2.5 },
-{ id: 'i11', icon: '🚀', name: 'Ракета SpaceX', rar: 'rar-legend', weight: 1.5 },
-{ id: 'i12', icon: '👑', name: 'Корона Империи', rar: 'rar-legend', weight: 1.0 }
-);
-var rTrack = document.getElementById('r-track');
-var invGrid = document.getElementById('inv-grid');
-var collCount = document.getElementById('coll-count');
-var openCaseBtn = document.getElementById('open-case-btn');
-var isSpinning = false;
-function renderInventory() {
-invGrid.innerHTML = '';
-var unlocked = 0;
-for (var i = 0; i < lootItems.length; i++) {
-var it = lootItems[i];
-var cnt = inventory[it.id] || 0;
-if (cnt > 0) unlocked++;
-var card = document.createElement('div');
-card.className = 'inv-card' + (cnt === 0 ? ' locked' : '');
-card.innerHTML = (cnt > 0 ? 'x' + cnt + '' : '') +
-'' + it.icon + '' + it.name + '';
-invGrid.appendChild(card);
-}
-collCount.innerText = unlocked + ' / ' + lootItems.length;
-}
-renderInventory();
-function pickRandomLoot() {
-var totalW = 0;
-for (var i = 0; i < lootItems.length; i++) totalW += lootItems[i].weight;
-var r = Math.random() * totalW;
-for (var j = 0; j < lootItems.length; j++) {
-r -= lootItems[j].weight;
-if (r <= 0) return lootItems[j];
-}
-return lootItems;
-}
-function fillInitialRoulette() {
-rTrack.innerHTML = '';
-for (var i = 0; i < 12; i++) {
-var it = lootItems[i % lootItems.length];
-var d = document.createElement('div');
-d.className = 'r-item ' + it.rar;
-d.innerHTML = it.icon + '' + it.name + '';
-rTrack.appendChild(d);
-}
-}
-fillInitialRoulette();
-openCaseBtn.addEventListener('click', function() {
-if (isSpinning) return;
-if (balance < 500) {
-openCaseBtn.innerText = 'НЕ ХВАТАЕТ $ (ЖМИ РЕКЛАМУ ↗)';
-setTimeout(function() { openCaseBtn.innerText = '🎁 ОТКРЫТЬ ЗА 500 $'; }, 1800);
-haptic('error');
-return;
-}
-setBalance(balance - 500);
-isSpinning = true;
-openCaseBtn.className = 'main-action btn-disabled';
-openCaseBtn.innerText = 'КРУТИМ РУЛЕТКУ...';
-var winItem = pickRandomLoot();
-var winIndex = 28;
-rTrack.style.transition = 'none';
-rTrack.style.transform = 'translateX(0px)';
-rTrack.innerHTML = '';
-for (var i = 0; i < 35; i++) {
-var item = (i === winIndex) ? winItem : pickRandomLoot();
-var d = document.createElement('div');
-d.className = 'r-item ' + item.rar;
-d.innerHTML = item.icon + '' + item.name + '';
-rTrack.appendChild(d);
-}
-var itemWidth = 80; // 74px + 6px margin
-var wrapWidth = rTrack.parentElement.offsetWidth;
-var offset = (winIndex * itemWidth) - (wrapWidth / 2) + (itemWidth / 2) + (Math.random() * 24 - 12);
-setTimeout(function() {
-rTrack.style.transition = 'transform 3.2s cubic-bezier(0.12, 0.85, 0.18, 1)';
-rTrack.style.transform = 'translateX(-' + offset + 'px)';
-playTone(400, 'triangle', 0.1, 0.05);
-}, 40);
-setTimeout(function() {
-inventory[winItem.id] = (inventory[winItem.id] || 0) + 1;
-try { localStorage.setItem('aa_inv', JSON.stringify(inventory)); } catch (e) {}
-renderInventory();
-isSpinning = false;
-openCaseBtn.className = 'main-action btn-orange';
-openCaseBtn.innerText = '🎉 ВЫПАЛО: ' + winItem.name.toUpperCase() + '!';
-playTone(820, 'sine', 0.25, 0.1);
-haptic('success');
-setTimeout(function() {
-if (!isSpinning) openCaseBtn.innerText = '🎁 ОТКРЫТЬ ЗА 500 $';
-}, 2500);
-}, 3350);
-});
-// ================= РЕКЛАМА ADSGRAM (56776) =================
-var adBtn = document.getElementById('ad-btn');
-adBtn.addEventListener('click', function() {
-adBtn.disabled = true;
-adBtn.innerText = 'Загрузка...';
-initAds();
-if (!AdController) {
-adBtn.disabled = false;
-adBtn.innerText = 'Нет рекламы';
-setTimeout(function() { adBtn.innerText = '🎬 +1000 $ (Реклама)'; }, 2000);
-return;
-}
-AdController.show().then(function() {
-setBalance(balance + 1000);
-playTone(680, 'sine', 0.2, 0.1);
-haptic('success');
-adBtn.disabled = false;
-adBtn.innerText = '✅ +1000 $!';
-setTimeout(function() { adBtn.innerText = '🎬 +1000 $ (Реклама)'; }, 2000);
-}).catch(function() {
-adBtn.disabled = false;
-adBtn.innerText = 'Нет роликов';
-setTimeout(function() { adBtn.innerText = '🎬 +1000 $ (Реклама)'; }, 2000);
-});
-});
-setBalance(balance);
-</script>
-</body>
-</html>
+    async function loadPet() {
+      try {
+        const res = await fetch(`${API_URL}?chat_id=${chatId}`);
+        const data = await res.json();
+        if (data.pet) renderPet(data.pet);
+      } catch (e) {
+        document.getElementById("lastAction").innerText = "Ошибка связи с сервером";
+      }
+    }
+
+    async function sendAction(action) {
+      animateJump();
+      try {
+        const res = await fetch(`${API_URL}?chat_id=${chatId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: action,
+            userId: user.id,
+            userName: user.first_name
+          })
+        });
+        const data = await res.json();
+        if (!data.ok && data.message) {
+          tg.showAlert(data.message);
+        }
+        if (data.pet) renderPet(data.pet);
+      } catch (e) {
+        tg.showAlert("Не удалось выполнить действие");
+      }
+    }
+
+    function watchAdForGold() {
+      if (!AdController) {
+        // Если запущено вне Telegram для теста — сразу даем бонус
+        sendAction("golden_feed");
+        return;
+      }
+      AdController.show().then((result) => {
+        // Пользователь досмотрел рекламу до конца
+        sendAction("golden_feed");
+        tg.showAlert("🎉 Питомец съел Золотой корм! Сытость и настроение 100%!");
+      }).catch((err) => {
+        tg.showAlert("Реклама сейчас недоступна или закрыта раньше времени.");
+      });
+    }
+
+    function renderPet(pet) {
+      document.getElementById("petName").innerText = pet.name;
+      document.getElementById("levelBadge").innerText = `Ур. ${pet.level}`;
+      document.getElementById("xpText").innerText = `Опыт: ${pet.xp} / ${pet.level * 100} XP`;
+      document.getElementById("lastAction").innerText = pet.lastActionBy;
+
+      document.getElementById("hungerVal").innerText = `${pet.hunger}%`;
+      document.getElementById("hungerBar").style.width = `${pet.hunger}%`;
+
+      document.getElementById("happyVal").innerText = `${pet.happiness}%`;
+      document.getElementById("happyBar").style.width = `${pet.happiness}%`;
+
+      const mouth = document.getElementById("petMouth");
+      const mood = document.getElementById("moodText");
+
+      if (pet.hunger < 30 || pet.happiness < 30) {
+        mouth.classList.add("sad");
+        mood.innerText = pet.hunger < 30 ? "😿 Очень хочу кушать!" : "😾 Мне скучно...";
